@@ -90,7 +90,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${playfair.variable} ${inter.variable}`}
+      className={`dark ${playfair.variable} ${inter.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased" suppressHydrationWarning>
         <Script

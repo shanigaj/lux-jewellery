@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductConfigurator } from "@/components/product/ProductConfigurator";
 import { DiamondSpecs } from "@/components/product/DiamondSpecs";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
-import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { Rating } from "@/components/shared/Rating";
+import { WhatsAppInquiryButton } from "@/components/shared/WhatsAppInquiryButton";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { useGetProductByIdQuery, useGetProductsQuery } from "@/store/api/productApi";
-import { Heart, Truck, ShieldCheck, ArrowRightLeft, ShoppingBag } from "lucide-react";
+import { Heart, Truck, ShieldCheck, ArrowRightLeft } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { toggleWishlist } from "@/store/slices/productSlice";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
@@ -32,13 +32,7 @@ export default function ProductDetailsPage() {
   );
   
   const relatedProducts = relatedData?.data?.filter((x) => x._id !== product?._id) || [];
-  const [currentPrice, setCurrentPrice] = useState(0);
-
-  useEffect(() => {
-    if (product) {
-      setCurrentPrice(product.salePrice || product.basePrice);
-    }
-  }, [product]);
+  const [selection, setSelection] = useState<{ metal: string; size: string }>({ metal: "", size: "" });
 
   if (isError) {
     notFound();
@@ -82,9 +76,8 @@ export default function ProductDetailsPage() {
               <h1 className="font-heading text-3xl md:text-4xl mb-2">{product.name}</h1>
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-6">SKU: {product.sku}</p>
 
-              {/* Price & Rating */}
-              <div className="flex items-center justify-between mb-8 pb-8 border-b border-border">
-                <PriceDisplay basePrice={currentPrice} salePrice={product.salePrice ? currentPrice : undefined} size="lg" />
+              {/* Rating */}
+              <div className="flex items-center mb-8 pb-8 border-b border-border">
                 <Rating value={product.avgRating} count={product.reviewCount} showCount />
               </div>
 
@@ -94,20 +87,33 @@ export default function ProductDetailsPage() {
               </p>
 
               {/* Configurator (Metal, Size) */}
-              <ProductConfigurator 
+              <ProductConfigurator
                 basePrice={product.salePrice || product.basePrice}
                 variants={product.variants}
                 defaultMetal={product.metalType}
-                onPriceChange={setCurrentPrice}
+                onPriceChange={() => {}}
+                onSelectionChange={setSelection}
               />
 
               {/* Action Buttons */}
               <div className="flex gap-4 mb-10">
-                <button className="flex-1 bg-onyx dark:bg-gold text-white dark:text-onyx py-4 px-8 flex items-center justify-center gap-2 text-sm font-medium uppercase tracking-wider hover:bg-gold dark:hover:bg-white hover:text-onyx transition-colors">
-                  <ShoppingBag size={18} />
-                  Add to Cart
-                </button>
-                <button 
+                <WhatsAppInquiryButton
+                  className="flex-1"
+                  label="Enquire on WhatsApp"
+                  inquiry={{
+                    name: product.name,
+                    sku: product.sku,
+                    id: product._id,
+                    category: product.category?.name,
+                    metal: selection.metal || undefined,
+                    size: selection.size || undefined,
+                    specs: product.diamondSpecs
+                      ? `${product.diamondSpecs.caratWeight}ct • ${product.diamondSpecs.shape} • ${product.diamondSpecs.color} • ${product.diamondSpecs.clarity}`
+                      : undefined,
+                    url: typeof window !== "undefined" ? window.location.href : undefined,
+                  }}
+                />
+                <button
                   onClick={() => dispatch(toggleWishlist(product))}
                   className="w-14 h-14 shrink-0 flex items-center justify-center border border-border hover:border-gold transition-colors"
                 >

@@ -1,21 +1,9 @@
 import { baseApi } from './baseApi';
+import type { IOrder } from '@/types/order.types';
 
-export interface IOrder {
-  _id: string;
-  orderNumber: string;
-  user: string;
-  items: any[];
-  shippingAddress: any;
-  payment: any;
-  subtotal: number;
-  shippingCost: number;
-  taxAmount: number;
-  totalAmount: number;
-  status: string;
-  timeline: any[];
-  createdAt: string;
-  updatedAt: string;
-}
+// Use the canonical order shape from types/order.types.ts rather than a
+// divergent local duplicate, so pages get the full typed order model.
+export type { IOrder };
 
 interface OrdersResponse {
   success: boolean;

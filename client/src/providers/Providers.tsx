@@ -16,8 +16,9 @@ export function Providers({ children }: ProvidersProps) {
       <PersistGate loading={null} persistor={persistor}>
         <NextThemesProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem
+          defaultTheme="dark"
+          forcedTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange={false}
         >
           <TooltipProvider>

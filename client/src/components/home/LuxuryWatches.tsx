@@ -1,39 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, Shield } from "lucide-react";
-import { AnimatedSection, StaggerContainer, StaggerItem } from "@/components/shared/AnimatedSection";
-
-const watches = [
-  {
-    id: "w-1",
-    name: "Royal Chronograph",
-    slug: "royal-chronograph",
-    price: "₹12,50,000",
-    tagline: "Swiss Movement • 18K Gold",
-    image: "/images/products/watch.png",
-  },
-  {
-    id: "w-2",
-    name: "Diamond Constellation",
-    slug: "diamond-constellation",
-    price: "₹8,75,000",
-    tagline: "Automatic • Diamond Bezel",
-    image: "/images/products/watch.png",
-  },
-  {
-    id: "w-3",
-    name: "Heritage Tourbillon",
-    slug: "heritage-tourbillon",
-    price: "₹24,00,000",
-    tagline: "Limited Edition • Platinum",
-    image: "/images/products/watch.png",
-  },
-];
+import { Clock, Shield } from "lucide-react";
+import { AnimatedSection } from "@/components/shared/AnimatedSection";
+import { ProductCard } from "@/components/product/ProductCard";
+import { ProductCardSkeleton } from "@/components/shared/Skeletons";
+import { useGetProductsQuery } from "@/store/api/productApi";
 
 export function LuxuryWatches() {
+  const { data, isLoading } = useGetProductsQuery({ category: "watches" });
+  const watches = data?.data ?? [];
+
+  // Hide the whole section if there are no watches and we're done loading.
+  if (!isLoading && watches.length === 0) return null;
+
   return (
     <section className="section-padding bg-background overflow-hidden">
       <div className="container-luxury">
@@ -95,48 +76,20 @@ export function LuxuryWatches() {
         </div>
 
         {/* Watches Cards */}
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {watches.map((watch) => (
-            <StaggerItem key={watch.id}>
-              <Link href={`/watches/${watch.slug}`}>
-                <motion.div
-                  whileHover={{ y: -8, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
-                  className="group relative bg-card rounded-2xl border border-border/50 overflow-hidden hover:border-gold/20 hover:shadow-luxury-lg transition-all duration-500"
-                >
-                  {/* Image */}
-                  <div className="relative aspect-[4/5] overflow-hidden">
-                    <Image
-                      src={watch.image}
-                      alt={watch.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-80" />
-                  </div>
-
-                  {/* Content — overlapping the image */}
-                  <div className="relative -mt-20 px-6 pb-6 z-10">
-                    <p className="text-[10px] uppercase tracking-luxury text-gold font-medium mb-2">
-                      {watch.tagline}
-                    </p>
-                    <h3 className="font-heading text-xl text-foreground group-hover:text-gold transition-colors mb-2">
-                      {watch.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <p className="font-heading text-lg text-foreground">
-                        {watch.price}
-                      </p>
-                      <ArrowRight
-                        size={16}
-                        className="text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-gold transition-all duration-400"
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))
+            : watches.map((watch, index) => (
+                <ProductCard
+                  key={watch._id}
+                  product={watch}
+                  variant="featured"
+                  index={index}
+                />
+              ))}
+        </div>
       </div>
     </section>
   );

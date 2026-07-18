@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { TMetalType, IProductVariant } from "@/types/product.types";
 import { Ruler } from "lucide-react";
@@ -10,6 +10,8 @@ interface ProductConfiguratorProps {
   variants: IProductVariant[];
   defaultMetal: TMetalType;
   onPriceChange: (price: number) => void;
+  /** Reports the current metal (as a readable colour name) and size selection. */
+  onSelectionChange?: (selection: { metal: string; size: string }) => void;
 }
 
 const metalColors: Record<string, string> = {
@@ -33,9 +35,15 @@ export function ProductConfigurator({
   variants,
   defaultMetal,
   onPriceChange,
+  onSelectionChange,
 }: ProductConfiguratorProps) {
   const [selectedMetal, setSelectedMetal] = useState<TMetalType>(defaultMetal || "platinum");
   const [selectedSize, setSelectedSize] = useState<string>("");
+
+  // Report the initial selection once mounted, and whenever it changes.
+  useEffect(() => {
+    onSelectionChange?.({ metal: metalNames[selectedMetal] || selectedMetal, size: selectedSize });
+  }, [selectedMetal, selectedSize, onSelectionChange]);
 
   // Extract unique metals and sizes from variants
   const availableMetals = Array.from(new Set(variants.map(v => v.metalType as TMetalType)));

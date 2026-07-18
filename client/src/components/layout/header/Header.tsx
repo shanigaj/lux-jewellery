@@ -14,10 +14,7 @@ import {
   ChevronDown,
   Phone,
   MapPin,
-  Sun,
-  Moon,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/Logo";
@@ -359,11 +356,9 @@ function MobileMenu() {
 // ══════════════════════════════════════════════════════════════
 export function Header() {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cart count placeholder
@@ -381,8 +376,6 @@ export function Header() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 40);
     };
@@ -451,17 +444,6 @@ export function Header() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-1">
-              {/* Theme Toggle */}
-              {mounted && (
-                <button
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="p-2.5 rounded-full hover:bg-muted transition-colors duration-300"
-                  aria-label="Toggle theme"
-                >
-                  {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-              )}
-
               {/* Search */}
               <button
                 onClick={() => setIsSearchOpen(true)}

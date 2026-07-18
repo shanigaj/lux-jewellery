@@ -25,6 +25,22 @@ interface ProductResponse {
   data: IProduct;
 }
 
+// Shape the backend expects when creating/updating a product (raw write model),
+// distinct from the adapted IProduct read shape returned by adaptProduct().
+export interface CreateProductInput {
+  name: string;
+  sku: string;
+  description: string;
+  price: number;
+  discountPrice?: number;
+  category: string;
+  metalType: string;
+  gemstone?: string;
+  images: string[];
+  stock: number;
+  isFeatured?: boolean;
+}
+
 const adaptProduct = (product: any): IProduct => ({
   ...product,
   slug: product._id, // Temporary fallback if no slug exists
@@ -114,7 +130,7 @@ export const productApi = baseApi.injectEndpoints({
       }),
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
-    createProduct: builder.mutation<ProductResponse, Partial<IProduct>>({
+    createProduct: builder.mutation<ProductResponse, CreateProductInput>({
       query: (body) => ({
         url: '/products',
         method: 'POST',

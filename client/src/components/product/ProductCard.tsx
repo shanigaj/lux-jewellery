@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Heart, Eye, ShoppingBag } from "lucide-react";
+import { Heart, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PriceDisplay } from "@/components/shared/PriceDisplay";
+import { WhatsAppInquiryButton } from "@/components/shared/WhatsAppInquiryButton";
 import { Rating } from "@/components/shared/Rating";
 import { Badge } from "@/components/ui/badge";
 import type { IProduct } from "@/types/product.types";
@@ -103,18 +103,25 @@ export function ProductCard({
             </motion.button>
           </div>
 
-          {/* Add to Cart Bar */}
+          {/* Enquire Bar */}
           <div className="absolute bottom-0 left-0 right-0 z-10 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
-            <button
-              className="w-full flex items-center justify-center gap-2 py-3 bg-onyx/90 dark:bg-gold/90 backdrop-blur-sm text-white dark:text-onyx text-[11px] font-medium uppercase tracking-wider hover:bg-onyx dark:hover:bg-gold transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            <WhatsAppInquiryButton
+              label="Enquire on WhatsApp"
+              iconSize={13}
+              className="w-full py-3 px-0 text-[11px] backdrop-blur-sm"
+              inquiry={{
+                name: product.name,
+                sku: product.sku,
+                id: product._id,
+                category:
+                  typeof product.category === "object"
+                    ? product.category.name
+                    : undefined,
+                specs: product.diamondSpecs
+                  ? `${product.diamondSpecs.caratWeight}ct • ${product.diamondSpecs.shape} • ${product.diamondSpecs.color} • ${product.diamondSpecs.clarity}`
+                  : undefined,
               }}
-            >
-              <ShoppingBag size={13} />
-              Add to Cart
-            </button>
+            />
           </div>
         </div>
 
@@ -151,13 +158,6 @@ export function ProductCard({
               count={product.reviewCount}
             />
           )}
-
-          {/* Price */}
-          <PriceDisplay
-            basePrice={product.basePrice}
-            salePrice={product.salePrice}
-            size="sm"
-          />
         </div>
       </Link>
     </motion.div>
