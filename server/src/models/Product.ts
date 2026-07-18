@@ -57,8 +57,8 @@ const ProductSchema: Schema = new Schema(
 );
 
 // Indexes for faster search
+// Note: `sku` is already indexed via `unique: true` on the field above.
 ProductSchema.index({ name: "text", description: "text" });
-ProductSchema.index({ sku: 1 });
 ProductSchema.index({ category: 1, metalType: 1 });
 ProductSchema.index({ price: 1 });
 
