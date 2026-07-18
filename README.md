@@ -82,7 +82,31 @@ CLOUDINARY_API_SECRET=your_api_secret
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 NEXT_PUBLIC_SITE_URL=http://localhost:3002
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+# Destination for the "Enquire on WhatsApp" buttons (international format).
+# Inlined at build time — for Docker it is passed via docker-compose build args.
+NEXT_PUBLIC_WHATSAPP_NUMBER=+910000000000
 ```
+
+## 🌱 Seeding the Database
+
+Sample data lives in `server/src/`. Products must be seeded before the
+storefront shows anything (an empty catalog otherwise renders no products).
+
+**Local (tsx):**
+```bash
+cd server
+npm run seed        # inserts 10 sample products
+npm run seed:users  # creates admin@lux.com / user@lux.com (password: password123)
+```
+
+**Docker (against the running stack):**
+```bash
+docker exec lux_diamonds_server node dist/seedProducts.js
+docker exec lux_diamonds_server node dist/seedUsers.js
+```
+
+> Seed data is stored in the MongoDB volume, not in git — re-run the seed on a
+> fresh database/volume to repopulate it.
 
 ## 🚢 Deployment Guide
 
