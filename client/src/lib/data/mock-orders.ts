@@ -1,0 +1,252 @@
+import { IOrder, IInvoice, IOrderTimeline } from "@/types/order.types";
+
+// ── Mock Order Timeline ──
+const createTimeline = (status: string): IOrderTimeline[] => {
+  const allSteps: IOrderTimeline[] = [
+    {
+      status: "confirmed",
+      title: "Order Confirmed",
+      description: "Your order has been placed successfully",
+      timestamp: "2026-07-10T10:30:00Z",
+      isCompleted: true,
+    },
+    {
+      status: "processing",
+      title: "Processing",
+      description: "Your jewellery is being crafted with care",
+      timestamp: "2026-07-11T14:00:00Z",
+      isCompleted: ["processing", "shipped", "out_for_delivery", "delivered"].includes(status),
+    },
+    {
+      status: "shipped",
+      title: "Shipped",
+      description: "Your order has been dispatched via insured courier",
+      timestamp: "2026-07-13T09:00:00Z",
+      isCompleted: ["shipped", "out_for_delivery", "delivered"].includes(status),
+    },
+    {
+      status: "out_for_delivery",
+      title: "Out for Delivery",
+      description: "Your package is on its way to you",
+      timestamp: "2026-07-15T08:30:00Z",
+      isCompleted: ["out_for_delivery", "delivered"].includes(status),
+    },
+    {
+      status: "delivered",
+      title: "Delivered",
+      description: "Your order has been delivered",
+      timestamp: "2026-07-15T14:00:00Z",
+      isCompleted: status === "delivered",
+    },
+  ];
+
+  return allSteps;
+};
+
+// ── Mock Orders ──
+export const mockOrders: IOrder[] = [
+  {
+    _id: "ord_1",
+    orderNumber: "LUX-M4X7K2",
+    user: "user_1",
+    items: [
+      {
+        product: {} as any,
+        name: "Celestial Solitaire Ring",
+        thumbnail: "/images/products/ring-1.png",
+        sku: "CSR-001",
+        metalType: "white_gold",
+        metalPurity: "18K",
+        size: "7",
+        quantity: 1,
+        unitPrice: 285000,
+        totalPrice: 285000,
+      },
+    ],
+    shippingAddress: {
+      firstName: "Priya",
+      lastName: "Sharma",
+      email: "priya@example.com",
+      phone: "+91 9876543210",
+      addressLine1: "42 Diamond Heights",
+      city: "Mumbai",
+      state: "Maharashtra",
+      postalCode: "400001",
+      country: "India",
+    },
+    payment: {
+      method: "stripe",
+      transactionId: "stripe_1720000000_abc123",
+      status: "completed",
+      amount: 328050,
+      currency: "INR",
+      paidAt: "2026-07-10T10:30:00Z",
+    },
+    subtotal: 285000,
+    shippingCost: 0,
+    taxAmount: 51300,
+    taxRate: 0.18,
+    couponDiscount: 0,
+    giftCardAmount: 0,
+    totalAmount: 336300,
+    status: "shipped",
+    timeline: createTimeline("shipped"),
+    trackingNumber: "DTDC-IN-7839201",
+    estimatedDelivery: "July 16, 2026",
+    emailSent: true,
+    smsSent: true,
+    createdAt: "2026-07-10T10:30:00Z",
+    updatedAt: "2026-07-13T09:00:00Z",
+  },
+  {
+    _id: "ord_2",
+    orderNumber: "LUX-P9R3N5",
+    user: "user_1",
+    items: [
+      {
+        product: {} as any,
+        name: "Eternal Grace Necklace",
+        thumbnail: "/images/products/necklace-1.png",
+        sku: "EGN-002",
+        metalType: "rose_gold",
+        metalPurity: "18K",
+        quantity: 1,
+        unitPrice: 425000,
+        totalPrice: 425000,
+      },
+      {
+        product: {} as any,
+        name: "Aurora Diamond Earrings",
+        thumbnail: "/images/products/earring-1.png",
+        sku: "ADE-003",
+        metalType: "platinum",
+        metalPurity: "950Pt",
+        quantity: 1,
+        unitPrice: 195000,
+        totalPrice: 195000,
+      },
+    ],
+    shippingAddress: {
+      firstName: "Priya",
+      lastName: "Sharma",
+      email: "priya@example.com",
+      phone: "+91 9876543210",
+      addressLine1: "42 Diamond Heights",
+      city: "Mumbai",
+      state: "Maharashtra",
+      postalCode: "400001",
+      country: "India",
+    },
+    payment: {
+      method: "razorpay",
+      transactionId: "rzp_1720000000_xyz456",
+      status: "completed",
+      amount: 731600,
+      currency: "INR",
+      paidAt: "2026-07-05T15:00:00Z",
+    },
+    subtotal: 620000,
+    shippingCost: 0,
+    taxAmount: 111600,
+    taxRate: 0.18,
+    couponDiscount: 0,
+    giftCardAmount: 0,
+    totalAmount: 731600,
+    couponCode: "LUXE20",
+    status: "delivered",
+    timeline: createTimeline("delivered"),
+    trackingNumber: "BLUEDART-IN-4521098",
+    estimatedDelivery: "July 8, 2026",
+    deliveredAt: "2026-07-08T14:00:00Z",
+    emailSent: true,
+    smsSent: true,
+    createdAt: "2026-07-05T15:00:00Z",
+    updatedAt: "2026-07-08T14:00:00Z",
+  },
+  {
+    _id: "ord_3",
+    orderNumber: "LUX-Q2W8E1",
+    user: "user_1",
+    items: [
+      {
+        product: {} as any,
+        name: "Royal Heritage Bracelet",
+        thumbnail: "/images/products/bracelet-1.png",
+        sku: "RHB-004",
+        metalType: "gold",
+        metalPurity: "22K",
+        quantity: 1,
+        unitPrice: 350000,
+        totalPrice: 350000,
+      },
+    ],
+    shippingAddress: {
+      firstName: "Priya",
+      lastName: "Sharma",
+      email: "priya@example.com",
+      phone: "+91 9876543210",
+      addressLine1: "42 Diamond Heights",
+      city: "Mumbai",
+      state: "Maharashtra",
+      postalCode: "400001",
+      country: "India",
+    },
+    payment: {
+      method: "paypal",
+      transactionId: "paypal_1720000000_def789",
+      status: "completed",
+      amount: 413000,
+      currency: "INR",
+      paidAt: "2026-07-15T11:00:00Z",
+    },
+    subtotal: 350000,
+    shippingCost: 0,
+    taxAmount: 63000,
+    taxRate: 0.18,
+    couponDiscount: 0,
+    giftCardAmount: 0,
+    totalAmount: 413000,
+    status: "processing",
+    timeline: createTimeline("processing"),
+    estimatedDelivery: "July 22, 2026",
+    emailSent: true,
+    smsSent: true,
+    createdAt: "2026-07-15T11:00:00Z",
+    updatedAt: "2026-07-16T14:00:00Z",
+  },
+];
+
+// ── Mock Invoice ──
+export function generateInvoice(order: IOrder): IInvoice {
+  return {
+    invoiceNumber: `INV-${order.orderNumber}`,
+    order,
+    issuedAt: order.createdAt,
+    companyInfo: {
+      name: "Lux Diamonds Pvt. Ltd.",
+      address: "45 Diamond Arcade, Zaveri Bazaar, Mumbai 400002, India",
+      email: "billing@luxdiamonds.com",
+      phone: "+91 22 4000 1234",
+      gst: "27AABCU9603R1ZM",
+    },
+    lineItems: order.items.map((item) => ({
+      description: `${item.name} — ${item.metalType.replace("_", " ")} ${item.metalPurity}${item.size ? ` / Size ${item.size}` : ""}`,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      total: item.totalPrice,
+    })),
+    subtotal: order.subtotal,
+    taxRate: order.taxRate,
+    taxAmount: order.taxAmount,
+    shippingCost: order.shippingCost,
+    discount: order.couponDiscount + order.giftCardAmount,
+    grandTotal: order.totalAmount,
+  };
+}
+
+// Helper to find order by ID or orderNumber
+export function getOrderByNumber(orderNumber: string): IOrder | undefined {
+  return mockOrders.find(
+    (o) => o.orderNumber === orderNumber || o._id === orderNumber
+  );
+}

@@ -1,0 +1,65 @@
+import mongoose, { Document, Schema } from "mongoose";
+
+export interface IProduct extends Document {
+  name: string;
+  sku: string;
+  description: string;
+  price: number;
+  discountPrice?: number;
+  category: "rings" | "necklaces" | "earrings" | "bracelets" | "watches";
+  metalType: "gold" | "platinum" | "rose_gold" | "white_gold" | "silver";
+  gemstone?: string;
+  images: string[];
+  stock: number;
+  isFeatured: boolean;
+  ratingsAverage: number;
+  ratingsQuantity: number;
+}
+
+const ProductSchema: Schema = new Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    sku: { type: String, required: true, unique: true, uppercase: true },
+    description: { type: String, required: true },
+    price: { type: Number, required: true, min: 0 },
+    discountPrice: { type: Number, min: 0 },
+    category: {
+      type: String,
+      required: true,
+      enum: ["rings", "necklaces", "earrings", "bracelets", "watches"],
+    },
+    metalType: {
+      type: String,
+      required: true,
+      enum: ["gold", "platinum", "rose_gold", "white_gold", "silver"],
+    },
+    gemstone: { type: String },
+    images: {
+      type: [String],
+      required: true,
+      validate: [
+        (v: string[]) => v.length > 0,
+        "A product must have at least one image.",
+      ],
+    },
+    stock: { type: Number, required: true, min: 0, default: 0 },
+    isFeatured: { type: Boolean, default: false },
+    ratingsAverage: {
+      type: Number,
+      default: 0,
+      min: [0, "Rating must be above 0"],
+      max: [5, "Rating must be below 5.0"],
+      set: (val: number) => Math.round(val * 10) / 10,
+    },
+    ratingsQuantity: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+// Indexes for faster search
+ProductSchema.index({ name: "text", description: "text" });
+ProductSchema.index({ sku: 1 });
+ProductSchema.index({ category: 1, metalType: 1 });
+ProductSchema.index({ price: 1 });
+
+export default mongoose.model<IProduct>("Product", ProductSchema);
