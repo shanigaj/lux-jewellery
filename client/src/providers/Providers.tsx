@@ -3,28 +3,23 @@
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/store";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 
+/**
+ * The storefront is locked to the light "Blanc Vert" theme, defined on
+ * :root in globals.css — so no theme provider / anti-flash script is needed.
+ */
 export function Providers({ children }: ProvidersProps) {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <NextThemesProvider
-          attribute="class"
-          defaultTheme="dark"
-          forcedTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange={false}
-        >
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-        </NextThemesProvider>
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
       </PersistGate>
     </Provider>
   );

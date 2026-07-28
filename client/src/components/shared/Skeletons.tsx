@@ -43,18 +43,18 @@ export function ProductGridSkeleton({
 // ── Hero Skeleton ──
 export function HeroSkeleton() {
   return (
-    <div className="relative h-[85vh] lg:h-[90vh] bg-onyx">
+    <div className="relative h-[85vh] lg:h-[90vh] bg-background">
       <div className="container-luxury h-full flex items-center">
         <div className="max-w-xl space-y-6">
-          <Skeleton className="h-4 w-40 bg-white/10 rounded shimmer" />
-          <Skeleton className="h-14 w-96 bg-white/10 rounded shimmer" />
-          <Skeleton className="h-14 w-80 bg-white/10 rounded shimmer" />
-          <Skeleton className="h-px w-16 bg-white/10 shimmer" />
-          <Skeleton className="h-4 w-72 bg-white/10 rounded shimmer" />
-          <Skeleton className="h-4 w-64 bg-white/10 rounded shimmer" />
+          <Skeleton className="h-4 w-40 bg-foreground/10 rounded shimmer" />
+          <Skeleton className="h-14 w-96 bg-foreground/10 rounded shimmer" />
+          <Skeleton className="h-14 w-80 bg-foreground/10 rounded shimmer" />
+          <Skeleton className="h-px w-16 bg-foreground/10 shimmer" />
+          <Skeleton className="h-4 w-72 bg-foreground/10 rounded shimmer" />
+          <Skeleton className="h-4 w-64 bg-foreground/10 rounded shimmer" />
           <div className="flex gap-4 pt-4">
-            <Skeleton className="h-12 w-44 bg-white/10 rounded-full shimmer" />
-            <Skeleton className="h-12 w-32 bg-white/10 rounded-full shimmer" />
+            <Skeleton className="h-12 w-44 bg-foreground/10 rounded-[2px] shimmer" />
+            <Skeleton className="h-12 w-32 bg-foreground/10 rounded-[2px] shimmer" />
           </div>
         </div>
       </div>

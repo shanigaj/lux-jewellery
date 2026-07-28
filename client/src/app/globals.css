@@ -81,66 +81,68 @@
 }
 
 /* ══════════════════════════════════════════════════════════════
-   🎨 LIGHT THEME — Luxury Warm Palette
+   🎨 BLANC VERT — Ivory & Emerald (Tiffany / Van Cleef register)
+   Cream ground · ink text · emerald signature · gold detail
+   All text/background pairings verified to WCAG AA/AAA.
    ══════════════════════════════════════════════════════════════ */
 :root {
   /* Backgrounds */
-  --background: #FDFBF7;
-  --foreground: #1A1814;
-  --card: #FFFFFF;
-  --card-foreground: #1A1814;
-  --popover: #FFFFFF;
-  --popover-foreground: #1A1814;
+  --background: #F7F3EC;   /* cream ground */
+  --foreground: #1A1A1A;   /* ink — 15.74:1 on cream (AAA) */
+  --card: #FDFBF6;
+  --card-foreground: #1A1A1A;
+  --popover: #FDFBF6;
+  --popover-foreground: #1A1A1A;
 
-  /* Brand Colors */
-  --primary: #1A1814;
-  --primary-foreground: #FDFBF7;
-  --secondary: #F5F0E8;
-  --secondary-foreground: #1A1814;
-  --muted: #F5F0E8;
-  --muted-foreground: #8A8278;
-  --accent: #C9A96E;
-  --accent-foreground: #1A1814;
+  /* Brand Colors — emerald is the signature accent */
+  --primary: #0B5D3B;              /* emerald — 7.18:1 on cream (AAA) */
+  --primary-foreground: #F7F3EC;   /* cream on emerald — 7.18:1 (AAA) */
+  --secondary: #EEE8DC;            /* warm tile */
+  --secondary-foreground: #1A1A1A;
+  --muted: #EEE8DC;
+  --muted-foreground: #5C574E;     /* 6.4:1 on cream (AAA) */
+  --accent: #ECE5D6;               /* neutral hover tile */
+  --accent-foreground: #1A1A1A;
 
   /* Utility Colors */
-  --destructive: #C53030;
-  --border: #E8E0D4;
-  --input: #E8E0D4;
-  --ring: #C9A96E;
+  --destructive: #B3322C;
+  --border: #E4DCCB;
+  --input: #E4DCCB;
+  --ring: #0B5D3B;
 
-  /* Radius */
-  --radius: 0.5rem;
+  /* Radius — sharp editorial geometry */
+  --radius: 0.125rem;
 
-  /* Charts */
-  --chart-1: #C9A96E;
-  --chart-2: #8B7355;
-  --chart-3: #D4B896;
-  --chart-4: #A68B5B;
-  --chart-5: #E8D5B5;
+  /* Charts — emerald + gold family */
+  --chart-1: #0B5D3B;
+  --chart-2: #7E6222;
+  --chart-3: #2D6A4F;
+  --chart-4: #A98B3E;
+  --chart-5: #C9B892;
 
   /* Sidebar */
-  --sidebar: #FDFBF7;
-  --sidebar-foreground: #1A1814;
-  --sidebar-primary: #1A1814;
-  --sidebar-primary-foreground: #FDFBF7;
-  --sidebar-accent: #F5F0E8;
-  --sidebar-accent-foreground: #1A1814;
-  --sidebar-border: #E8E0D4;
-  --sidebar-ring: #C9A96E;
+  --sidebar: #F7F3EC;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #0B5D3B;
+  --sidebar-primary-foreground: #F7F3EC;
+  --sidebar-accent: #EEE8DC;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #E4DCCB;
+  --sidebar-ring: #0B5D3B;
 
   /* ── Luxury Extended Palette ── */
-  --gold: #C9A96E;
-  --gold-light: #D4B896;
-  --gold-dark: #A68B5B;
-  --gold-muted: #C9A96E1A;
+  --gold: #7E6222;         /* gold detail — 5.19:1 on cream (AA) */
+  --gold-light: #9A7B31;
+  --gold-dark: #5F4A1A;
+  --gold-muted: #7E62221A;
   --platinum: #E5E4E2;
   --rose-gold: #B76E79;
-  --champagne: #F7E7CE;
-  --ivory: #FDFBF7;
-  --onyx: #1A1814;
-  --diamond: #F0F8FF;
-  --success: #2D6A4F;
-  --warning: #D4A017;
+  --champagne: #EEE8DC;
+  --ivory: #F7F3EC;
+  --onyx: #1A1A1A;
+  --diamond: #EDF4EF;
+  --success: #0B5D3B;
+  --warning: #B8860B;
   --info: #2563EB;
 }
 

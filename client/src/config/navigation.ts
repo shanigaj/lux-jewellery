@@ -146,6 +146,23 @@ export const mainNavigation: NavItem[] = [
       },
     ],
   },
+  {
+    label: "Bespoke",
+    href: "/design-your-own",
+    featured: true,
+    children: [
+      {
+        label: "Design Your Own Ring",
+        href: "/design-your-own",
+        description: "Compose a ring stone by stone",
+      },
+      {
+        label: "Book an Appointment",
+        href: "/book-appointment",
+        description: "A private boutique or virtual consultation",
+      },
+    ],
+  },
 ];
 
 export const footerNavigation = {

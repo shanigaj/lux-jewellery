@@ -80,7 +80,7 @@ function AnnouncementBar() {
         </div>
 
         <div className="hidden md:block text-[11px] tracking-wider">
-          <Link href="/contact" className="hover:text-gold transition-colors">
+          <Link href="/book-appointment" className="hover:text-gold transition-colors">
             Book an Appointment
           </Link>
         </div>

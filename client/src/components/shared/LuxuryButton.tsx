@@ -6,34 +6,34 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const luxuryButtonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        // Primary gold button
+        // Primary emerald button (Blanc Vert signature CTA)
         primary:
-          "bg-gold text-onyx hover:bg-gold-light hover:shadow-gold active:scale-[0.98] rounded-full uppercase tracking-wider text-[12px]",
+          "bg-primary text-primary-foreground hover:bg-[#0A4E32] hover:shadow-md active:scale-[0.98] rounded-[2px] uppercase tracking-wider text-[12px]",
         // Secondary outlined button
         secondary:
-          "border border-foreground text-foreground hover:bg-foreground hover:text-background rounded-full uppercase tracking-wider text-[12px]",
+          "border border-foreground text-foreground hover:bg-foreground hover:text-background rounded-[2px] uppercase tracking-wider text-[12px]",
         // Ghost button
         ghost:
-          "text-foreground hover:bg-muted rounded-full uppercase tracking-wider text-[12px]",
-        // Outlined gold
+          "text-foreground hover:bg-muted rounded-[2px] uppercase tracking-wider text-[12px]",
+        // Outlined — thin line with gold detail word support
         outline:
-          "border border-gold/40 text-gold hover:bg-gold/10 hover:border-gold rounded-full uppercase tracking-wider text-[12px]",
+          "border border-border text-foreground hover:border-primary hover:text-primary rounded-[2px] uppercase tracking-wider text-[12px]",
         // Dark solid
         dark:
-          "bg-onyx text-white hover:bg-onyx/90 rounded-full uppercase tracking-wider text-[12px]",
+          "bg-onyx text-white hover:bg-onyx/90 rounded-[2px] uppercase tracking-wider text-[12px]",
         // Destructive
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 rounded-full uppercase tracking-wider text-[12px]",
+          "bg-destructive text-white hover:bg-destructive/90 rounded-[2px] uppercase tracking-wider text-[12px]",
         // Link style
         link:
-          "text-gold underline-offset-4 hover:underline text-sm p-0 h-auto",
+          "text-primary underline-offset-4 hover:underline text-sm p-0 h-auto",
         // Icon only
         icon:
-          "rounded-full border border-border hover:border-gold/30 hover:text-gold hover:bg-muted",
+          "rounded-[2px] border border-border hover:border-primary/40 hover:text-primary hover:bg-muted",
       },
       size: {
         sm: "h-9 px-5 text-[11px]",
