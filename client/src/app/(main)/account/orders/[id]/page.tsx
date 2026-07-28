@@ -146,6 +146,7 @@ export default function OrderDetailPage() {
                   currentStatus={order.status}
                   trackingNumber={order.trackingNumber}
                   estimatedDelivery={order.estimatedDelivery}
+                  orderNumber={order.orderNumber}
                 />
               </div>
 

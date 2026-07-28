@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, animate, useMotionValue } from "framer-motion";
 import { IProductImage } from "@/types/product.types";
 import { ImageZoom } from "@/components/shared/ImageZoom";
 import { cn } from "@/lib/utils";
@@ -122,26 +122,7 @@ export function ProductGallery({ images, video }: ProductGalleryProps) {
               transition={{ duration: 0.3 }}
               className="absolute inset-0 flex flex-col items-center justify-center bg-muted"
             >
-              {/* Fake 360 Viewer with infinite pan animation */}
-              <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="w-3/4 h-3/4"
-                >
-                  <Image
-                    src={safeImages[0].url}
-                    alt="360 View"
-                    fill
-                    className="object-contain drop-shadow-2xl"
-                  />
-                </motion.div>
-                
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-background/80 backdrop-blur-md rounded-full border border-border shadow-luxury">
-                  <Rotate3D size={20} className="text-gold" />
-                  <span className="text-xs font-medium uppercase tracking-wider">Drag to Rotate</span>
-                </div>
-              </div>
+              <ThreeSixtyViewer src={safeImages[0].url} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -157,6 +138,55 @@ export function ProductGallery({ images, video }: ProductGalleryProps) {
             </span>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Drag-to-rotate 360 viewer: idles into a slow auto-spin, follows the pointer while dragging. */
+function ThreeSixtyViewer({ src }: { src: string }) {
+  const rotation = useMotionValue(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const lastX = useRef(0);
+
+  useEffect(() => {
+    if (isDragging) return;
+    const controls = animate(rotation, rotation.get() + 360, {
+      duration: 20,
+      ease: "linear",
+      repeat: Infinity,
+    });
+    return () => controls.stop();
+  }, [isDragging, rotation]);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    lastX.current = e.clientX;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastX.current;
+    lastX.current = e.clientX;
+    rotation.set(rotation.get() + dx * 0.6);
+  };
+  const handlePointerUp = () => setIsDragging(false);
+
+  return (
+    <div
+      className="relative w-full h-full overflow-hidden flex items-center justify-center cursor-grab touch-none active:cursor-grabbing"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
+      <motion.div className="w-3/4 h-3/4 pointer-events-none" style={{ rotate: rotation }}>
+        <Image src={src} alt="360 View" fill className="object-contain drop-shadow-2xl" />
+      </motion.div>
+
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-background/80 backdrop-blur-md rounded-full border border-border shadow-luxury">
+        <Rotate3D size={20} className="text-gold" />
+        <span className="text-xs font-medium uppercase tracking-wider">Drag to Rotate</span>
       </div>
     </div>
   );

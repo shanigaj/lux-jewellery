@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 import { IOrderTimeline, TOrderStatus } from "@/types/order.types";
 import {
   ClipboardCheck,
@@ -11,6 +14,7 @@ import {
   PackageCheck,
   XCircle,
   RotateCcw,
+  BellRing,
 } from "lucide-react";
 
 interface OrderTrackingProps {
@@ -18,7 +22,11 @@ interface OrderTrackingProps {
   currentStatus: TOrderStatus;
   trackingNumber?: string;
   estimatedDelivery?: string;
+  /** Used only to namespace the "notify me" preference in localStorage. */
+  orderNumber?: string;
 }
+
+const FINAL_STATUSES: TOrderStatus[] = ["cancelled", "returned", "refunded"];
 
 const statusIcons: Record<string, React.ElementType> = {
   pending: ClipboardCheck,
@@ -37,9 +45,63 @@ export function OrderTracking({
   currentStatus,
   trackingNumber,
   estimatedDelivery,
+  orderNumber,
 }: OrderTrackingProps) {
+  const storageKey = orderNumber ? `lux_order_notify_${orderNumber}` : undefined;
+  const [notifyEnabled, setNotifyEnabled] = useState(false);
+
+  useEffect(() => {
+    if (!storageKey || typeof window === "undefined") return;
+    // One-time read of a browser-only value after mount (avoids SSR/hydration mismatch).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNotifyEnabled(window.localStorage.getItem(storageKey) === "1");
+  }, [storageKey]);
+
+  const handleNotifyToggle = (checked: boolean) => {
+    setNotifyEnabled(checked);
+    if (storageKey) window.localStorage.setItem(storageKey, checked ? "1" : "0");
+    toast.success(
+      checked ? "You'll be notified of every status update." : "Status update notifications turned off."
+    );
+  };
+
+  const completedCount = timeline.filter((s) => s.isCompleted).length;
+  const progressPercent =
+    timeline.length > 0 ? Math.round((completedCount / timeline.length) * 100) : 0;
+  const isFinalStatus = FINAL_STATUSES.includes(currentStatus);
+
   return (
     <div className="space-y-6">
+      {/* Progress bar */}
+      {!isFinalStatus && timeline.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2 text-xs text-muted-foreground">
+            <span>Order Progress</span>
+            <span className="tabular-nums">{progressPercent}%</span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-gold"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Notify me toggle */}
+      <div className="flex items-center justify-between gap-4 bg-muted/30 border border-border rounded-xl p-4">
+        <div className="flex items-center gap-3">
+          <BellRing size={16} className="text-gold shrink-0" />
+          <div>
+            <p className="text-sm font-medium">Notify me about status changes</p>
+            <p className="text-xs text-muted-foreground">Get an update the moment this order moves.</p>
+          </div>
+        </div>
+        <Switch checked={notifyEnabled} onCheckedChange={handleNotifyToggle} />
+      </div>
+
       {/* Tracking Info Bar */}
       {(trackingNumber || estimatedDelivery) && (
         <div className="flex flex-wrap gap-4 bg-muted/30 border border-border rounded-xl p-4 text-sm">

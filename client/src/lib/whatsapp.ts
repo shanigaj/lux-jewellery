@@ -45,6 +45,24 @@ export function buildInquiryMessage(p: ProductInquiry): string {
   return lines.join("\n");
 }
 
+/** Compose a "notify me when back in stock" request. */
+export function buildNotifyMeMessage(p: ProductInquiry): string {
+  const lines: string[] = [
+    "Hello LUX DIAMONDS,",
+    "This piece is currently out of stock — please notify me when it's available again:",
+    "",
+    `*${p.name}*`,
+  ];
+
+  if (p.sku) lines.push(`• SKU: ${p.sku}`);
+  if (p.metal) lines.push(`• Metal / Colour: ${p.metal}`);
+  if (p.size) lines.push(`• Size: ${p.size}`);
+  if (p.url) lines.push(`• Link: ${p.url}`);
+
+  lines.push("", "Thank you!");
+  return lines.join("\n");
+}
+
 /** Build the WhatsApp click-to-chat URL with the message pre-filled. */
 export function getWhatsAppUrl(message: string): string {
   const number = normalizeNumber(WHATSAPP_NUMBER);

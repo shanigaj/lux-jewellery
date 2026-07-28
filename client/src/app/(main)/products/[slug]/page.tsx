@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductConfigurator } from "@/components/product/ProductConfigurator";
 import { DiamondSpecs } from "@/components/product/DiamondSpecs";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
+import { RecentlyViewed } from "@/components/product/RecentlyViewed";
+import { addRecentlyViewed } from "@/lib/recently-viewed";
 import { Rating } from "@/components/shared/Rating";
 import { WhatsAppInquiryButton } from "@/components/shared/WhatsAppInquiryButton";
+import { NotifyMeButton } from "@/components/shared/NotifyMeButton";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { useGetProductByIdQuery, useGetProductsQuery } from "@/store/api/productApi";
 import { Heart, Truck, ShieldCheck, ArrowRightLeft } from "lucide-react";
@@ -34,6 +37,10 @@ export default function ProductDetailsPage() {
   const relatedProducts = relatedData?.data?.filter((x) => x._id !== product?._id) || [];
   const [selection, setSelection] = useState<{ metal: string; size: string }>({ metal: "", size: "" });
 
+  useEffect(() => {
+    if (product) addRecentlyViewed(product);
+  }, [product]);
+
   if (isError) {
     notFound();
   }
@@ -45,6 +52,7 @@ export default function ProductDetailsPage() {
   const dispatch = useAppDispatch();
   const wishlist = useAppSelector((state) => state.product.wishlist);
   const isWishlisted = wishlist.some((p) => p._id === product._id);
+  const inStock = !product.trackInventory || product.stockQuantity > 0;
 
   return (
     <div className="bg-background">
@@ -70,6 +78,11 @@ export default function ProductDetailsPage() {
               <div className="flex items-center gap-2 mb-4">
                 {product.isNewArrival && <span className="badge-new text-[10px]">New Arrival</span>}
                 {product.isBestseller && <span className="badge-gold text-[10px]">Bestseller</span>}
+                {!inStock && (
+                  <span className="text-[10px] uppercase tracking-wider font-medium px-2.5 py-1 border border-destructive text-destructive rounded-full">
+                    Out of Stock
+                  </span>
+                )}
               </div>
 
               {/* Title & SKU */}
@@ -97,22 +110,36 @@ export default function ProductDetailsPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-4 mb-10">
-                <WhatsAppInquiryButton
-                  className="flex-1"
-                  label="Enquire on WhatsApp"
-                  inquiry={{
-                    name: product.name,
-                    sku: product.sku,
-                    id: product._id,
-                    category: product.category?.name,
-                    metal: selection.metal || undefined,
-                    size: selection.size || undefined,
-                    specs: product.diamondSpecs
-                      ? `${product.diamondSpecs.caratWeight}ct • ${product.diamondSpecs.shape} • ${product.diamondSpecs.color} • ${product.diamondSpecs.clarity}`
-                      : undefined,
-                    url: typeof window !== "undefined" ? window.location.href : undefined,
-                  }}
-                />
+                {inStock ? (
+                  <WhatsAppInquiryButton
+                    className="flex-1"
+                    label="Enquire on WhatsApp"
+                    inquiry={{
+                      name: product.name,
+                      sku: product.sku,
+                      id: product._id,
+                      category: product.category?.name,
+                      metal: selection.metal || undefined,
+                      size: selection.size || undefined,
+                      specs: product.diamondSpecs
+                        ? `${product.diamondSpecs.caratWeight}ct • ${product.diamondSpecs.shape} • ${product.diamondSpecs.color} • ${product.diamondSpecs.clarity}`
+                        : undefined,
+                      url: typeof window !== "undefined" ? window.location.href : undefined,
+                    }}
+                  />
+                ) : (
+                  <NotifyMeButton
+                    className="flex-1"
+                    inquiry={{
+                      name: product.name,
+                      sku: product.sku,
+                      id: product._id,
+                      metal: selection.metal || undefined,
+                      size: selection.size || undefined,
+                      url: typeof window !== "undefined" ? window.location.href : undefined,
+                    }}
+                  />
+                )}
                 <button
                   onClick={() => dispatch(toggleWishlist(product))}
                   className="w-14 h-14 shrink-0 flex items-center justify-center border border-border hover:border-gold transition-colors"
@@ -169,6 +196,9 @@ export default function ProductDetailsPage() {
         <div className="mt-20">
           <RelatedProducts products={relatedProducts} />
         </div>
+
+        {/* Recently Viewed */}
+        <RecentlyViewed excludeId={product._id} />
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import { StripePayment } from "@/components/checkout/StripePayment";
 import { RazorpayPayment } from "@/components/checkout/RazorpayPayment";
 import { PayPalPayment } from "@/components/checkout/PayPalPayment";
 import { OrderReview } from "@/components/checkout/OrderReview";
+import { GiftOptions, type GiftOptionsValue } from "@/components/checkout/GiftOptions";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { ArrowRight, ArrowLeft, ShoppingBag, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -31,6 +32,7 @@ export default function CheckoutPage() {
   const [shippingAddress, setShippingAddress] = useState<IShippingAddress | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<TPaymentMethod>("stripe");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [giftOptions, setGiftOptions] = useState<GiftOptionsValue>({ giftWrap: false, giftNote: "" });
 
   // Empty cart guard
   if (items.length === 0) {
@@ -190,6 +192,8 @@ export default function CheckoutPage() {
                   paymentMethod={paymentMethod}
                   onBack={() => setCurrentStep(1)}
                 />
+
+                <GiftOptions value={giftOptions} onChange={setGiftOptions} />
 
                 {/* Place Order */}
                 <button

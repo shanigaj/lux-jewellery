@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { TMetalType, IProductVariant } from "@/types/product.types";
 import { Ruler } from "lucide-react";
+import { SizeGuideModal } from "@/components/shared/SizeGuideModal";
 
 interface ProductConfiguratorProps {
   basePrice: number;
@@ -39,6 +40,7 @@ export function ProductConfigurator({
 }: ProductConfiguratorProps) {
   const [selectedMetal, setSelectedMetal] = useState<TMetalType>(defaultMetal || "platinum");
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   // Report the initial selection once mounted, and whenever it changes.
   useEffect(() => {
@@ -112,7 +114,11 @@ export function ProductConfigurator({
           <label className="text-xs uppercase tracking-luxury font-medium">
             Ring Size
           </label>
-          <button className="text-xs text-gold hover:underline flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setSizeGuideOpen(true)}
+            className="text-xs text-gold hover:underline flex items-center gap-1"
+          >
             <Ruler size={12} />
             Size Guide
           </button>
@@ -135,6 +141,8 @@ export function ProductConfigurator({
           </div>
         </div>
       </div>
+
+      <SizeGuideModal open={sizeGuideOpen} onOpenChange={setSizeGuideOpen} />
     </div>
   );
 }
