@@ -70,7 +70,7 @@ export function HeroBanner() {
 
   const slide = slides[current];
   const waHref = getWhatsAppUrl(
-    `Hello LUX DIAMONDS, I'd like to enquire about the ${slide.subtitle}.`
+    `Hello Sparenza & Co., I'd like to enquire about the ${slide.subtitle}.`
   );
 
   return (

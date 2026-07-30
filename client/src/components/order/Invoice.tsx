@@ -73,7 +73,7 @@ export function Invoice({ invoice }: InvoiceProps) {
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-6 border-b border-border">
           <div>
             <h2 className="font-heading text-2xl tracking-wider">
-              LUX <span className="text-gold">DIAMONDS</span>
+              Sparenza <span className="text-gold">&amp; Co.</span>
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
               {invoice.companyInfo.address}
@@ -220,7 +220,7 @@ export function Invoice({ invoice }: InvoiceProps) {
         {/* Footer */}
         <div className="text-center pt-6 border-t border-border">
           <p className="text-xs text-muted-foreground">
-            Thank you for choosing Lux Diamonds. This is a computer-generated invoice.
+            Thank you for choosing Sparenza &amp; Co. This is a computer-generated invoice.
           </p>
         </div>
       </div>

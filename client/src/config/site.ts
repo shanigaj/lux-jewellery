@@ -3,14 +3,14 @@
 // ═══════════════════════════════════════════════════════════
 
 export const siteConfig = {
-  name: "LUX DIAMONDS",
-  shortName: "LUX",
+  name: "Sparenza & Co.",
+  shortName: "Sparenza",
   description:
     "Exceptional diamond jewellery crafted for those who appreciate the extraordinary. Each piece is a masterwork of precision and artistry.",
-  tagline: "Where Brilliance Meets Artistry",
+  tagline: "Crafted with Trust. Worn for Life.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://luxdiamonds.com",
   ogImage: "/images/og-image.jpg",
-  creator: "LUX DIAMONDS",
+  creator: "Sparenza & Co.",
   keywords: [
     "luxury diamond jewellery",
     "diamond rings",

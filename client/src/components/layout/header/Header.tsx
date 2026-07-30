@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/Logo";
 import { mainNavigation, type NavItem } from "@/config/navigation";
+import { useAppSelector } from "@/store/hooks";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Accordion,
@@ -26,6 +28,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+
+// Profile / login is hidden for now — orders are placed directly over
+// WhatsApp (no payment system yet). Flip to `true` to bring accounts back.
+const SHOW_ACCOUNT = false;
 
 // ── Announcement Bar ──
 function AnnouncementBar() {
@@ -139,39 +145,32 @@ function MegaMenu({
                   ))}
                 </div>
 
-                {/* Featured Image */}
-                <div className="col-span-2 grid grid-cols-2 gap-4">
-                  <div className="relative rounded-lg overflow-hidden bg-muted aspect-[4/5] group cursor-pointer">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
-                    <div className="absolute inset-0 bg-gold/5 z-0" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-                      <p className="text-[10px] uppercase tracking-luxury text-gold font-medium mb-1">
-                        Featured
-                      </p>
-                      <p className="text-white font-heading text-lg">
-                        New Arrivals
-                      </p>
-                      <p className="text-white/70 text-xs mt-1 font-light">
-                        Discover the latest masterpieces
-                      </p>
-                    </div>
+                {/* Featured Image — category based */}
+                <Link
+                  href={item.href}
+                  onClick={onMouseLeave}
+                  className="col-span-2 relative rounded-lg overflow-hidden bg-muted aspect-[16/10] group cursor-pointer"
+                >
+                  <Image
+                    src={item.image || "/images/hero-ring.png"}
+                    alt={item.label}
+                    fill
+                    sizes="(max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent z-10" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                    <p className="text-[10px] uppercase tracking-luxury text-gold font-medium mb-1">
+                      Explore
+                    </p>
+                    <p className="text-white font-heading text-2xl">
+                      {item.label}
+                    </p>
+                    <p className="text-white/70 text-xs mt-1 font-light">
+                      {item.description || `Discover our finest ${item.label.toLowerCase()}`}
+                    </p>
                   </div>
-                  <div className="relative rounded-lg overflow-hidden bg-muted aspect-[4/5] group cursor-pointer">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
-                    <div className="absolute inset-0 bg-rose-gold/5 z-0" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-                      <p className="text-[10px] uppercase tracking-luxury text-rose-gold font-medium mb-1">
-                        Trending
-                      </p>
-                      <p className="text-white font-heading text-lg">
-                        Bestsellers
-                      </p>
-                      <p className="text-white/70 text-xs mt-1 font-light">
-                        Most loved by our clients
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
@@ -315,13 +314,15 @@ function MobileMenu() {
             </Accordion>
 
             <div className="border-t border-border mt-4 pt-4 space-y-1">
-              <Link
-                href="/account"
-                className="flex items-center gap-3 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <User size={18} />
-                Account
-              </Link>
+              {SHOW_ACCOUNT && (
+                <Link
+                  href="/account"
+                  className="flex items-center gap-3 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <User size={18} />
+                  Account
+                </Link>
+              )}
               <Link
                 href="/wishlist"
                 className="flex items-center gap-3 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -361,6 +362,12 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Wishlist count from the redux store. `mounted` avoids a hydration
+  // mismatch: the server renders 0, the client fills in the real count.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const wishlistCount = useAppSelector((state) => state.product.wishlist.length);
+
   // Cart count placeholder
   const cartCount = 0;
 
@@ -399,12 +406,15 @@ export function Header() {
         )}
       >
         <div className="container-luxury">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Left: Mobile Menu + Desktop Nav */}
-            <div className="flex items-center gap-8">
+          <div className="flex items-center justify-between h-20 lg:h-28">
+            {/* Left: Mobile Menu + Logo (highlighted) */}
+            <div className="flex items-center gap-3">
               <MobileMenu />
+              <Logo size={isScrolled ? "md" : "lg"} />
+            </div>
 
-              <nav className="hidden lg:flex items-center gap-1">
+            {/* Middle-right: Desktop Nav */}
+            <nav className="hidden lg:flex items-center gap-1 ml-auto mr-2">
                 {mainNavigation.map((item) => (
                   <div
                     key={item.href}
@@ -435,12 +445,6 @@ export function Header() {
                   </div>
                 ))}
               </nav>
-            </div>
-
-            {/* Center: Logo */}
-            <div className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0">
-              <Logo size={isScrolled ? "sm" : "md"} />
-            </div>
 
             {/* Right: Actions */}
             <div className="flex items-center gap-1">
@@ -456,20 +460,31 @@ export function Header() {
               {/* Wishlist */}
               <Link
                 href="/wishlist"
-                className="hidden sm:flex p-2.5 rounded-full hover:bg-muted transition-colors duration-300"
-                aria-label="Wishlist"
+                className="relative hidden sm:flex p-2.5 rounded-full hover:bg-muted transition-colors duration-300"
+                aria-label={`Wishlist (${wishlistCount} items)`}
               >
                 <Heart size={18} />
+                {mounted && wishlistCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center text-[9px] font-semibold bg-gold text-white rounded-full"
+                  >
+                    {wishlistCount}
+                  </motion.span>
+                )}
               </Link>
 
-              {/* Account */}
-              <Link
-                href="/account"
-                className="hidden sm:flex p-2.5 rounded-full hover:bg-muted transition-colors duration-300"
-                aria-label="Account"
-              >
-                <User size={18} />
-              </Link>
+              {/* Account — hidden until accounts/payments are enabled */}
+              {SHOW_ACCOUNT && (
+                <Link
+                  href="/account"
+                  className="hidden sm:flex p-2.5 rounded-full hover:bg-muted transition-colors duration-300"
+                  aria-label="Account"
+                >
+                  <User size={18} />
+                </Link>
+              )}
 
               {/* Cart */}
               <Link

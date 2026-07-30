@@ -20,7 +20,7 @@ const GREETING: ChatMessage = {
   id: "greeting",
   from: "bot",
   text:
-    "Hello! I'm the LUX DIAMONDS style assistant. Ask me about sizing, shipping, appointments or bespoke design — or pick a topic below.",
+    "Hello! I'm the Sparenza & Co. style assistant. Ask me about sizing, shipping, appointments or bespoke design — or pick a topic below.",
 };
 
 export function StyleAssistant() {
@@ -126,7 +126,7 @@ export function StyleAssistant() {
               </div>
               <a
                 href={getWhatsAppUrl(
-                  "Hello LUX DIAMONDS, I have a question and would like to speak with a specialist."
+                  "Hello Sparenza & Co., I have a question and would like to speak with a specialist."
                 )}
                 target="_blank"
                 rel="noopener noreferrer"

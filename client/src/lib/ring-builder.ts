@@ -130,7 +130,7 @@ export function buildRingEnquiry(c: RingConfig, estimate: number): string {
   const shape = SHAPES.find((s) => s.id === c.shape)!;
 
   return [
-    "Hello LUX DIAMONDS,",
+    "Hello Sparenza & Co.,",
     "I've designed a ring and would like a quote:",
     "",
     "*Bespoke Ring*",

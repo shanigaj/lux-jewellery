@@ -123,7 +123,7 @@ export function buildAppointmentMessage(a: AppointmentDetails): string {
   });
 
   const lines: string[] = [
-    "Hello LUX DIAMONDS,",
+    "Hello Sparenza & Co.,",
     "I'd like to request an appointment:",
     "",
     `*${exp?.title ?? a.experience}*`,

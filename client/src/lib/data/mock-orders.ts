@@ -223,7 +223,7 @@ export function generateInvoice(order: IOrder): IInvoice {
     order,
     issuedAt: order.createdAt,
     companyInfo: {
-      name: "Lux Diamonds Pvt. Ltd.",
+      name: "Sparenza & Co. Pvt. Ltd.",
       address: "45 Diamond Arcade, Zaveri Bazaar, Mumbai 400002, India",
       email: "billing@luxdiamonds.com",
       phone: "+91 22 4000 1234",

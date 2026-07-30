@@ -74,7 +74,7 @@ export default function RegisterPage() {
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex flex-col justify-end p-12 text-white">
-          <h2 className="font-heading text-4xl mb-4">Join Lux Diamonds</h2>
+          <h2 className="font-heading text-4xl mb-4">Join Sparenza &amp; Co.</h2>
           <p className="font-light tracking-wide max-w-md">
             Create an account to save your favorite pieces, track orders, and receive exclusive invitations to private viewings.
           </p>

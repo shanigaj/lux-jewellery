@@ -29,7 +29,7 @@ export function buildIcs(event: IcsEvent): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//LUX DIAMONDS//Appointments//EN",
+    "PRODID:-//Sparenza & Co.//Appointments//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -10,96 +11,38 @@ interface LogoProps {
   showTagline?: boolean;
 }
 
+// Source asset is 1774 × 887 (2:1). We scale by height and let width follow.
+const SIZES = {
+  sm: { height: 60, width: 120 },
+  md: { height: 76, width: 152 },
+  lg: { height: 104, width: 208 },
+} as const;
+
 export function Logo({
   variant = "default",
   size = "md",
   className,
-  showTagline = false,
 }: LogoProps) {
-  const sizeClasses = {
-    sm: "text-lg",
-    md: "text-xl",
-    lg: "text-3xl",
-  };
-
-  const variantClasses = {
-    default: "text-foreground",
-    light: "text-white",
-    dark: "text-foreground",
-  };
+  const { width, height } = SIZES[size];
 
   return (
     <Link
       href="/"
-      className={cn("group inline-flex flex-col items-center", className)}
-      aria-label="LUX DIAMONDS - Home"
+      className={cn("group inline-flex items-center", className)}
+      aria-label="Sparenza & Co. — Home"
     >
-      {/* Diamond Icon */}
-      <div className="relative mb-1">
-        <svg
-          width={size === "lg" ? 32 : size === "md" ? 24 : 18}
-          height={size === "lg" ? 32 : size === "md" ? 24 : 18}
-          viewBox="0 0 24 24"
-          fill="none"
-          className={cn(
-            "transition-transform duration-500 group-hover:rotate-12",
-            variant === "light" ? "text-white" : "text-gold"
-          )}
-        >
-          <path
-            d="M12 2L2 9L12 22L22 9L12 2Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M2 9H22"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M12 2L8 9L12 22L16 9L12 2Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-        </svg>
-        {/* Sparkle effect on hover */}
-        <div className="absolute -top-1 -right-1 w-2 h-2 bg-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-sparkle" />
-      </div>
-
-      {/* Brand Name */}
-      <span
+      <Image
+        src="/images/logo-sparenza-v3.png"
+        alt="Sparenza & Co. — Fine Jewels"
+        width={width}
+        height={height}
+        priority
         className={cn(
-          "font-heading font-semibold tracking-luxury",
-          sizeClasses[size],
-          variantClasses[variant]
+          "object-contain transition-transform duration-500 group-hover:scale-[1.03]",
+          // The mark is dark; invert it to white on dark backgrounds.
+          variant === "light" && "brightness-0 invert"
         )}
-      >
-        LUX
-      </span>
-
-      {/* Sub Brand */}
-      <span
-        className={cn(
-          "text-[9px] tracking-luxury-wide font-sans font-light uppercase -mt-0.5",
-          variant === "light" ? "text-white/70" : "text-muted-foreground"
-        )}
-      >
-        DIAMONDS
-      </span>
-
-      {/* Tagline */}
-      {showTagline && (
-        <span
-          className={cn(
-            "text-[8px] tracking-luxury font-sans font-light uppercase mt-2",
-            variant === "light" ? "text-white/50" : "text-muted-foreground/60"
-          )}
-        >
-          Where Brilliance Meets Artistry
-        </span>
-      )}
+      />
     </Link>
   );
 }

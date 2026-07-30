@@ -27,7 +27,7 @@ export interface ProductInquiry {
 /** Compose a human-readable enquiry message with all available product details. */
 export function buildInquiryMessage(p: ProductInquiry): string {
   const lines: string[] = [
-    "Hello LUX DIAMONDS,",
+    "Hello Sparenza & Co.,",
     "I'm interested in this piece and would like more details:",
     "",
     `*${p.name}*`,
@@ -48,7 +48,7 @@ export function buildInquiryMessage(p: ProductInquiry): string {
 /** Compose a "notify me when back in stock" request. */
 export function buildNotifyMeMessage(p: ProductInquiry): string {
   const lines: string[] = [
-    "Hello LUX DIAMONDS,",
+    "Hello Sparenza & Co.,",
     "This piece is currently out of stock — please notify me when it's available again:",
     "",
     `*${p.name}*`,

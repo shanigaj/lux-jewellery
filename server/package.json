@@ -7,6 +7,7 @@
     "dev": "npx tsx watch src/index.ts",
     "build": "tsc",
     "seed": "npx tsx src/seedProducts.ts",
+    "seed:categories": "npx tsx src/seedCategoryProducts.ts",
     "seed:users": "npx tsx src/seedUsers.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

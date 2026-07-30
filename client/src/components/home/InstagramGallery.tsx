@@ -30,7 +30,7 @@ export function InstagramGallery() {
               @LUXDiamonds
             </h2>
             <p className="text-muted-foreground font-light mt-3 max-w-md">
-              Join our community of jewellery connoisseurs. Share your LUX moments with #MyLUXDiamond.
+              Join our community of jewellery connoisseurs. Share your Sparenza moments with #MySparenza.
             </p>
           </AnimatedSection>
           

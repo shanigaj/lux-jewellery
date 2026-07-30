@@ -32,7 +32,7 @@ export default function Loading() {
       {/* Brand */}
       <div className="mt-6 text-center">
         <p className="text-xs uppercase tracking-luxury-wide text-muted-foreground font-light">
-          LUX DIAMONDS
+          Sparenza &amp; Co.
         </p>
       </div>
 

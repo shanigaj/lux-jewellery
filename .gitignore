@@ -9,3 +9,6 @@ build/
 logs/
 *.log
 .claude/
+
+# Windows crash dumps
+*.stackdump

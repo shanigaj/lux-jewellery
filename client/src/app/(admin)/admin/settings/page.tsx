@@ -50,7 +50,7 @@ export default function AdminSettingsPage() {
                   <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Store Name</label>
                   <input 
                     type="text" 
-                    defaultValue="Lux Diamonds"
+                    defaultValue="Sparenza & Co."
                     className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:border-gold outline-none transition-colors" 
                   />
                 </div>

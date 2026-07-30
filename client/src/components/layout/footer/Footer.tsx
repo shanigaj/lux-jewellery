@@ -206,7 +206,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
             <p className="text-xs text-muted-foreground font-light tracking-wide">
-              © {currentYear} LUX DIAMONDS. All rights reserved. Crafted with passion in India.
+              © {currentYear} Sparenza &amp; Co. All rights reserved. Crafted with passion in India.
             </p>
 
             {/* Social Links */}

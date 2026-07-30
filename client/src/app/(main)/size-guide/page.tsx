@@ -1,7 +1,7 @@
 import { SizeGuideContent } from "@/components/shared/SizeGuideContent";
 
 export const metadata = {
-  title: "Size Guide | LUX DIAMONDS",
+  title: "Size Guide | Sparenza & Co.",
   description: "Find your perfect fit for rings, bracelets, bangles and necklaces.",
 };
 

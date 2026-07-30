@@ -100,7 +100,7 @@ export default function BookAppointmentPage() {
   function addToCalendar() {
     if (!experience || !date || !time) return;
     downloadIcs(`lux-diamonds-appointment-${date}`, {
-      title: `LUX DIAMONDS — ${selectedExperience?.title ?? "Appointment"}`,
+      title: `Sparenza & Co. — ${selectedExperience?.title ?? "Appointment"}`,
       description: `${selectedExperience?.blurb ?? ""}${
         interest ? `\nInterest: ${interest}` : ""
       }\nRequest sent via luxdiamonds.com — a specialist will confirm shortly.`,

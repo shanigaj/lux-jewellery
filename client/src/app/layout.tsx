@@ -20,8 +20,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "LUX DIAMONDS — Where Brilliance Meets Artistry",
-    template: "%s | LUX DIAMONDS",
+    default: "Sparenza & Co. — Fine Jewels, Crafted with Trust",
+    template: "%s | Sparenza & Co.",
   },
   description:
     "Exceptional diamond jewellery crafted for those who appreciate the extraordinary. Explore GIA-certified diamonds, handcrafted rings, necklaces, earrings, and bracelets.",
@@ -33,22 +33,22 @@ export const metadata: Metadata = {
     "fine jewellery",
     "bridal jewellery",
   ],
-  authors: [{ name: "LUX DIAMONDS" }],
-  creator: "LUX DIAMONDS",
+  authors: [{ name: "Sparenza & Co." }],
+  creator: "Sparenza & Co.",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "https://luxdiamonds.com"
   ),
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "LUX DIAMONDS",
-    title: "LUX DIAMONDS — Where Brilliance Meets Artistry",
+    siteName: "Sparenza & Co.",
+    title: "Sparenza & Co. — Fine Jewels, Crafted with Trust",
     description:
       "Exceptional diamond jewellery crafted for those who appreciate the extraordinary.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LUX DIAMONDS",
+    title: "Sparenza & Co.",
     description:
       "Exceptional diamond jewellery crafted for those who appreciate the extraordinary.",
   },
@@ -66,7 +66,7 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "JewelryStore",
-    name: "LUX DIAMONDS",
+    name: "Sparenza & Co.",
     description: "Exceptional diamond jewellery crafted for those who appreciate the extraordinary.",
     url: "https://luxdiamonds.com",
     telephone: "+91 80000 00000",

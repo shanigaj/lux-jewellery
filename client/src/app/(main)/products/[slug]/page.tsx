@@ -37,6 +37,11 @@ export default function ProductDetailsPage() {
   const relatedProducts = relatedData?.data?.filter((x) => x._id !== product?._id) || [];
   const [selection, setSelection] = useState<{ metal: string; size: string }>({ metal: "", size: "" });
 
+  // All hooks must run on every render — keep them above the early returns
+  // below, otherwise the hook order changes once the product loads.
+  const dispatch = useAppDispatch();
+  const wishlist = useAppSelector((state) => state.product.wishlist);
+
   useEffect(() => {
     if (product) addRecentlyViewed(product);
   }, [product]);
@@ -49,8 +54,6 @@ export default function ProductDetailsPage() {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  const dispatch = useAppDispatch();
-  const wishlist = useAppSelector((state) => state.product.wishlist);
   const isWishlisted = wishlist.some((p) => p._id === product._id);
   const inStock = !product.trackInventory || product.stockQuantity > 0;
 

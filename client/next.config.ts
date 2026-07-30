@@ -17,10 +17,13 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "overnightmountings.s3.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
-  },
-  experimental: {
-    optimizeCss: true, // Optimizes CSS loading
   },
 };
 

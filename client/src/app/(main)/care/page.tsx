@@ -2,7 +2,7 @@ import { Droplets, Gem, ShieldCheck, Sparkles } from "lucide-react";
 import { CareReminderButton } from "@/components/shared/CareReminderButton";
 
 export const metadata = {
-  title: "Care Instructions | LUX DIAMONDS",
+  title: "Care Instructions | Sparenza & Co.",
   description: "How to clean, store and protect your fine jewellery.",
 };
 
@@ -86,7 +86,7 @@ export default function CarePage() {
         </h2>
         <p className="mb-6 font-light leading-relaxed text-muted-foreground">
           Add a recurring reminder to your calendar for a quarterly clean, inspection and prong
-          check — complimentary at any LUX DIAMONDS boutique.
+          check — complimentary at any Sparenza &amp; Co. boutique.
         </p>
         <CareReminderButton />
       </div>
