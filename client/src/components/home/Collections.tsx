@@ -79,7 +79,7 @@ export function Collections() {
                 index < 2 ? "lg:col-span-2 lg:row-span-1" : "lg:col-span-2"
               )}
             >
-              <Link href={`/collections/${collection.slug}`}>
+              <Link href={`/categories/${collection.slug}`}>
                 <div
                   className={cn(
                     "relative overflow-hidden rounded-2xl cursor-pointer",
@@ -105,9 +105,6 @@ export function Collections() {
                       initial={false}
                       className="transform transition-transform duration-500 group-hover:-translate-y-2"
                     >
-                      <p className="text-[10px] uppercase tracking-luxury-wide text-gold font-medium mb-2">
-                        {collection.count} Pieces
-                      </p>
                       <h3 className="font-heading text-2xl md:text-3xl text-white mb-1">
                         {collection.name}
                       </h3>

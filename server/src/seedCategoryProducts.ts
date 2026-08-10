@@ -16,7 +16,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Product from "./models/Product";
 
-dotenv.config();
+dotenv.config({ path: [".env.local", ".env"] });
 
 // Images ship with the Next.js client (`client/public`).
 const IMG = {
@@ -270,7 +270,7 @@ const products = [
 const seedCategoryProducts = async () => {
   try {
     await mongoose.connect(
-      process.env.MONGO_URI || "mongodb://localhost:27017/lux-diamonds"
+      process.env.MONGO_URI || "mongodb://localhost:27017/sparenza-jewels"
     );
     console.log("MongoDB Connected");
 

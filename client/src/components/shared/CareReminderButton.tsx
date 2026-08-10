@@ -12,7 +12,7 @@ export function CareReminderButton() {
     start.setMonth(start.getMonth() + 3);
     start.setHours(10, 0, 0, 0);
 
-    downloadIcs("lux-diamonds-care-reminder", {
+    downloadIcs("sparenza-jewels-care-reminder", {
       title: "Jewellery care & cleaning check — Sparenza & Co.",
       description:
         "Time for your quarterly clean, inspect and prong check. Book a complimentary cleaning at any Sparenza & Co. boutique.",

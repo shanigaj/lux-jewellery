@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// 💎 LUX DIAMONDS — Product Type Definitions
+// 💎 Sparenza & Co. — Product Type Definitions
 // ═══════════════════════════════════════════════════════════
 
 export interface IProduct {
@@ -35,6 +35,7 @@ export interface IProduct {
   images: IProductImage[];
   thumbnail: string;
   video?: string;
+  videos?: string[];
 
   // Inventory
   stockQuantity: number;

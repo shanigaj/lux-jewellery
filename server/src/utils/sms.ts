@@ -2,18 +2,18 @@
 
 export const sendOrderSMS = async (phone: string, orderNumber: string) => {
   console.log(`\n📱 [SMS MOCK] Order Placed sent to ${phone}`);
-  console.log(`   Message: Lux Diamonds: Your order ${orderNumber} is confirmed.`);
+  console.log(`   Message: Sparenza & Co.: Your order ${orderNumber} is confirmed.`);
   return Promise.resolve(true);
 };
 
 export const sendShippingSMS = async (phone: string, orderNumber: string, trackingNumber: string) => {
   console.log(`\n📱 [SMS MOCK] Order Shipped sent to ${phone}`);
-  console.log(`   Message: Lux Diamonds: Order ${orderNumber} shipped. Tracking: ${trackingNumber}`);
+  console.log(`   Message: Sparenza & Co.: Order ${orderNumber} shipped. Tracking: ${trackingNumber}`);
   return Promise.resolve(true);
 };
 
 export const sendDeliverySMS = async (phone: string, orderNumber: string) => {
   console.log(`\n📱 [SMS MOCK] Order Delivered sent to ${phone}`);
-  console.log(`   Message: Lux Diamonds: Order ${orderNumber} has been delivered. Enjoy!`);
+  console.log(`   Message: Sparenza & Co.: Order ${orderNumber} has been delivered. Enjoy!`);
   return Promise.resolve(true);
 };

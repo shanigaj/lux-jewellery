@@ -36,7 +36,7 @@ export function CollectionCard({
       }}
       className={cn("group", className)}
     >
-      <Link href={`/collections/${slug}`}>
+      <Link href={`/categories/${slug}`}>
         <div className="relative overflow-hidden rounded-xl aspect-[16/10] cursor-pointer">
           {/* Background */}
           <div

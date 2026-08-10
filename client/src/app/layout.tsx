@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { Providers } from "@/providers/Providers";
 import Script from "next/script";
+import { siteConfig } from "@/config/site";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -36,25 +37,39 @@ export const metadata: Metadata = {
   authors: [{ name: "Sparenza & Co." }],
   creator: "Sparenza & Co.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://luxdiamonds.com"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://sparenza.com"
   ),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
+    url: "/",
     siteName: "Sparenza & Co.",
     title: "Sparenza & Co. — Fine Jewels, Crafted with Trust",
     description:
       "Exceptional diamond jewellery crafted for those who appreciate the extraordinary.",
+    images: [
+      { url: "/og-image.jpg", width: 1200, height: 630, alt: "Sparenza & Co. — Fine Jewellery" },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sparenza & Co.",
+    title: "Sparenza & Co. — Fine Jewels, Crafted with Trust",
     description:
       "Exceptional diamond jewellery crafted for those who appreciate the extraordinary.",
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -63,27 +78,49 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const base = siteConfig.url;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "JewelryStore",
-    name: "Sparenza & Co.",
-    description: "Exceptional diamond jewellery crafted for those who appreciate the extraordinary.",
-    url: "https://luxdiamonds.com",
-    telephone: "+91 80000 00000",
+    "@id": `${base}#store`,
+    name: siteConfig.name,
+    description: siteConfig.description,
+    url: base,
+    telephone: siteConfig.contact.phones,
+    email: siteConfig.contact.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: "123 Diamond Avenue",
+      streetAddress:
+        "52, Shubham Park Society, Aakar Club Rd, Swagat Society, BRTS, Simada Gam, Nana Varachha",
       addressLocality: "Surat",
       addressRegion: "Gujarat",
-      postalCode: "395007",
-      addressCountry: "IN"
+      postalCode: "395011",
+      addressCountry: "IN",
     },
-    image: "https://luxdiamonds.com/og-image.jpg",
+    image: `${base}/og-image.jpg`,
+    logo: `${base}/icon.png`,
     priceRange: "$$$",
+    openingHours: "Mo-Sa 10:00-20:00",
     sameAs: [
-      "https://instagram.com/luxdiamonds",
-      "https://facebook.com/luxdiamonds"
-    ]
+      siteConfig.social.instagram,
+      siteConfig.social.facebook,
+      siteConfig.social.pinterest,
+      siteConfig.social.youtube,
+      siteConfig.social.twitter,
+    ],
+  };
+
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${base}#website`,
+    name: siteConfig.name,
+    url: base,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${base}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
@@ -97,6 +134,11 @@ export default function RootLayout({
           id="schema-jsonld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <Script
+          id="schema-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
         />
         <Providers>{children}</Providers>
       </body>

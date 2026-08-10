@@ -24,7 +24,7 @@ function escapeIcsText(s: string): string {
 export function buildIcs(event: IcsEvent): string {
   const start = event.start;
   const end = new Date(start.getTime() + (event.durationMinutes ?? 60) * 60000);
-  const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}@luxdiamonds`;
+  const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}@sparenza`;
 
   const lines = [
     "BEGIN:VCALENDAR",

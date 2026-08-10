@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "./models/User";
 
-dotenv.config();
+dotenv.config({ path: [".env.local", ".env"] });
 
 const seedUsers = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/lux-diamonds");
+    await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/sparenza-jewels");
     console.log("MongoDB Connected");
 
     // Clear existing users just to be clean, or just check if they exist

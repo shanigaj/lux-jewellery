@@ -1,28 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, animate, useMotionValue } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { IProductImage } from "@/types/product.types";
 import { ImageZoom } from "@/components/shared/ImageZoom";
 import { cn } from "@/lib/utils";
-import { Play, Rotate3D, Camera } from "lucide-react";
+import { Play, Camera } from "lucide-react";
 
 interface ProductGalleryProps {
   images: IProductImage[];
+  videos?: string[];
   video?: string;
 }
 
-type TabType = "image" | "video" | "360";
+type TabType = "image" | "video";
 
-export function ProductGallery({ images, video }: ProductGalleryProps) {
+export function ProductGallery({ images, videos, video }: ProductGalleryProps) {
   const [activeTab, setActiveTab] = useState<TabType>("image");
   const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [activeVideoIdx, setActiveVideoIdx] = useState(0);
 
   // Default to placeholder if no images
   const safeImages = images.length > 0 ? images : [
     { _id: "default", url: "/images/hero-ring.png", publicId: "default", altText: "Product Image", sortOrder: 1, isDefault: true }
   ];
+
+  // Support one or many product videos (falls back to the legacy single `video`).
+  const allVideos = (videos && videos.length > 0 ? videos : video ? [video] : []).filter(Boolean);
 
   return (
     <div className="flex flex-col md:flex-row gap-4 lg:gap-6 sticky top-24">
@@ -46,31 +51,26 @@ export function ProductGallery({ images, video }: ProductGalleryProps) {
           </button>
         ))}
 
-        {video && (
+        {allVideos.map((src, idx) => (
           <button
-            onClick={() => setActiveTab("video")}
+            key={`vid-${idx}`}
+            onClick={() => {
+              setActiveTab("video");
+              setActiveVideoIdx(idx);
+            }}
             className={cn(
               "relative aspect-square w-20 md:w-full rounded-md overflow-hidden border-2 transition-all shrink-0 flex items-center justify-center bg-muted",
-              activeTab === "video"
+              activeTab === "video" && activeVideoIdx === idx
                 ? "border-gold text-gold"
                 : "border-transparent text-muted-foreground opacity-60 hover:opacity-100"
             )}
           >
-            <Play size={24} />
+            <video src={src} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
+            <span className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm">
+              <Play size={14} className="ml-0.5" />
+            </span>
           </button>
-        )}
-
-        <button
-          onClick={() => setActiveTab("360")}
-          className={cn(
-            "relative aspect-square w-20 md:w-full rounded-md overflow-hidden border-2 transition-all shrink-0 flex items-center justify-center bg-muted",
-            activeTab === "360"
-              ? "border-gold text-gold"
-              : "border-transparent text-muted-foreground opacity-60 hover:opacity-100"
-          )}
-        >
-          <Rotate3D size={24} />
-        </button>
+        ))}
       </div>
 
       {/* Main View Area */}
@@ -93,9 +93,9 @@ export function ProductGallery({ images, video }: ProductGalleryProps) {
             </motion.div>
           )}
 
-          {activeTab === "video" && (
+          {activeTab === "video" && allVideos.length > 0 && (
             <motion.div
-              key="video"
+              key={`video-${activeVideoIdx}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -103,26 +103,14 @@ export function ProductGallery({ images, video }: ProductGalleryProps) {
               className="absolute inset-0 flex items-center justify-center bg-black"
             >
               <video
-                src={video || "/videos/jewelry-video.mp4"}
+                src={allVideos[activeVideoIdx]}
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover"
+                controls
+                className="w-full h-full object-contain"
               />
-            </motion.div>
-          )}
-
-          {activeTab === "360" && (
-            <motion.div
-              key="360"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 flex flex-col items-center justify-center bg-muted"
-            >
-              <ThreeSixtyViewer src={safeImages[0].url} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -132,61 +120,13 @@ export function ProductGallery({ images, video }: ProductGalleryProps) {
           <div className="bg-background/80 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1.5 border border-border shadow-sm">
             {activeTab === "image" && <Camera size={14} />}
             {activeTab === "video" && <Play size={14} />}
-            {activeTab === "360" && <Rotate3D size={14} />}
             <span className="text-[10px] uppercase tracking-wider font-medium">
-              {activeTab === "image" ? `${activeImageIdx + 1}/${safeImages.length}` : activeTab}
+              {activeTab === "image"
+                ? `${activeImageIdx + 1}/${safeImages.length}`
+                : `Video ${activeVideoIdx + 1}/${allVideos.length}`}
             </span>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/** Drag-to-rotate 360 viewer: idles into a slow auto-spin, follows the pointer while dragging. */
-function ThreeSixtyViewer({ src }: { src: string }) {
-  const rotation = useMotionValue(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const lastX = useRef(0);
-
-  useEffect(() => {
-    if (isDragging) return;
-    const controls = animate(rotation, rotation.get() + 360, {
-      duration: 20,
-      ease: "linear",
-      repeat: Infinity,
-    });
-    return () => controls.stop();
-  }, [isDragging, rotation]);
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    lastX.current = e.clientX;
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    const dx = e.clientX - lastX.current;
-    lastX.current = e.clientX;
-    rotation.set(rotation.get() + dx * 0.6);
-  };
-  const handlePointerUp = () => setIsDragging(false);
-
-  return (
-    <div
-      className="relative w-full h-full overflow-hidden flex items-center justify-center cursor-grab touch-none active:cursor-grabbing"
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-    >
-      <motion.div className="w-3/4 h-3/4 pointer-events-none" style={{ rotate: rotation }}>
-        <Image src={src} alt="360 View" fill className="object-contain drop-shadow-2xl" />
-      </motion.div>
-
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-background/80 backdrop-blur-md rounded-full border border-border shadow-luxury">
-        <Rotate3D size={20} className="text-gold" />
-        <span className="text-xs font-medium uppercase tracking-wider">Drag to Rotate</span>
       </div>
     </div>
   );

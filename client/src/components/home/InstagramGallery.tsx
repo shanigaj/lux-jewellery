@@ -27,7 +27,7 @@ export function InstagramGallery() {
               </p>
             </div>
             <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-foreground">
-              @LUXDiamonds
+              @Sparenza
             </h2>
             <p className="text-muted-foreground font-light mt-3 max-w-md">
               Join our community of jewellery connoisseurs. Share your Sparenza moments with #MySparenza.

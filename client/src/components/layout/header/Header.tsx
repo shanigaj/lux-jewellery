@@ -54,11 +54,11 @@ function AnnouncementBar() {
       <div className="container-luxury flex items-center justify-between py-2">
         <div className="hidden md:flex items-center gap-4 text-[11px] tracking-wider">
           <a
-            href="tel:+919876543210"
+            href="tel:+916352751091"
             className="flex items-center gap-1.5 hover:text-gold transition-colors"
           >
             <Phone size={11} />
-            <span>+91 98765 43210</span>
+            <span>+91 63527 51091</span>
           </a>
           <span className="w-px h-3 bg-white/20" />
           <a
@@ -336,11 +336,11 @@ function MobileMenu() {
           {/* Footer */}
           <div className="p-6 border-t border-border bg-muted/30">
             <a
-              href="tel:+919876543210"
+              href="tel:+916352751091"
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-colors"
             >
               <Phone size={14} />
-              +91 98765 43210
+              +91 63527 51091
             </a>
             <p className="text-xs text-muted-foreground mt-2">
               Mon – Sat: 10 AM – 8 PM

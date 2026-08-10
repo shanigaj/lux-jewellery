@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// 💎 LUX DIAMONDS — Currency, Date & Number Formatters
+// 💎 Sparenza & Co. — Currency, Date & Number Formatters
 // ═══════════════════════════════════════════════════════════
 
 /**

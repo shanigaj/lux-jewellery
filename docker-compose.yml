@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
-    container_name: lux_diamonds_mongodb
+    container_name: sparenza_mongodb
     ports:
       - "27017:27017"
     volumes:
@@ -14,13 +14,13 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: lux_diamonds_server
+    container_name: sparenza_server
     ports:
       - "5000:5000"
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - MONGO_URI=mongodb://mongodb:27017/lux-diamonds
+      - MONGO_URI=mongodb://mongodb:27017/sparenza-jewels
       - JWT_SECRET=${JWT_SECRET:-production_secret_key_change_me}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
@@ -43,7 +43,7 @@ services:
         NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-+916353784310}
         NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:-k9nqbfzp}
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
-    container_name: lux_diamonds_client
+    container_name: sparenza_client
     ports:
       - "3000:3000"
     environment:

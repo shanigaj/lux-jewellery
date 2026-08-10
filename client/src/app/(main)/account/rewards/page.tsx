@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export default function RewardsPage() {
   const [copied, setCopied] = useState(false);
-  const referralLink = "https://luxdiamonds.com/ref/priya_s88";
+  const referralLink = "https://sparenza.com/ref/priya_s88";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);

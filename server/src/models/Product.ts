@@ -10,6 +10,7 @@ export interface IProduct extends Document {
   metalType: "gold" | "platinum" | "rose_gold" | "white_gold" | "silver";
   gemstone?: string;
   images: string[];
+  videos?: string[];
   stock: number;
   isFeatured: boolean;
   ratingsAverage: number;
@@ -41,6 +42,10 @@ const ProductSchema: Schema = new Schema(
         (v: string[]) => v.length > 0,
         "A product must have at least one image.",
       ],
+    },
+    videos: {
+      type: [String],
+      default: [],
     },
     stock: { type: Number, required: true, min: 0, default: 0 },
     isFeatured: { type: Boolean, default: false },

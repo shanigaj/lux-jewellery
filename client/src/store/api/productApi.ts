@@ -1,5 +1,6 @@
 import { baseApi } from './baseApi';
 import { IProduct } from '@/types/product.types';
+import { optimizeCloudinaryImage, optimizeCloudinaryVideo } from '@/lib/cloudinary';
 
 interface GetProductsParams {
   category?: string;
@@ -62,17 +63,19 @@ const adaptProduct = (product: any): IProduct => ({
   metalType: product.metalType || 'gold',
   metalPurity: '18K',
   weight: 5,
-  images: Array.isArray(product.images) && product.images.length > 0 
+  images: Array.isArray(product.images) && product.images.length > 0
     ? product.images.map((url: string, i: number) => ({
         _id: `img_${i}`,
-        url,
+        url: optimizeCloudinaryImage(url),
         publicId: '',
         altText: product.name || 'Product Image',
         sortOrder: i,
         isDefault: i === 0
       }))
     : [{ _id: 'default', url: '/images/placeholder.jpg', publicId: '', altText: 'Placeholder', sortOrder: 0, isDefault: true }],
-  thumbnail: Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : '/images/placeholder.jpg',
+  thumbnail: Array.isArray(product.images) && product.images.length > 0 ? optimizeCloudinaryImage(product.images[0]) : '/images/placeholder.jpg',
+  videos: Array.isArray(product.videos) ? product.videos.map((v: string) => optimizeCloudinaryVideo(v)) : [],
+  video: Array.isArray(product.videos) && product.videos.length > 0 ? optimizeCloudinaryVideo(product.videos[0]) : product.video,
   variants: [],
   stockQuantity: product.stock || 0,
   lowStockThreshold: 5,

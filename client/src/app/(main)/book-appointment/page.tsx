@@ -99,11 +99,11 @@ export default function BookAppointmentPage() {
 
   function addToCalendar() {
     if (!experience || !date || !time) return;
-    downloadIcs(`lux-diamonds-appointment-${date}`, {
+    downloadIcs(`sparenza-jewels-appointment-${date}`, {
       title: `Sparenza & Co. — ${selectedExperience?.title ?? "Appointment"}`,
       description: `${selectedExperience?.blurb ?? ""}${
         interest ? `\nInterest: ${interest}` : ""
-      }\nRequest sent via luxdiamonds.com — a specialist will confirm shortly.`,
+      }\nRequest sent via sparenza.com — a specialist will confirm shortly.`,
       location:
         experience === "virtual"
           ? "Video consultation (link to follow)"

@@ -1,208 +1,96 @@
-"use client";
+import type { Metadata } from "next";
+import { cache } from "react";
+import { siteConfig } from "@/config/site";
+import { ProductView } from "./ProductView";
 
-import { useEffect, useState } from "react";
-import { useParams, notFound } from "next/navigation";
-import { Breadcrumb } from "@/components/layout/Breadcrumb";
-import { ProductGallery } from "@/components/product/ProductGallery";
-import { ProductConfigurator } from "@/components/product/ProductConfigurator";
-import { DiamondSpecs } from "@/components/product/DiamondSpecs";
-import { RelatedProducts } from "@/components/product/RelatedProducts";
-import { RecentlyViewed } from "@/components/product/RecentlyViewed";
-import { addRecentlyViewed } from "@/lib/recently-viewed";
-import { Rating } from "@/components/shared/Rating";
-import { WhatsAppInquiryButton } from "@/components/shared/WhatsAppInquiryButton";
-import { NotifyMeButton } from "@/components/shared/NotifyMeButton";
-import { AnimatedSection } from "@/components/shared/AnimatedSection";
-import { useGetProductByIdQuery, useGetProductsQuery } from "@/store/api/productApi";
-import { Heart, Truck, ShieldCheck, ArrowRightLeft } from "lucide-react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { toggleWishlist } from "@/store/slices/productSlice";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { IProduct } from "@/types/product.types";
-import { cn } from "@/lib/utils";
+type Params = { params: Promise<{ slug: string }> };
 
-export default function ProductDetailsPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  
-  const { data: productData, isLoading, isError } = useGetProductByIdQuery(slug);
-  const product = productData?.data;
+interface RawProduct {
+  _id: string;
+  name: string;
+  description?: string;
+  shortDescription?: string;
+  sku?: string;
+  category?: string;
+  gemstone?: string;
+  metalType?: string;
+  images?: string[];
+}
 
-  const categorySlug = product?.category?.slug;
-  const { data: relatedData } = useGetProductsQuery(
-    { category: categorySlug },
-    { skip: !categorySlug }
-  );
-  
-  const relatedProducts = relatedData?.data?.filter((x) => x._id !== product?._id) || [];
-  const [selection, setSelection] = useState<{ metal: string; size: string }>({ metal: "", size: "" });
-
-  // All hooks must run on every render — keep them above the early returns
-  // below, otherwise the hook order changes once the product loads.
-  const dispatch = useAppDispatch();
-  const wishlist = useAppSelector((state) => state.product.wishlist);
-
-  useEffect(() => {
-    if (product) addRecentlyViewed(product);
-  }, [product]);
-
-  if (isError) {
-    notFound();
+const getProduct = cache(async (idOrSlug: string): Promise<RawProduct | null> => {
+  try {
+    const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const res = await fetch(`${api}/products/${encodeURIComponent(idOrSlug)}`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data ?? null;
+  } catch {
+    return null;
   }
+});
 
-  if (isLoading || !product) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProduct(slug);
+  if (!product) {
+    return { title: "Product Not Found", robots: { index: false, follow: false } };
   }
+  const url = `/products/${product._id}`;
+  const description = (product.shortDescription || product.description || siteConfig.description)
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+  const image = product.images?.[0];
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${product.name} | ${siteConfig.name}`,
+      description,
+      url,
+      type: "website",
+      images: image ? [{ url: image, width: 1200, height: 1200, alt: product.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | ${siteConfig.name}`,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
 
-  const isWishlisted = wishlist.some((p) => p._id === product._id);
-  const inStock = !product.trackInventory || product.stockQuantity > 0;
+export default async function ProductPage({ params }: Params) {
+  const { slug } = await params;
+  const product = await getProduct(slug);
+
+  const jsonLd = product
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        image: product.images ?? [],
+        description: (product.description || product.shortDescription || "").replace(/\s+/g, " ").trim(),
+        sku: product.sku,
+        category: product.category,
+        material: product.metalType,
+        brand: { "@type": "Brand", name: siteConfig.name },
+        url: `${siteConfig.url}/products/${product._id}`,
+      }
+    : null;
 
   return (
-    <div className="bg-background">
-      <div className="container-luxury py-8">
-        <Breadcrumb
-          items={[
-            { label: "Jewellery", href: "/products" },
-            { label: product.category?.name || "Rings", href: `/products?category=${product.category?.slug}` },
-            { label: product.name },
-          ]}
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mt-8">
-          {/* Left: Gallery */}
-          <AnimatedSection animation="fadeRight">
-            <ProductGallery images={product.images} video={product.video} />
-          </AnimatedSection>
-
-          {/* Right: Info */}
-          <AnimatedSection animation="fadeLeft" delay={0.2}>
-            <div className="flex flex-col">
-              {/* Badges */}
-              <div className="flex items-center gap-2 mb-4">
-                {product.isNewArrival && <span className="badge-new text-[10px]">New Arrival</span>}
-                {product.isBestseller && <span className="badge-gold text-[10px]">Bestseller</span>}
-                {!inStock && (
-                  <span className="text-[10px] uppercase tracking-wider font-medium px-2.5 py-1 border border-destructive text-destructive rounded-full">
-                    Out of Stock
-                  </span>
-                )}
-              </div>
-
-              {/* Title & SKU */}
-              <h1 className="font-heading text-3xl md:text-4xl mb-2">{product.name}</h1>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-6">SKU: {product.sku}</p>
-
-              {/* Rating */}
-              <div className="flex items-center mb-8 pb-8 border-b border-border">
-                <Rating value={product.avgRating} count={product.reviewCount} showCount />
-              </div>
-
-              {/* Short Description */}
-              <p className="text-muted-foreground font-light leading-relaxed mb-8">
-                {product.shortDescription}
-              </p>
-
-              {/* Configurator (Metal, Size) */}
-              <ProductConfigurator
-                basePrice={product.salePrice || product.basePrice}
-                variants={product.variants}
-                defaultMetal={product.metalType}
-                onPriceChange={() => {}}
-                onSelectionChange={setSelection}
-              />
-
-              {/* Action Buttons */}
-              <div className="flex gap-4 mb-10">
-                {inStock ? (
-                  <WhatsAppInquiryButton
-                    className="flex-1"
-                    label="Enquire on WhatsApp"
-                    inquiry={{
-                      name: product.name,
-                      sku: product.sku,
-                      id: product._id,
-                      category: product.category?.name,
-                      metal: selection.metal || undefined,
-                      size: selection.size || undefined,
-                      specs: product.diamondSpecs
-                        ? `${product.diamondSpecs.caratWeight}ct • ${product.diamondSpecs.shape} • ${product.diamondSpecs.color} • ${product.diamondSpecs.clarity}`
-                        : undefined,
-                      url: typeof window !== "undefined" ? window.location.href : undefined,
-                    }}
-                  />
-                ) : (
-                  <NotifyMeButton
-                    className="flex-1"
-                    inquiry={{
-                      name: product.name,
-                      sku: product.sku,
-                      id: product._id,
-                      metal: selection.metal || undefined,
-                      size: selection.size || undefined,
-                      url: typeof window !== "undefined" ? window.location.href : undefined,
-                    }}
-                  />
-                )}
-                <button
-                  onClick={() => dispatch(toggleWishlist(product))}
-                  className="w-14 h-14 shrink-0 flex items-center justify-center border border-border hover:border-gold transition-colors"
-                >
-                  <Heart size={20} className={cn("transition-colors", isWishlisted ? "fill-gold text-gold" : "text-foreground")} />
-                </button>
-              </div>
-
-              {/* Trust Features */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-y border-border mb-10">
-                <div className="flex flex-col items-center justify-center text-center gap-2 p-4 bg-muted/30">
-                  <Truck size={24} className="text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider">Free Global Delivery</span>
-                </div>
-                <div className="flex flex-col items-center justify-center text-center gap-2 p-4 bg-muted/30">
-                  <ShieldCheck size={24} className="text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider">Lifetime Warranty</span>
-                </div>
-                <div className="flex flex-col items-center justify-center text-center gap-2 p-4 bg-muted/30">
-                  <ArrowRightLeft size={24} className="text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider">30-Day Returns</span>
-                </div>
-              </div>
-
-              {/* Accordions (Details, Shipping) */}
-              <Accordion className="w-full">
-                <AccordionItem value="details" className="border-border">
-                  <AccordionTrigger className="text-sm uppercase tracking-wider font-semibold">Product Details</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground font-light leading-relaxed">
-                    {product.description}
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="shipping" className="border-border">
-                  <AccordionTrigger className="text-sm uppercase tracking-wider font-semibold">Delivery & Returns</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground font-light leading-relaxed">
-                    Complimentary express shipping on all orders. Each piece is meticulously handcrafted to order; please allow 2-3 weeks for delivery. We accept returns within 30 days of receipt, provided the item is in its original condition with all tags and certification attached.
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          </AnimatedSection>
-        </div>
-
-        {/* Diamond Specs Section */}
-        {product.diamondSpecs && (
-          <div className="mt-20">
-            <AnimatedSection animation="fadeUp">
-              <DiamondSpecs specs={product.diamondSpecs} />
-            </AnimatedSection>
-          </div>
-        )}
-
-        {/* Related Products */}
-        <div className="mt-20">
-          <RelatedProducts products={relatedProducts} />
-        </div>
-
-        {/* Recently Viewed */}
-        <RecentlyViewed excludeId={product._id} />
-      </div>
-    </div>
+      )}
+      <ProductView slug={slug} />
+    </>
   );
 }

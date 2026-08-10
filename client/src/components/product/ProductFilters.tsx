@@ -36,6 +36,10 @@ const filterOptions = {
   ]
 };
 
+// Stable reference so Base UI's uncontrolled Accordion doesn't see the
+// defaultValue "change" on every render (which triggers a console warning).
+const DEFAULT_OPEN_SECTIONS = ["category", "metal"];
+
 export function ProductFilters({ filters, setFilters, className }: ProductFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -80,7 +84,7 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 lg:p-0 no-scrollbar">
-            <Accordion defaultValue={["category", "price", "metal"]} className="w-full">
+            <Accordion defaultValue={DEFAULT_OPEN_SECTIONS} className="w-full">
               {/* Category */}
               <AccordionItem value="category" className="border-border">
                 <AccordionTrigger className="text-xs uppercase tracking-wider hover:no-underline font-semibold">
@@ -106,27 +110,31 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
                 </AccordionContent>
               </AccordionItem>
 
-              {/* Price */}
-              <AccordionItem value="price" className="border-border">
-                <AccordionTrigger className="text-xs uppercase tracking-wider hover:no-underline font-semibold">
-                  Price Range
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="px-1 pt-6 pb-2">
-                    <Slider
-                      defaultValue={[filters.minPrice || 0, filters.maxPrice || 1500000]}
-                      max={2000000}
-                      step={10000}
-                      onValueChange={handlePriceChange}
-                      className="[&_[role=slider]]:border-gold [&_[role=slider]]:bg-gold"
-                    />
-                    <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground">
-                      <span>₹{(filters.minPrice || 0).toLocaleString()}</span>
-                      <span>₹{(filters.maxPrice || 2000000).toLocaleString()}+</span>
+              {/* Price — temporarily hidden (prices not shown to customers yet).
+                  Re-enable by changing `{false && (` back to render this block
+                  and adding "price" back to the Accordion defaultValue above. */}
+              {false && (
+                <AccordionItem value="price" className="border-border">
+                  <AccordionTrigger className="text-xs uppercase tracking-wider hover:no-underline font-semibold">
+                    Price Range
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="px-1 pt-6 pb-2">
+                      <Slider
+                        defaultValue={[filters.minPrice || 0, filters.maxPrice || 1500000]}
+                        max={2000000}
+                        step={10000}
+                        onValueChange={handlePriceChange}
+                        className="[&_[role=slider]]:border-gold [&_[role=slider]]:bg-gold"
+                      />
+                      <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground">
+                        <span>₹{(filters.minPrice || 0).toLocaleString()}</span>
+                        <span>₹{(filters.maxPrice || 2000000).toLocaleString()}+</span>
+                      </div>
                     </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
               {/* Metal */}
               <AccordionItem value="metal" className="border-border">

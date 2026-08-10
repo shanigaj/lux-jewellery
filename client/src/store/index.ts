@@ -16,7 +16,7 @@ const rootReducer = combineReducers({
 });
 
 const persistConfig = {
-  key: 'lux-diamonds',
+  key: 'sparenza-jewels',
   storage,
   whitelist: ['auth', 'cart', 'product'], // Reducers to persist
 };

@@ -17,7 +17,7 @@ import morganMiddleware from "./middleware/morgan.middleware";
 import { errorHandler } from "./middleware/error.middleware";
 import logger from "./utils/logger";
 
-dotenv.config();
+dotenv.config({ path: [".env.local", ".env"] });
 
 const app = express();
 const PORT = process.env.PORT || 5000;

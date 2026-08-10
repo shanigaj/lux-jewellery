@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// 💎 LUX DIAMONDS — Order & Shopping Type Definitions
+// 💎 Sparenza & Co. — Order & Shopping Type Definitions
 // ═══════════════════════════════════════════════════════════
 
 import { IProduct, TMetalType, TMetalPurity } from "./product.types";

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// 💎 LUX DIAMONDS — Category Page Metadata
+// 💎 Sparenza & Co. — Category Page Metadata
 // ───────────────────────────────────────────────────────────
 // Every category / sub-category slug used in the header
 // (see `navigation.ts`) maps to a landing page rendered by

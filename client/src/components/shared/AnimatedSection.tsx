@@ -54,9 +54,12 @@ export function AnimatedSection({
 }: AnimatedSectionProps) {
   return (
     <motion.div
+      // `animate` (mount-triggered) instead of `whileInView`: the IntersectionObserver
+      // behind whileInView doesn't reliably fire on a hard reload under Next 16, which
+      // left above-the-fold sections stuck at opacity:0 (invisible content). Animating on
+      // mount guarantees the content always reveals while keeping the fade/slide effect.
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once, margin: "-80px" }}
+      animate="visible"
       variants={animations[animation]}
       transition={{
         duration,
@@ -88,8 +91,7 @@ export function StaggerContainer({
   return (
     <motion.div
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once, margin: "-60px" }}
+      animate="visible"
       variants={{
         hidden: {},
         visible: {

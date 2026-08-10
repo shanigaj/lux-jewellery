@@ -17,7 +17,7 @@ const slides = [
     description:
       "Each stone is hand-selected for its extraordinary fire and brilliance, set by master craftsmen with over three decades of expertise.",
     cta: "Explore Collection",
-    href: "/collections/celestial",
+    href: "/products",
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ const slides = [
     description:
       "Discover engagement rings and wedding bands that symbolize your unique love story, crafted with GIA-certified diamonds.",
     cta: "View Bridal",
-    href: "/collections/bridal",
+    href: "/categories/engagement-rings",
   },
   {
     id: 3,
@@ -39,7 +39,7 @@ const slides = [
     description:
       "Only 25 pieces crafted worldwide. Exceptional D-color flawless diamonds in designs that transcend time.",
     cta: "Discover Now",
-    href: "/collections/limited-edition",
+    href: "/products",
   },
 ];
 

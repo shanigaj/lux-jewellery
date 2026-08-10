@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// 💎 LUX DIAMONDS — Site Configuration
+// 💎 Sparenza & Co. — Site Configuration
 // ═══════════════════════════════════════════════════════════
 
 export const siteConfig = {
@@ -8,7 +8,7 @@ export const siteConfig = {
   description:
     "Exceptional diamond jewellery crafted for those who appreciate the extraordinary. Each piece is a masterwork of precision and artistry.",
   tagline: "Crafted with Trust. Worn for Life.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://luxdiamonds.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://sparenza.com",
   ogImage: "/images/og-image.jpg",
   creator: "Sparenza & Co.",
   keywords: [
@@ -24,17 +24,20 @@ export const siteConfig = {
     "luxury accessories",
   ],
   contact: {
-    email: "concierge@luxdiamonds.com",
-    phone: "+91 98765 43210",
-    whatsapp: "+919876543210",
-    address: "The Diamond Quarter, Mumbai, India",
+    email: "contact@sparenza.com",
+    // Primary number kept for any single-phone references; full list in `phones`.
+    phone: "+91 63527 51091",
+    phones: ["+91 99240 36623", "+91 63527 51091", "+91 63537 84310"],
+    whatsapp: "+916353784310",
+    address:
+      "52, Shubham Park Society, Aakar Club Rd, Swagat Society, BRTS, Simada Gam, Nana Varachha, Surat, Gujarat 395011",
   },
   social: {
-    instagram: "https://instagram.com/luxdiamonds",
-    pinterest: "https://pinterest.com/luxdiamonds",
-    facebook: "https://facebook.com/luxdiamonds",
-    twitter: "https://twitter.com/luxdiamonds",
-    youtube: "https://youtube.com/@luxdiamonds",
+    instagram: "https://instagram.com/sparenza",
+    pinterest: "https://pinterest.com/sparenza",
+    facebook: "https://facebook.com/sparenza",
+    twitter: "https://twitter.com/sparenza",
+    youtube: "https://youtube.com/@sparenza",
   },
   features: {
     freeShipping: true,

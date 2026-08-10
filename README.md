@@ -1,4 +1,4 @@
-# LUX DIAMONDS 💎
+# Sparenza & Co. 💎
 **Where Brilliance Meets Artistry**
 
 An ultra-premium, full-stack E-Commerce platform built for a luxury diamond jewelry brand. It features a stunning storefront and a highly sophisticated Enterprise Admin Dashboard for complete operational control.
@@ -67,7 +67,7 @@ You must create `.env` files in both the `client` and `server` directories.
 ```env
 PORT=5000
 NODE_ENV=development
-MONGO_URI=mongodb://localhost:27017/lux-diamonds
+MONGO_URI=mongodb://localhost:27017/sparenza-jewels
 JWT_SECRET=your_super_secret_key
 CLIENT_URL=http://localhost:3002
 STRIPE_SECRET_KEY=sk_test_...
@@ -101,8 +101,8 @@ npm run seed:users  # creates admin@lux.com / user@lux.com (password: password12
 
 **Docker (against the running stack):**
 ```bash
-docker exec lux_diamonds_server node dist/seedProducts.js
-docker exec lux_diamonds_server node dist/seedUsers.js
+docker exec sparenza_server node dist/seedProducts.js
+docker exec sparenza_server node dist/seedUsers.js
 ```
 
 > Seed data is stored in the MongoDB volume, not in git — re-run the seed on a

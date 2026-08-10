@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 export const sendEmail = async (options: EmailOptions): Promise<void> => {
   try {
     const info = await transporter.sendMail({
-      from: `"LUX DIAMONDS" <${process.env.SMTP_USER}>`,
+      from: `"Sparenza & Co." <${process.env.SMTP_USER}>`,
       to: options.to,
       subject: options.subject,
       text: options.text,

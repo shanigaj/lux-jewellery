@@ -33,7 +33,7 @@ function Newsletter() {
       <div className="container-luxury relative z-10">
         <AnimatedSection animation="fadeUp" className="max-w-xl mx-auto text-center">
           <p className="text-[10px] uppercase tracking-luxury-wide text-gold mb-4">
-            The Lux Diamond Circle
+            The Sparenza Circle
           </p>
           <h3 className="font-heading text-2xl md:text-3xl text-white mb-3">
             Join Our World of Luxury
@@ -99,13 +99,16 @@ export function Footer() {
 
               {/* Contact Info */}
               <div className="mt-8 space-y-3">
-                <a
-                  href={`tel:${siteConfig.contact.phone}`}
-                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-gold transition-colors group"
-                >
-                  <Phone size={14} className="text-gold" />
-                  <span>{siteConfig.contact.phone}</span>
-                </a>
+                {siteConfig.contact.phones.map((num) => (
+                  <a
+                    key={num}
+                    href={`tel:${num.replace(/\s+/g, "")}`}
+                    className="flex items-center gap-3 text-sm text-muted-foreground hover:text-gold transition-colors group"
+                  >
+                    <Phone size={14} className="text-gold" />
+                    <span>{num}</span>
+                  </a>
+                ))}
                 <a
                   href={`mailto:${siteConfig.contact.email}`}
                   className="flex items-center gap-3 text-sm text-muted-foreground hover:text-gold transition-colors group"

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// 💎 LUX DIAMONDS — Navigation Configuration
+// 💎 Sparenza & Co. — Navigation Configuration
 // ═══════════════════════════════════════════════════════════
 
 export interface NavItem {
@@ -121,42 +121,21 @@ export const mainNavigation: NavItem[] = [
     ],
   },
   {
-    label: "Collections",
-    href: "/collections",
+    label: "Discover",
+    href: "/about",
     featured: true,
     image: "/images/collections/hero-collection.png",
     children: [
       {
-        label: "Bridal Collection",
-        href: "/collections/bridal",
-        description: "For your most precious moments",
-        image: "/images/collections/bridal.jpg",
+        label: "Our Story",
+        href: "/about",
+        description: "The people and values behind Sparenza & Co.",
       },
       {
-        label: "Heritage Collection",
-        href: "/collections/heritage",
-        description: "Inspired by timeless artistry",
-        image: "/images/collections/heritage.jpg",
+        label: "Contact Us",
+        href: "/contact",
+        description: "Visit, call or message our Surat boutique",
       },
-      {
-        label: "Celestial Collection",
-        href: "/collections/celestial",
-        description: "Stars captured in diamonds",
-        image: "/images/collections/celestial.jpg",
-      },
-      {
-        label: "New Arrivals",
-        href: "/collections/new-arrivals",
-        description: "The latest masterpieces",
-      },
-    ],
-  },
-  {
-    label: "Bespoke",
-    href: "/design-your-own",
-    featured: true,
-    image: "/images/collections/hero-collection.png",
-    children: [
       {
         label: "Design Your Own Ring",
         href: "/design-your-own",
@@ -177,15 +156,12 @@ export const footerNavigation = {
     { label: "Necklaces", href: "/categories/necklaces" },
     { label: "Earrings", href: "/categories/earrings" },
     { label: "Bracelets", href: "/categories/bracelets" },
-    { label: "New Arrivals", href: "/collections/new-arrivals" },
-    { label: "Bestsellers", href: "/collections/bestsellers" },
+    { label: "All Jewellery", href: "/products" },
   ],
   about: [
     { label: "Our Story", href: "/about" },
-    { label: "Craftsmanship", href: "/about/craftsmanship" },
-    { label: "Diamond Guide", href: "/about/diamond-guide" },
-    { label: "Sustainability", href: "/about/sustainability" },
-    { label: "Press", href: "/about/press" },
+    { label: "Craftsmanship", href: "/about#craftsmanship" },
+    { label: "Sustainability", href: "/about#sustainability" },
   ],
   support: [
     { label: "Contact Us", href: "/contact" },
@@ -197,7 +173,5 @@ export const footerNavigation = {
   legal: [
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
-    { label: "Refund Policy", href: "/refund-policy" },
   ],
 };

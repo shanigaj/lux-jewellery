@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// 💎 LUX DIAMONDS — API, User, Cart & Order Types
+// 💎 Sparenza & Co. — API, User, Cart & Order Types
 // ═══════════════════════════════════════════════════════════
 
 // ── API Response ──

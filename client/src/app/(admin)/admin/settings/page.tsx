@@ -58,7 +58,7 @@ export default function AdminSettingsPage() {
                   <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Support Email</label>
                   <input 
                     type="email" 
-                    defaultValue="support@luxdiamonds.com"
+                    defaultValue="contact@sparenza.com"
                     className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:border-gold outline-none transition-colors" 
                   />
                 </div>
@@ -67,7 +67,7 @@ export default function AdminSettingsPage() {
               <div className="space-y-1.5">
                 <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Store Address</label>
                 <textarea 
-                  defaultValue="42 Diamond Heights, Bandra West, Mumbai, Maharashtra 400050"
+                  defaultValue="52, Shubham Park Society, Aakar Club Rd, Swagat Society, BRTS, Simada Gam, Nana Varachha, Surat, Gujarat 395011"
                   rows={3}
                   className="w-full bg-background border border-border rounded-lg px-4 py-3 text-sm focus:border-gold outline-none transition-colors resize-none" 
                 />
