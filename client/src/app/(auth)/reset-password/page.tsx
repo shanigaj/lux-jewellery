@@ -44,15 +44,12 @@ export default function ResetPasswordPage() {
 
     setIsLoading(true);
     try {
-      // In a real app you'd call /auth/reset-password/:token
-      // We haven't implemented this route in the mock backend yet, 
-      // but this completes the frontend UI flow.
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await api.post("/auth/reset-password", { token, password: data.password });
       toast.success("Password reset successfully. You can now log in.");
       router.push("/login");
-    } catch (error) {
-      toast.error("Failed to reset password. Token may be expired.");
+    } catch (error: unknown) {
+      const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg || "Failed to reset password. The link may have expired.");
     } finally {
       setIsLoading(false);
     }

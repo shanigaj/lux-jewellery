@@ -31,16 +31,11 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotFormValues) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/auth/forgot-password", data);
+      await api.post("/auth/forgot-password", data);
       setIsSent(true);
-      
-      // DEV ONLY log
-      if (response.data.mockResetToken) {
-        console.log("DEV MOCK RESET TOKEN:", response.data.mockResetToken);
-        toast.info(`DEV MODE: Reset token is ${response.data.mockResetToken}`, { duration: 10000 });
-      }
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+    } catch (error: unknown) {
+      const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }

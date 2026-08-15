@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import User, { IUser } from "../models/User";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { sendEmail } from "../utils/sendEmail";
 
 // --- Helper Functions ---
 const signToken = (id: string, secret: string, expiresIn: string) => {
@@ -207,17 +208,110 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const resetToken = crypto.randomBytes(20).toString("hex");
     user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
     user.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
     await user.save();
 
-    // Mock sending email
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const resetUrl = `${clientUrl}/reset-password?token=${resetToken}`;
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your Sparenza & Co. password",
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+            <h2 style="color:#111">Reset your password</h2>
+            <p>We received a request to reset your Sparenza &amp; Co. password. This link is valid for 10 minutes.</p>
+            <p style="margin:28px 0">
+              <a href="${resetUrl}" style="background:#111;color:#fff;padding:12px 22px;border-radius:6px;text-decoration:none">Reset password</a>
+            </p>
+            <p style="color:#666;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
+          </div>`,
+      });
+    } catch {
+      // Roll back the token so a stale one can't linger if the email failed.
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+      res.status(500).json({ success: false, message: "Could not send reset email. Please try again." });
+      return;
+    }
+
     res.status(200).json({
       success: true,
-      message: "Reset token generated",
-      mockResetToken: resetToken // DEV ONLY
+      message: "If an account exists, a reset email has been sent.",
     });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// @desc    Reset password using the emailed token
+// @route   POST /api/auth/reset-password
+// @access  Public
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body ?? {};
+    if (!token || !password || String(password).length < 6) {
+      res.status(400).json({ success: false, message: "A valid token and a password (min 6 chars) are required." });
+      return;
+    }
+
+    const hashed = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      resetPasswordToken: hashed,
+      resetPasswordExpire: { $gt: new Date() },
+    }).select("+password");
+
+    if (!user) {
+      res.status(400).json({ success: false, message: "This reset link is invalid or has expired." });
+      return;
+    }
+
+    user.password = password; // hashed by the pre-save hook
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password reset. You can now sign in." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// @desc    Get the signed-in user
+// @route   GET /api/auth/me
+// @access  Private
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById((req as unknown as { user: { _id: string } }).user._id).select(
+      "firstName lastName email phone role tier isVerified createdAt"
+    );
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// @desc    Update the signed-in user's profile
+// @route   PUT /api/auth/me
+// @access  Private
+export const updateMe = async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, phone } = req.body;
+    const update: Record<string, unknown> = {};
+    if (firstName !== undefined) update.firstName = firstName;
+    if (lastName !== undefined) update.lastName = lastName;
+    if (phone !== undefined) update.phone = phone;
+
+    const user = await User.findByIdAndUpdate(
+      (req as unknown as { user: { _id: string } }).user._id,
+      update,
+      { new: true, runValidators: true }
+    ).select("firstName lastName email phone role tier");
+
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    res.status(400).json({ success: false, message: (error as Error).message });
   }
 };
 

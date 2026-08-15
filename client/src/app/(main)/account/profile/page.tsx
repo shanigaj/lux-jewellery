@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
+import { api } from "@/lib/axios";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -24,25 +25,40 @@ export default function ProfilePage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: "Priya",
-      lastName: "Sharma",
-      email: "priya@example.com",
-      phone: "+91 9876543210",
-      birthday: "1990-05-15",
-      anniversary: "2015-11-20",
-    },
+    defaultValues: { firstName: "", lastName: "", email: "", phone: "" },
   });
+
+  // Load the signed-in user's real profile.
+  useEffect(() => {
+    let active = true;
+    api
+      .get("/auth/me")
+      .then((res) => {
+        if (!active) return;
+        const u = res.data?.data;
+        if (u) reset({ firstName: u.firstName ?? "", lastName: u.lastName ?? "", email: u.email ?? "", phone: u.phone ?? "" });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [reset]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    toast.success("Profile updated successfully");
+    try {
+      await api.put("/auth/me", { firstName: data.firstName, lastName: data.lastName, phone: data.phone });
+      toast.success("Profile updated successfully");
+    } catch (error: unknown) {
+      const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg || "Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const inputClass =
