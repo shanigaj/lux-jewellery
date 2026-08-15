@@ -171,6 +171,7 @@ export const footerNavigation = {
     { label: "Care Instructions", href: "/care" },
   ],
   legal: [
+    { label: "Return & Refund Policy", href: "/refund-policy" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
   ],

@@ -27,9 +27,10 @@ const BLOCKS = [
     icon: RotateCcw,
     title: "Exchanges & Returns",
     points: [
-      "If something isn't right, contact us within 7 days of delivery.",
+      "If something isn't right, contact us within 14 days of delivery.",
       "Items must be unworn and in original condition with packaging.",
       "Custom-made and personalised pieces are not eligible for return.",
+      "See our full Return & Refund Policy for details.",
     ],
   },
   {
