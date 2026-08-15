@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { register, login, verifyOTP, refreshToken, logout, forgotPassword, resetPassword, getMe, updateMe, getUsers } from "../controllers/auth.controller";
+import { getAddresses, addAddress, updateAddress, deleteAddress } from "../controllers/address.controller";
 import { protect, authorize } from "../middleware/auth";
 
 const router = Router();
@@ -15,6 +16,10 @@ router.post("/reset-password", resetPassword);
 // Current user
 router.get("/me", protect, getMe);
 router.put("/me", protect, updateMe);
+
+// Saved addresses
+router.route("/addresses").get(protect, getAddresses).post(protect, addAddress);
+router.route("/addresses/:addrId").put(protect, updateAddress).delete(protect, deleteAddress);
 
 // Admin
 router.get("/users", protect, authorize("admin"), getUsers);
