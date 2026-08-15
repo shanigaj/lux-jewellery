@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
+  Calculator,
   Package,
   ShoppingCart,
   Users,
@@ -37,6 +38,7 @@ const adminSidebarLinks = [
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Coupons", href: "/admin/coupons", icon: Tags },
   { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
+  { name: "Pricing Calculator", href: "/admin/pricing", icon: Calculator },
 
   { section: "Content" },
   { name: "CMS & Pages", href: "/admin/cms", icon: ImageIcon },

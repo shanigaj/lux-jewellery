@@ -19,6 +19,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
+import { LivePriceTicker } from "@/components/layout/header/LivePriceTicker";
 import { Logo } from "@/components/shared/Logo";
 import { mainNavigation, type NavItem } from "@/config/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -52,25 +53,11 @@ function AnnouncementBar() {
   return (
     <div className="bg-onyx text-white/90">
       <div className="container-luxury flex items-center justify-between py-2">
-        <div className="hidden md:flex items-center gap-4 text-[11px] tracking-wider">
-          <a
-            href="tel:+916352751091"
-            className="flex items-center gap-1.5 hover:text-gold transition-colors"
-          >
-            <Phone size={11} />
-            <span>+91 63527 51091</span>
-          </a>
-          <span className="w-px h-3 bg-white/20" />
-          <a
-            href="/stores"
-            className="flex items-center gap-1.5 hover:text-gold transition-colors"
-          >
-            <MapPin size={11} />
-            <span>Find a Boutique</span>
-          </a>
+        <div className="flex items-center shrink-0">
+          <LivePriceTicker />
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden hidden lg:block">
           <AnimatePresence mode="wait">
             <motion.p
               key={current}
@@ -85,7 +72,7 @@ function AnnouncementBar() {
           </AnimatePresence>
         </div>
 
-        <div className="hidden md:block text-[11px] tracking-wider">
+        <div className="hidden md:block text-[11px] tracking-wider shrink-0">
           <Link href="/book-appointment" className="hover:text-gold transition-colors">
             Book an Appointment
           </Link>
