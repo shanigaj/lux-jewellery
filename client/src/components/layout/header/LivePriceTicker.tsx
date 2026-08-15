@@ -12,7 +12,7 @@ function fmt(n: number) {
  */
 export function LivePriceTicker() {
   const { data } = useGetMetalRatesQuery(undefined, {
-    pollingInterval: 5 * 60 * 1000,
+    pollingInterval: 3 * 60 * 1000,
     refetchOnFocus: true,
   });
 

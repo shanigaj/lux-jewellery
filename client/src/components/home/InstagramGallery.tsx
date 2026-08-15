@@ -27,16 +27,16 @@ export function InstagramGallery() {
               </p>
             </div>
             <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-foreground">
-              @Sparenza
+              @sparenzajewels
             </h2>
             <p className="text-muted-foreground font-light mt-3 max-w-md">
-              Join our community of jewellery connoisseurs. Share your Sparenza moments with #MySparenza.
+              Join our community of jewellery connoisseurs. Share your Sparenza moments with #Sparenzajewels.
             </p>
           </AnimatedSection>
           
           <AnimatedSection animation="fadeLeft" delay={0.2}>
             <Link
-              href="https://instagram.com"
+              href="https://www.instagram.com/sparenzajewels/"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-3 px-6 py-3 border border-border rounded-full hover:border-gold transition-colors"

@@ -33,7 +33,7 @@ export const siteConfig = {
       "52, Shubham Park Society, Aakar Club Rd, Swagat Society, BRTS, Simada Gam, Nana Varachha, Surat, Gujarat 395011",
   },
   social: {
-    instagram: "https://instagram.com/sparenza",
+    instagram: "https://www.instagram.com/sparenzajewels/",
     pinterest: "https://pinterest.com/sparenza",
     facebook: "https://facebook.com/sparenza",
     twitter: "https://twitter.com/sparenza",

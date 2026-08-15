@@ -122,9 +122,12 @@ function MetalCalculator({ rates }: { rates?: Record<MetalKey, number> }) {
 }
 
 // ── Diamond calculator (Rapaport / 4Cs) ─────────────────────
-const COLORS = ["D", "E", "F", "G", "H", "I", "J", "K"];
-const CLARITIES = ["FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1"];
+// Indicative multipliers relative to a G · VS1 baseline (= 1.0).
+const COLOR_MULT: Record<string, number> = { D: 1.35, E: 1.25, F: 1.15, G: 1.0, H: 0.9, I: 0.8, J: 0.7, K: 0.6 };
+const CLARITY_MULT: Record<string, number> = { FL: 1.6, IF: 1.45, VVS1: 1.3, VVS2: 1.2, VS1: 1.0, VS2: 0.9, SI1: 0.75, SI2: 0.62, I1: 0.4 };
 const CUTS: Record<string, number> = { Excellent: 1.0, "Very Good": 0.95, Good: 0.88, Fair: 0.78 };
+const COLORS = Object.keys(COLOR_MULT);
+const CLARITIES = Object.keys(CLARITY_MULT);
 
 function DiamondCalculator() {
   const [carat, setCarat] = useState(1);
@@ -137,13 +140,16 @@ function DiamondCalculator() {
 
   const c = useMemo(() => {
     const cutMult = CUTS[cut] ?? 1;
-    const diamondValue = carat * ratePerCarat * cutMult;
+    const colorMult = COLOR_MULT[color] ?? 1;
+    const clarityMult = CLARITY_MULT[clarity] ?? 1;
+    const gradeMult = cutMult * colorMult * clarityMult;
+    const diamondValue = carat * ratePerCarat * gradeMult;
     const subtotal = diamondValue + certCost + setting;
     const gst = subtotal * GST_DIAMOND;
     const total = subtotal + gst;
     const effPerCarat = carat > 0 ? total / carat : 0;
-    return { cutMult, diamondValue, subtotal, gst, total, effPerCarat };
-  }, [carat, cut, ratePerCarat, certCost, setting]);
+    return { cutMult, colorMult, clarityMult, gradeMult, diamondValue, subtotal, gst, total, effPerCarat };
+  }, [carat, color, clarity, cut, ratePerCarat, certCost, setting]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -171,7 +177,7 @@ function DiamondCalculator() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-border">
-          <Field label="Base rate ₹/carat" value={ratePerCarat} set={setRatePerCarat} step={5000} hint={`Rapaport/supplier rate for ${color} ${clarity}`} />
+          <Field label="Base rate ₹/carat (G · VS1)" value={ratePerCarat} set={setRatePerCarat} step={5000} hint="Rapaport/supplier rate for a G · VS1 stone; colour & clarity adjust automatically" />
           <Field label="Certification (GIA) ₹" value={certCost} set={setCertCost} step={1000} />
           <Field label="Setting / mount ₹" value={setting} set={setSetting} step={1000} />
         </div>
@@ -186,7 +192,8 @@ function DiamondCalculator() {
         <h2 className="font-heading text-lg flex items-center gap-2 mb-4"><IndianRupee size={18} /> Price (India)</h2>
         <div className="text-sm">
           <Row label="Grade" value={`${carat}ct · ${color} · ${clarity} · ${cut}`} />
-          <Row label={`Diamond (×${c.cutMult} cut)`} value={inr(c.diamondValue)} />
+          <Row label={`Grade factor`} value={`×${c.gradeMult.toFixed(2)}`} />
+          <Row label="Diamond value" value={inr(c.diamondValue)} />
           {certCost > 0 && <Row label="Certification" value={inr(certCost)} />}
           {setting > 0 && <Row label="Setting / mount" value={inr(setting)} />}
           <Row label="Subtotal" value={inr(c.subtotal)} />

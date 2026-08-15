@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 const TROY_OZ_IN_GRAMS = 31.1035;
-const CACHE_TTL_MS = 60 * 60 * 1000; // refresh at most hourly
+const CACHE_TTL_MS = 15 * 60 * 1000; // refresh at most every 15 minutes
 
 interface MetalRates {
   currency: "INR";
