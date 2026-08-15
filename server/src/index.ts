@@ -17,6 +17,7 @@ import blogRoutes from "./routes/blog.routes";
 import auditRoutes from "./routes/audit.routes";
 import metalsRoutes from "./routes/metals.routes";
 import settingsRoutes from "./routes/settings.routes";
+import appointmentRoutes from "./routes/appointment.routes";
 import morganMiddleware from "./middleware/morgan.middleware";
 import { errorHandler } from "./middleware/error.middleware";
 import logger from "./utils/logger";
@@ -68,6 +69,7 @@ app.use("/api/blogs", blogRoutes);
 app.use("/api/audit-logs", auditRoutes);
 app.use("/api/metals", metalsRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 // Health Check
 app.get("/api/health", (req, res) => {

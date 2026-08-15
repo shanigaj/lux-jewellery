@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { useCreateAppointmentMutation } from "@/store/api/appointmentApi";
 import { downloadIcs } from "@/lib/ics";
 import {
   EXPERIENCES,
@@ -46,6 +47,7 @@ const phoneOk = (v: string) => v.replace(/\D/g, "").length >= 8;
 export default function BookAppointmentPage() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [createAppointment] = useCreateAppointmentMutation();
 
   const [experience, setExperience] = useState<ExperienceType | null>(null);
   const [boutiqueId, setBoutiqueId] = useState<string>("");
@@ -93,6 +95,8 @@ export default function BookAppointmentPage() {
       interest,
       notes,
     };
+    // Persist the request (fire-and-forget), then hand off to WhatsApp.
+    createAppointment(details);
     window.open(getWhatsAppUrl(buildAppointmentMessage(details)), "_blank", "noopener,noreferrer");
     setSubmitted(true);
   }

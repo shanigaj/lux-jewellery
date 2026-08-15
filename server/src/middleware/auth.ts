@@ -7,6 +7,21 @@ export interface AuthRequest extends Request {
   user?: IUser;
 }
 
+// Links a signed-in user if a valid token is present, but never blocks guests.
+export const optionalAuth = async (req: AuthRequest, _res: Response, next: NextFunction) => {
+  try {
+    const token = req.cookies?.jwt;
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+      const user = await User.findById(decoded.id);
+      if (user) req.user = user;
+    }
+  } catch {
+    // ignore — proceed as guest
+  }
+  next();
+};
+
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     let token;

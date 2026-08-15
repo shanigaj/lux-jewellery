@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { CalendarDays, Clock, MapPin, Video, Plus, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { api } from "@/lib/axios";
+import { useGetMyAppointmentsQuery, useCreateAppointmentMutation } from "@/store/api/appointmentApi";
 
 const appointmentSchema = z.object({
   type: z.enum(["in-store", "virtual"]),
@@ -29,21 +32,30 @@ type Appointment = {
   store?: string;
 };
 
-const upcomingAppointments: Appointment[] = [
-  {
-    id: "1",
-    type: "virtual",
-    date: "2026-07-20",
-    time: "14:00",
-    topic: "Engagement Ring Consultation",
-    status: "confirmed",
-    link: "meet.google.com/abc-defg-hij",
-  },
-];
-
 export default function AppointmentsPage() {
   const [isBooking, setIsBooking] = useState(false);
-  const [appointments, setAppointments] = useState<Appointment[]>(upcomingAppointments);
+  const { data } = useGetMyAppointmentsQuery();
+  const [createAppointment, { isLoading: booking }] = useCreateAppointmentMutation();
+  const [me, setMe] = useState<{ firstName?: string; lastName?: string; email?: string; phone?: string } | null>(null);
+
+  useEffect(() => {
+    api.get("/auth/me").then((r) => setMe(r.data?.data)).catch(() => {});
+  }, []);
+
+  // Real appointments from the backend, mapped to the card shape.
+  const appointments = useMemo<Appointment[]>(
+    () =>
+      (data?.data ?? []).map((a) => ({
+        id: a._id,
+        type: a.experience === "virtual" ? "virtual" : "in-store",
+        date: a.date,
+        time: a.time,
+        topic: a.interest || a.experience,
+        status: a.status,
+        store: a.boutiqueId,
+      })),
+    [data]
+  );
 
   const {
     register,
@@ -53,29 +65,30 @@ export default function AppointmentsPage() {
     formState: { errors },
   } = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentSchema),
-    defaultValues: {
-      type: "virtual",
-    },
+    defaultValues: { type: "virtual" },
   });
 
   const appointmentType = watch("type");
 
-  const onSubmit = async (data: AppointmentFormValues) => {
-    // Simulate API call
-    const newApt: Appointment = {
-      id: Date.now().toString(),
-      type: data.type,
-      date: data.date,
-      time: data.time,
-      topic: data.topic,
-      status: "confirmed",
-      link: data.type === "virtual" ? "meet.google.com/pending" : undefined,
-      store: data.store,
-    };
-    
-    setAppointments([...appointments, newApt]);
-    setIsBooking(false);
-    reset();
+  const onSubmit = async (formData: AppointmentFormValues) => {
+    try {
+      await createAppointment({
+        experience: formData.type,
+        date: formData.date,
+        time: formData.time,
+        boutiqueId: formData.store,
+        interest: formData.topic,
+        notes: formData.notes,
+        name: [me?.firstName, me?.lastName].filter(Boolean).join(" ") || "Guest",
+        email: me?.email || "",
+        phone: me?.phone || "",
+      }).unwrap();
+      toast.success("Appointment requested — we'll confirm shortly.");
+      setIsBooking(false);
+      reset();
+    } catch {
+      toast.error("Failed to book appointment");
+    }
   };
 
   const inputClass =
