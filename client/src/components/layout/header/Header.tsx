@@ -19,6 +19,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
+import { useGetSettingsQuery } from "@/store/api/settingsApi";
 import { LivePriceTicker } from "@/components/layout/header/LivePriceTicker";
 import { Logo } from "@/components/shared/Logo";
 import { mainNavigation, type NavItem } from "@/config/navigation";
@@ -35,12 +36,19 @@ import {
 const SHOW_ACCOUNT = false;
 
 // ── Announcement Bar ──
+const DEFAULT_ANNOUNCEMENTS = [
+  "Complimentary worldwide shipping on orders above ₹50,000",
+  "Every diamond is GIA certified — Authenticity guaranteed",
+  "Lifetime exchange & buyback on all collections",
+];
+
 function AnnouncementBar() {
-  const announcements = [
-    "Complimentary worldwide shipping on orders above ₹50,000",
-    "Every diamond is GIA certified — Authenticity guaranteed",
-    "Lifetime exchange & buyback on all collections",
-  ];
+  // Managed live from Admin → CMS; falls back to defaults until loaded.
+  const { data } = useGetSettingsQuery();
+  const announcements =
+    data?.data?.announcements && data.data.announcements.length > 0
+      ? data.data.announcements
+      : DEFAULT_ANNOUNCEMENTS;
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
