@@ -220,3 +220,17 @@ export const forgotPassword = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
+
+// @desc    List all users (admin)
+// @route   GET /api/auth/users
+// @access  Admin
+export const getUsers = async (_req: Request, res: Response) => {
+  try {
+    const users = await User.find()
+      .select("firstName lastName email role tier isVerified createdAt")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, count: users.length, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};

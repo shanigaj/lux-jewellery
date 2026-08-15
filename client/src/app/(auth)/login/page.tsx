@@ -11,7 +11,6 @@ import { api } from "@/lib/axios";
 import { useAppDispatch } from "@/store/hooks";
 import { login } from "@/store/slices/authSlice";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { OAuthButtons } from "@/components/auth/OAuthButtons";
 import { Loader2 } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 
@@ -47,10 +46,17 @@ export default function LoginPage() {
         return;
       }
 
-      // Successful login
-      dispatch(login(response.data.user));
+      // Successful login — route by role, honouring an explicit callbackUrl.
+      const user = response.data.user;
+      dispatch(login(user));
       toast.success("Welcome back!");
-      router.push("/account");
+
+      const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+      if (user?.role === "admin") {
+        router.push(callbackUrl?.startsWith("/admin") ? callbackUrl : "/admin");
+      } else {
+        router.push(callbackUrl && !callbackUrl.startsWith("/admin") ? callbackUrl : "/account");
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
@@ -126,17 +132,6 @@ export default function LoginPage() {
               {isLoading ? <Loader2 className="animate-spin" size={20} /> : "Sign In"}
             </button>
           </form>
-
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or</span>
-            </div>
-          </div>
-
-          <OAuthButtons />
         </AnimatedSection>
       </div>
     </div>

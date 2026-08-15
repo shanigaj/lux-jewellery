@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Review from "../models/Review";
 import Product from "../models/Product";
+import { logAudit } from "./audit.controller";
 
 /**
  * @desc    Get all reviews for a product
@@ -102,6 +103,8 @@ export const updateReviewStatus = async (
       res.status(404).json({ status: "error", message: "Review not found" });
       return;
     }
+
+    logAudit(req, isApproved ? "Approved Review" : "Rejected Review", String(review._id));
 
     // Recalculate average rating for the product if approved
     if (isApproved) {

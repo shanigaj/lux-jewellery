@@ -1,14 +1,23 @@
 "use client";
 
+import { useMemo } from "react";
 import { Shield, Plus, Edit, Trash2 } from "lucide-react";
+import { useGetUsersQuery } from "@/store/api/userApi";
 
 export default function AdminRolesPage() {
-  const roles = [
-    { id: 1, name: "Super Admin", users: 2, description: "Full access to all modules and settings." },
-    { id: 2, name: "Store Manager", users: 5, description: "Access to products, orders, inventory, and customers." },
-    { id: 3, name: "Content Editor", users: 3, description: "Access to CMS, blogs, and marketing assets." },
-    { id: 4, name: "Customer Support", users: 12, description: "Access to orders, customers, and reviews (read-only settings)." },
-  ];
+  const { data } = useGetUsersQuery();
+
+  // Live user counts per role (from real accounts).
+  const roles = useMemo(() => {
+    const users = data?.data ?? [];
+    const count = (role: string) => users.filter((u) => u.role === role).length;
+    return [
+      { id: 1, name: "Super Admin", role: "admin", users: count("admin"), description: "Full access to all modules and settings." },
+      { id: 2, name: "Store Manager", role: "manager", users: count("manager"), description: "Access to products, orders, inventory, and customers." },
+      { id: 3, name: "Customer Support", role: "support", users: count("support"), description: "Access to orders, customers, and reviews (read-only settings)." },
+      { id: 4, name: "Customer", role: "user", users: count("user"), description: "Standard storefront shopper account." },
+    ];
+  }, [data]);
 
   return (
     <div className="space-y-6">

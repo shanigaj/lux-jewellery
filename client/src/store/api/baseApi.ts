@@ -6,6 +6,6 @@ export const baseApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
     credentials: 'include', // Crucial for HttpOnly cookies
   }),
-  tagTypes: ['Product', 'Order', 'User', 'Cart'],
+  tagTypes: ['Product', 'Order', 'User', 'Cart', 'Review', 'Coupon', 'Blog', 'Audit'],
   endpoints: () => ({}), // Endpoints will be injected here
 });

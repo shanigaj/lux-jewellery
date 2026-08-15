@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Coupon from "../models/Coupon";
 import GiftCard from "../models/GiftCard";
+import { logAudit } from "./audit.controller";
 
 // @desc    Validate coupon code
 // @route   POST /api/coupons/validate
@@ -67,6 +68,69 @@ export const validateGiftCard = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({ success: true, giftCard });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// ── Admin CRUD ──────────────────────────────────────────────
+
+// @desc    List all coupons
+// @route   GET /api/coupons
+// @access  Admin
+export const getCoupons = async (_req: Request, res: Response) => {
+  try {
+    const coupons = await Coupon.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, count: coupons.length, data: coupons });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// @desc    Create a coupon
+// @route   POST /api/coupons
+// @access  Admin
+export const createCoupon = async (req: Request, res: Response) => {
+  try {
+    const coupon = await Coupon.create(req.body);
+    logAudit(req, "Created Coupon", coupon.code);
+    res.status(201).json({ success: true, data: coupon });
+  } catch (error) {
+    res.status(400).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// @desc    Update a coupon
+// @route   PUT /api/coupons/:id
+// @access  Admin
+export const updateCoupon = async (req: Request, res: Response) => {
+  try {
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!coupon) {
+      res.status(404).json({ success: false, message: "Coupon not found" });
+      return;
+    }
+    res.status(200).json({ success: true, data: coupon });
+  } catch (error) {
+    res.status(400).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// @desc    Delete a coupon
+// @route   DELETE /api/coupons/:id
+// @access  Admin
+export const deleteCoupon = async (req: Request, res: Response) => {
+  try {
+    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    if (!coupon) {
+      res.status(404).json({ success: false, message: "Coupon not found" });
+      return;
+    }
+    logAudit(req, "Deleted Coupon", coupon.code);
+    res.status(200).json({ success: true, message: "Coupon deleted" });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
