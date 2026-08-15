@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Calculator,
+  CalendarDays,
   Package,
   ShoppingCart,
   Users,
@@ -35,6 +36,7 @@ const adminSidebarLinks = [
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Inventory", href: "/admin/inventory", icon: ClipboardList },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Appointments", href: "/admin/appointments", icon: CalendarDays },
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Coupons", href: "/admin/coupons", icon: Tags },
   { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },

@@ -33,8 +33,21 @@ export const appointmentApi = baseApi.injectEndpoints({
       query: () => '/appointments/mine',
       providesTags: [{ type: 'Appointment', id: 'LIST' }],
     }),
+    getAllAppointments: builder.query<ListResponse, void>({
+      query: () => '/appointments',
+      providesTags: [{ type: 'Appointment', id: 'ADMIN' }],
+    }),
+    updateAppointmentStatus: builder.mutation<{ success: boolean; data: IAppointment }, { id: string; status: string }>({
+      query: ({ id, status }) => ({ url: `/appointments/${id}/status`, method: 'PUT', body: { status } }),
+      invalidatesTags: [{ type: 'Appointment', id: 'ADMIN' }],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useCreateAppointmentMutation, useGetMyAppointmentsQuery } = appointmentApi;
+export const {
+  useCreateAppointmentMutation,
+  useGetMyAppointmentsQuery,
+  useGetAllAppointmentsQuery,
+  useUpdateAppointmentStatusMutation,
+} = appointmentApi;
