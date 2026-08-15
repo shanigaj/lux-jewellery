@@ -182,9 +182,9 @@ export default function BookAppointmentPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_360px]">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* ── Main flow ── */}
-        <div>
+        <div className="min-w-0">
           {/* Step indicator */}
           <ol className="mb-10 flex items-center gap-2">
             {STEPS.map((label, i) => (
