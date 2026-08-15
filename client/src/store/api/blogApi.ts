@@ -24,8 +24,8 @@ interface BlogsResponse {
 
 export const blogApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getBlogs: builder.query<BlogsResponse, void>({
-      query: () => '/blogs',
+    getBlogs: builder.query<BlogsResponse, { status?: string } | void>({
+      query: (arg) => (arg && arg.status ? `/blogs?status=${arg.status}` : '/blogs'),
       providesTags: (result) =>
         result
           ? [
@@ -33,6 +33,10 @@ export const blogApi = baseApi.injectEndpoints({
               { type: 'Blog', id: 'LIST' },
             ]
           : [{ type: 'Blog', id: 'LIST' }],
+    }),
+    getBlogBySlug: builder.query<{ success: boolean; data: IBlog }, string>({
+      query: (slug) => `/blogs/${slug}`,
+      providesTags: (result, error, slug) => [{ type: 'Blog', id: slug }],
     }),
     createBlog: builder.mutation<{ success: boolean; data: IBlog }, Partial<BlogInput>>({
       query: (body) => ({ url: '/blogs', method: 'POST', body }),
@@ -55,6 +59,7 @@ export const blogApi = baseApi.injectEndpoints({
 
 export const {
   useGetBlogsQuery,
+  useGetBlogBySlugQuery,
   useCreateBlogMutation,
   useUpdateBlogMutation,
   useDeleteBlogMutation,

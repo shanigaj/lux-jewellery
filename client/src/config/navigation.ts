@@ -162,6 +162,7 @@ export const footerNavigation = {
     { label: "Our Story", href: "/about" },
     { label: "Craftsmanship", href: "/about/craftsmanship" },
     { label: "Sustainability", href: "/about/sustainability" },
+    { label: "Journal", href: "/journal" },
   ],
   support: [
     { label: "Contact Us", href: "/contact" },
