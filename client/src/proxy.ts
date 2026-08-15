@@ -5,13 +5,12 @@ import type { NextRequest } from "next/server";
 const protectedRoutes = ["/account", "/checkout", "/admin"];
 const authRoutes = ["/login", "/register", "/verify-otp", "/forgot-password", "/reset-password"];
 
-export function middleware(request: NextRequest) {
+// Next.js 16 renamed Middleware → Proxy. Same functionality, new convention.
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
-  // Check for HttpOnly cookie (we can't read the value, but we can check if it exists)
-  // In a real app, you might decode the JWT or verify a signature, but Next.js edge runtime
-  // limits Node.js modules like jsonwebtoken. Checking presence is often enough for UI routing,
-  // since the backend will enforce actual security.
+
+  // Check for HttpOnly cookie (we can't read the value, but we can check if it exists).
+  // The backend enforces actual security; presence is enough for UI routing.
   const hasToken = request.cookies.has("jwt");
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));

@@ -18,9 +18,9 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useAppSelector } from "@/store/hooks";
 import { Logo } from "@/components/shared/Logo";
 import { mainNavigation, type NavItem } from "@/config/navigation";
-import { useAppSelector } from "@/store/hooks";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Accordion,
@@ -368,8 +368,10 @@ export function Header() {
   useEffect(() => setMounted(true), []);
   const wishlistCount = useAppSelector((state) => state.product.wishlist.length);
 
-  // Cart count placeholder
-  const cartCount = 0;
+  // Live cart count — total quantity across all cart items.
+  const cartCount = useAppSelector((state) =>
+    state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  );
 
   const handleMouseEnter = (href: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);

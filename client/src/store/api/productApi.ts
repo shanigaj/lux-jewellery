@@ -72,8 +72,8 @@ const adaptProduct = (product: any): IProduct => ({
         sortOrder: i,
         isDefault: i === 0
       }))
-    : [{ _id: 'default', url: '/images/placeholder.jpg', publicId: '', altText: 'Placeholder', sortOrder: 0, isDefault: true }],
-  thumbnail: Array.isArray(product.images) && product.images.length > 0 ? optimizeCloudinaryImage(product.images[0]) : '/images/placeholder.jpg',
+    : [{ _id: 'default', url: '/images/placeholder.png', publicId: '', altText: 'Placeholder', sortOrder: 0, isDefault: true }],
+  thumbnail: Array.isArray(product.images) && product.images.length > 0 ? optimizeCloudinaryImage(product.images[0]) : '/images/placeholder.png',
   videos: Array.isArray(product.videos) ? product.videos.map((v: string) => optimizeCloudinaryVideo(v)) : [],
   video: Array.isArray(product.videos) && product.videos.length > 0 ? optimizeCloudinaryVideo(product.videos[0]) : product.video,
   variants: [],

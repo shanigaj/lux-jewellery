@@ -3,9 +3,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Globe,
-  Share2,
-  ExternalLink,
   ArrowRight,
   MapPin,
   Phone,
@@ -19,6 +16,35 @@ import { footerNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { Separator } from "@/components/ui/separator";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
+
+// ── Brand icons (lucide-react drops brand glyphs, so inline the SVGs) ──
+type BrandIconProps = { size?: number; className?: string };
+
+function InstagramIcon({ size = 14, className }: BrandIconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ size = 14, className }: BrandIconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z" />
+    </svg>
+  );
+}
+
+function YoutubeIcon({ size = 14, className }: BrandIconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6z" />
+    </svg>
+  );
+}
 
 // ── Newsletter Section ──
 function Newsletter() {
@@ -219,9 +245,9 @@ export function Footer() {
               </span>
               <div className="flex items-center gap-2">
                 {[
-                  { icon: Globe, href: siteConfig.social.instagram, label: "Instagram" },
-                  { icon: Share2, href: siteConfig.social.facebook, label: "Facebook" },
-                  { icon: ExternalLink, href: siteConfig.social.youtube, label: "YouTube" },
+                  { icon: InstagramIcon, href: siteConfig.social.instagram, label: "Instagram" },
+                  { icon: FacebookIcon, href: siteConfig.social.facebook, label: "Facebook" },
+                  { icon: YoutubeIcon, href: siteConfig.social.youtube, label: "YouTube" },
                 ].map(({ icon: Icon, href, label }) => (
                   <motion.a
                     key={label}

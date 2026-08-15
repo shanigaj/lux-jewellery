@@ -265,6 +265,54 @@ const products = [
     ratingsAverage: 5.0,
     ratingsQuantity: 14,
   },
+
+  // ── Top-ups so earrings & watches also reach 5 ──
+  {
+    name: "Estelle Diamond Huggie Hoops",
+    sku: "LUX-EARR-006",
+    description:
+      "Snug pavé huggie hoops in 18K white gold — 0.75ct of diamonds that hug the lobe for all-day sparkle.",
+    price: 96000,
+    discountPrice: 84000,
+    category: "earrings",
+    metalType: "white_gold",
+    gemstone: "Diamond",
+    images: [IMG.earrings],
+    stock: 14,
+    isFeatured: false,
+    ratingsAverage: 4.6,
+    ratingsQuantity: 73,
+  },
+  {
+    name: "Seraphine Mother-of-Pearl Watch",
+    sku: "LUX-WATCH-006",
+    description:
+      "A 30mm rose gold dress watch with a mother-of-pearl dial and a full diamond-set bezel. Swiss quartz precision.",
+    price: 760000,
+    category: "watches",
+    metalType: "rose_gold",
+    gemstone: "Diamond",
+    images: [IMG.watch],
+    stock: 6,
+    isFeatured: false,
+    ratingsAverage: 4.7,
+    ratingsQuantity: 19,
+  },
+  {
+    name: "Monarch Openwork Tourbillon",
+    sku: "LUX-WATCH-007",
+    description:
+      "An 18K yellow gold skeleton tourbillon with a diamond-set crown — hand-finished haute horlogerie for the collector.",
+    price: 2650000,
+    category: "watches",
+    metalType: "gold",
+    gemstone: "Diamond",
+    images: [IMG.watch],
+    stock: 2,
+    isFeatured: true,
+    ratingsAverage: 5.0,
+    ratingsQuantity: 9,
+  },
 ];
 
 const seedCategoryProducts = async () => {

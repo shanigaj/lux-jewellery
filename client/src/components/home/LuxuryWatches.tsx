@@ -7,12 +7,15 @@ import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/Skeletons";
 import { useGetProductsQuery } from "@/store/api/productApi";
+import { hasRealImage } from "@/lib/product-image";
 
 export function LuxuryWatches() {
   const { data, isLoading } = useGetProductsQuery({ category: "watches" });
-  const watches = data?.data ?? [];
+  // Only showcase watches with real, distinct photography — avoids a row of
+  // identical stock-image seed pieces on the home page.
+  const watches = (data?.data ?? []).filter(hasRealImage);
 
-  // Hide the whole section if there are no watches and we're done loading.
+  // Hide the whole section if there are no showcase-worthy watches.
   if (!isLoading && watches.length === 0) return null;
 
   return (

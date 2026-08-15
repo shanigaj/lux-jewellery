@@ -1,15 +1,23 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/Skeletons";
 import { useGetProductsQuery } from "@/store/api/productApi";
+import { hasRealImage } from "@/lib/product-image";
 
 export function FeaturedProducts() {
-  const { data, isLoading } = useGetProductsQuery({ limit: 4 });
-  const products = data?.data ?? [];
+  // Pull a wide set and surface pieces that have real, distinct photography
+  // (avoids the repeated stock-image seed products dominating the home page).
+  const { data, isLoading } = useGetProductsQuery({ limit: 40 });
+  const products = useMemo(() => {
+    const all = data?.data ?? [];
+    const real = all.filter(hasRealImage);
+    return (real.length >= 4 ? real : all).slice(0, 4);
+  }, [data]);
 
   return (
     <section className="section-padding bg-muted/30">
