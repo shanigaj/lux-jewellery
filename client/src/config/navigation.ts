@@ -160,8 +160,8 @@ export const footerNavigation = {
   ],
   about: [
     { label: "Our Story", href: "/about" },
-    { label: "Craftsmanship", href: "/about#craftsmanship" },
-    { label: "Sustainability", href: "/about#sustainability" },
+    { label: "Craftsmanship", href: "/about/craftsmanship" },
+    { label: "Sustainability", href: "/about/sustainability" },
   ],
   support: [
     { label: "Contact Us", href: "/contact" },

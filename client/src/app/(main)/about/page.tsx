@@ -51,49 +51,19 @@ export default function AboutPage() {
         ))}
       </section>
 
-      {/* Craftsmanship */}
-      <section id="craftsmanship" className="mt-20 max-w-3xl scroll-mt-24">
-        <p className="mb-4 text-[11px] font-semibold uppercase tracking-luxury-wide text-gold">
-          The Making
-        </p>
-        <h2 className="font-heading text-3xl text-foreground md:text-4xl">
-          Craftsmanship
-        </h2>
-        <div className="mt-6 space-y-5 font-light leading-relaxed text-muted-foreground">
-          <p>
-            Each design begins as a sketch and is brought to life by skilled
-            artisans. Stones are hand-set one by one, settings are polished to a
-            mirror finish, and every finished piece is inspected before it reaches
-            you.
-          </p>
-          <p>
-            We obsess over the details you can&apos;t always see — the smoothness of
-            a gallery, the security of a clasp, the comfort of a band — because
-            those are the things that make a piece wearable for a lifetime.
-          </p>
-        </div>
-      </section>
-
-      {/* Sustainability */}
-      <section id="sustainability" className="mt-20 max-w-3xl scroll-mt-24">
-        <p className="mb-4 text-[11px] font-semibold uppercase tracking-luxury-wide text-gold">
-          Our Responsibility
-        </p>
-        <h2 className="font-heading text-3xl text-foreground md:text-4xl">
-          Sustainability
-        </h2>
-        <div className="mt-6 space-y-5 font-light leading-relaxed text-muted-foreground">
-          <p>
-            We craft in considered quantities, favour lasting quality over
-            fast-fashion churn, and reuse and recycle metals wherever possible.
-            A piece designed to be worn for decades is, in itself, the most
-            sustainable choice.
-          </p>
-          <p>
-            Packaging is kept minimal and reusable, and we are continually working
-            to reduce waste across everything we do.
-          </p>
-        </div>
+      {/* Explore more */}
+      <section className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-3xl">
+        {[
+          { href: "/about/craftsmanship", eyebrow: "The Making", title: "Craftsmanship", text: "From sketch to hand-set stones — how every piece is made." },
+          { href: "/about/sustainability", eyebrow: "Our Responsibility", title: "Sustainability", text: "Recycled metals, considered quantities, and pieces made to last." },
+        ].map((c) => (
+          <Link key={c.href} href={c.href} className="group rounded-[2px] border border-border p-8 hover:border-gold/50 transition-colors">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-luxury-wide text-gold">{c.eyebrow}</p>
+            <h2 className="font-heading text-2xl text-foreground group-hover:text-gold transition-colors">{c.title}</h2>
+            <p className="mt-3 text-sm font-light leading-relaxed text-muted-foreground">{c.text}</p>
+            <span className="mt-4 inline-block text-sm font-medium text-gold">Read more →</span>
+          </Link>
+        ))}
       </section>
 
       {/* CTA */}
