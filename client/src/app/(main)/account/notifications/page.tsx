@@ -1,51 +1,51 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, Package, Gift, Percent, CalendarDays, CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, Package, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useGetUserOrdersQuery } from "@/store/api/orderApi";
 
-const initialNotifications = [
-  {
-    id: "1",
-    type: "order",
-    title: "Order Shipped",
-    message: "Your order LUX-M4X7K2 has been shipped and is on its way.",
-    time: "2 hours ago",
-    isRead: false,
-    icon: Package,
-  },
-  {
-    id: "2",
-    type: "appointment",
-    title: "Appointment Confirmed",
-    message: "Your virtual consultation is scheduled for tomorrow at 2:00 PM.",
-    time: "1 day ago",
-    isRead: false,
-    icon: CalendarDays,
-  },
-  {
-    id: "3",
-    type: "promo",
-    title: "Exclusive Diamond Sale",
-    message: "Enjoy 20% off on all diamond solitaires this weekend only. Use code LUXE20.",
-    time: "3 days ago",
-    isRead: true,
-    icon: Percent,
-  },
-  {
-    id: "4",
-    type: "reward",
-    title: "Points Earned!",
-    message: "You earned 250 Reward Points for your recent purchase.",
-    time: "1 week ago",
-    isRead: true,
-    icon: Gift,
-  },
-];
+function relative(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return "Just now";
+  if (h < 24) return `${h} hr${h > 1 ? "s" : ""} ago`;
+  const d = Math.floor(h / 24);
+  return `${d} day${d > 1 ? "s" : ""} ago`;
+}
+
+interface Notif {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  time: string;
+  isRead: boolean;
+  icon: typeof Package;
+}
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const { data } = useGetUserOrdersQuery();
+  const [notifications, setNotifications] = useState<Notif[]>([]);
+
+  // Notifications are derived from the user's real order activity.
+  useEffect(() => {
+    const orders = data?.orders ?? [];
+    setNotifications(
+      [...orders]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .map((o) => ({
+          id: o._id,
+          type: "order",
+          title: `Order ${o.status.charAt(0).toUpperCase() + o.status.slice(1)}`,
+          message: `Your order ${o.orderNumber} is ${o.status}.`,
+          time: relative(o.createdAt),
+          isRead: false,
+          icon: Package,
+        }))
+    );
+  }, [data]);
 
   const markAsRead = (id: string) => {
     setNotifications((prev) =>
