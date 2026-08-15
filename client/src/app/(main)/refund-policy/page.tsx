@@ -2,7 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: "Return & Refund Policy | Sparenza & Co.",
+  title: "Return & Refund Policy",
   description:
     "Sparenza & Co.'s return, exchange and refund policy — eligibility, timelines, non-returnable items, refund methods, and our lifetime exchange & buyback promise.",
   alternates: { canonical: "/refund-policy" },

@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 
 export const metadata = {
-  title: "FAQ | Sparenza & Co.",
+  title: "FAQ",
   description: "Answers to common questions about ordering, pricing, sizing, delivery and care at Sparenza & Co.",
 };
 

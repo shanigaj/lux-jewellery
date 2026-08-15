@@ -1,7 +1,7 @@
 import { Truck, PackageCheck, RotateCcw, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Shipping & Returns | Sparenza & Co.",
+  title: "Shipping & Returns",
   description: "How Sparenza & Co. delivers your jewellery, and our approach to exchanges and returns.",
 };
 

@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: "Terms of Service | Sparenza & Co.",
+  title: "Terms of Service",
   description: "The terms under which Sparenza & Co. provides this website and its products.",
 };
 

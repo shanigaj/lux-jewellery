@@ -2,7 +2,7 @@ import { Droplets, Gem, ShieldCheck, Sparkles } from "lucide-react";
 import { CareReminderButton } from "@/components/shared/CareReminderButton";
 
 export const metadata = {
-  title: "Care Instructions | Sparenza & Co.",
+  title: "Care Instructions",
   description: "How to clean, store and protect your fine jewellery.",
 };
 

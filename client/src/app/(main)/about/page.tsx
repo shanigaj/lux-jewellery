@@ -3,7 +3,7 @@ import Link from "next/link";
 import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: "Our Story | Sparenza & Co.",
+  title: "Our Story",
   description:
     "The story, craftsmanship and values behind Sparenza & Co. — fine jewellery made with trust, worn for life.",
 };

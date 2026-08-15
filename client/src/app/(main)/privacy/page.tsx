@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: "Privacy Policy | Sparenza & Co.",
+  title: "Privacy Policy",
   description: "How Sparenza & Co. collects, uses and protects your personal information.",
 };
 

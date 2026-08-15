@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Gem, Hammer, Sparkles, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Craftsmanship | Sparenza & Co.",
+  title: "Craftsmanship",
   description:
     "How Sparenza & Co. jewellery is made — sketch to hand-set stones, mirror-polished settings, and a final inspection before it reaches you.",
   alternates: { canonical: "/about/craftsmanship" },

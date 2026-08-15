@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Leaf, Recycle, Package, Timer } from "lucide-react";
 
 export const metadata = {
-  title: "Sustainability | Sparenza & Co.",
+  title: "Sustainability",
   description:
     "Sparenza & Co.'s approach to responsible jewellery — considered quantities, recycled metals, minimal packaging, and pieces designed to last a lifetime.",
   alternates: { canonical: "/about/sustainability" },

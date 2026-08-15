@@ -2,7 +2,7 @@ import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: "Contact Us | Sparenza & Co.",
+  title: "Contact Us",
   description:
     "Get in touch with Sparenza & Co. — visit our Surat boutique, call, email or message us on WhatsApp for a personal jewellery consultation.",
 };
