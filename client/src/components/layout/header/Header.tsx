@@ -415,7 +415,8 @@ export function Header() {
             {/* Left: Mobile Menu + Logo (highlighted) */}
             <div className="flex items-center gap-3">
               <MobileMenu />
-              <Logo size={isScrolled ? "md" : "lg"} />
+              {/* Logo stays a constant size — it no longer shrinks on scroll. */}
+              <Logo size="lg" />
             </div>
 
             {/* Middle-right: Desktop Nav */}
