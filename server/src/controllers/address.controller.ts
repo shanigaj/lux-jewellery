@@ -57,7 +57,7 @@ export const addAddress = async (req: AuthedRequest, res: Response) => {
 export const updateAddress = async (req: AuthedRequest, res: Response) => {
   try {
     const user = await loadUser(req);
-    const addr = user?.addresses.id(req.params.addrId);
+    const addr = user?.addresses.id(req.params.addrId as string);
     if (!user || !addr) {
       res.status(404).json({ success: false, message: "Address not found" });
       return;
@@ -77,7 +77,7 @@ export const updateAddress = async (req: AuthedRequest, res: Response) => {
 export const deleteAddress = async (req: AuthedRequest, res: Response) => {
   try {
     const user = await loadUser(req);
-    const addr = user?.addresses.id(req.params.addrId);
+    const addr = user?.addresses.id(req.params.addrId as string);
     if (!user || !addr) {
       res.status(404).json({ success: false, message: "Address not found" });
       return;

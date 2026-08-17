@@ -8,6 +8,7 @@ export interface IBoutique {
 }
 
 export interface ISettings extends Document {
+  key: string;
   storeName: string;
   supportEmail: string;
   supportPhone: string;

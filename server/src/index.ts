@@ -30,9 +30,18 @@ const PORT = process.env.PORT || 5000;
 // CORS first — so even rate-limited (429) and other error responses carry the
 // Access-Control-Allow-Origin header. Otherwise the browser reports a
 // misleading CORS error stacked on top of the real status.
+// CLIENT_URL may be a comma-separated list (prod domain, www, Vercel, localhost).
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3002",
+    origin: (origin, cb) => {
+      // Allow same-origin/non-browser requests (no Origin header) and any listed origin.
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      cb(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
   })
 );
