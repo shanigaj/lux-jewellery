@@ -12,6 +12,8 @@ const EDITABLE = [
   "timezone",
   "freeShippingThreshold",
   "announcements",
+  "boutiques",
+  "timeSlots",
 ] as const;
 
 async function getOrCreate() {

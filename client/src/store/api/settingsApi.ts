@@ -1,5 +1,12 @@
 import { baseApi } from './baseApi';
 
+export interface IBoutique {
+  id: string;
+  name: string;
+  city: string;
+  address: string;
+}
+
 export interface ISiteSettings {
   storeName: string;
   supportEmail: string;
@@ -9,6 +16,8 @@ export interface ISiteSettings {
   timezone: string;
   freeShippingThreshold: number;
   announcements: string[];
+  boutiques: IBoutique[];
+  timeSlots: string[];
 }
 
 interface SettingsResponse {

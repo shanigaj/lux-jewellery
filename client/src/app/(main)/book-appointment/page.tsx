@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { useCreateAppointmentMutation } from "@/store/api/appointmentApi";
+import { useGetSettingsQuery } from "@/store/api/settingsApi";
 import { downloadIcs } from "@/lib/ics";
 import {
   EXPERIENCES,
@@ -49,6 +50,11 @@ export default function BookAppointmentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [createAppointment] = useCreateAppointmentMutation();
 
+  // Boutiques & time slots are admin-managed (Settings); fall back to defaults.
+  const { data: settingsData } = useGetSettingsQuery();
+  const boutiques = settingsData?.data?.boutiques?.length ? settingsData.data.boutiques : BOUTIQUES;
+  const timeSlots = settingsData?.data?.timeSlots?.length ? settingsData.data.timeSlots : [...TIME_SLOTS];
+
   const [experience, setExperience] = useState<ExperienceType | null>(null);
   const [boutiqueId, setBoutiqueId] = useState<string>("");
   const [date, setDate] = useState<string>("");
@@ -71,7 +77,7 @@ export default function BookAppointmentPage() {
   const canContinue = step === 0 ? !!experience : step === 1 ? scheduleValid : detailsValid;
 
   const selectedExperience = EXPERIENCES.find((e) => e.id === experience);
-  const selectedBoutique = BOUTIQUES.find((b) => b.id === boutiqueId);
+  const selectedBoutique = boutiques.find((b) => b.id === boutiqueId);
 
   function next() {
     if (!canContinue) return;
@@ -266,7 +272,7 @@ export default function BookAppointmentPage() {
                     <div>
                       <h3 className="mb-4 font-heading text-2xl text-foreground">Choose a boutique</h3>
                       <div className="grid gap-3 sm:grid-cols-2">
-                        {BOUTIQUES.map((b) => {
+                        {boutiques.map((b) => {
                           const active = boutiqueId === b.id;
                           return (
                             <button
@@ -333,7 +339,7 @@ export default function BookAppointmentPage() {
                       <Clock size={20} className="text-gold" /> Select a time
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {TIME_SLOTS.map((t) => {
+                      {timeSlots.map((t) => {
                         const active = time === t;
                         return (
                           <button

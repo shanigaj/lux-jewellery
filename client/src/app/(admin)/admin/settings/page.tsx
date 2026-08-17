@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, Store, Mail, CreditCard, Shield, Globe } from "lucide-react";
+import { Save, Store, Mail, CreditCard, Shield, Globe, CalendarDays, Plus, Trash2, MapPin } from "lucide-react";
 import { toast } from "sonner";
-import { useGetSettingsQuery, useUpdateSettingsMutation } from "@/store/api/settingsApi";
+import { useGetSettingsQuery, useUpdateSettingsMutation, type IBoutique } from "@/store/api/settingsApi";
 
 const TABS = [
   { key: "general", name: "General", icon: Store },
+  { key: "appointments", name: "Appointments", icon: CalendarDays },
   { key: "shipping", name: "Taxes & Shipping", icon: Globe },
   { key: "email", name: "Email Notifications", icon: Mail },
   { key: "payment", name: "Payment Gateways", icon: CreditCard },
@@ -21,7 +22,11 @@ const empty = {
   currency: "INR",
   timezone: "Asia/Kolkata",
   freeShippingThreshold: 50000,
+  boutiques: [] as IBoutique[],
+  timeSlots: [] as string[],
 };
+
+const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || `b-${Date.now()}`;
 
 export default function AdminSettingsPage() {
   const { data } = useGetSettingsQuery();
@@ -40,9 +45,25 @@ export default function AdminSettingsPage() {
         currency: d.currency ?? "INR",
         timezone: d.timezone ?? "Asia/Kolkata",
         freeShippingThreshold: d.freeShippingThreshold ?? 50000,
+        boutiques: d.boutiques ?? [],
+        timeSlots: d.timeSlots ?? [],
       });
     }
   }, [data]);
+
+  // ── Boutique & time-slot helpers ──
+  const addBoutique = () =>
+    setForm((f) => ({ ...f, boutiques: [...f.boutiques, { id: slugify(`boutique-${f.boutiques.length + 1}`), name: "", city: "", address: "" }] }));
+  const updateBoutique = (i: number, key: keyof IBoutique, val: string) =>
+    setForm((f) => ({
+      ...f,
+      boutiques: f.boutiques.map((b, idx) => (idx === i ? { ...b, [key]: val, ...(key === "name" ? { id: b.id || slugify(val) } : {}) } : b)),
+    }));
+  const removeBoutique = (i: number) => setForm((f) => ({ ...f, boutiques: f.boutiques.filter((_, idx) => idx !== i) }));
+
+  const addSlot = () => setForm((f) => ({ ...f, timeSlots: [...f.timeSlots, "10:00"] }));
+  const updateSlot = (i: number, val: string) => setForm((f) => ({ ...f, timeSlots: f.timeSlots.map((s, idx) => (idx === i ? val : s)) }));
+  const removeSlot = (i: number) => setForm((f) => ({ ...f, timeSlots: f.timeSlots.filter((_, idx) => idx !== i) }));
 
   const handleSave = async () => {
     try {
@@ -118,6 +139,57 @@ export default function AdminSettingsPage() {
                       </select>
                     </div>
                   </div>
+                </div>
+              </>
+            )}
+
+            {tab === "appointments" && (
+              <>
+                <h2 className="font-heading text-lg mb-6 border-b border-border pb-4">Appointment Settings</h2>
+
+                {/* Boutiques */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium flex items-center gap-2"><MapPin size={16} className="text-gold" /> Boutiques</h3>
+                    <button onClick={addBoutique} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider font-medium text-gold hover:underline">
+                      <Plus size={14} /> Add boutique
+                    </button>
+                  </div>
+                  {form.boutiques.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No boutiques — add one (or leave empty to allow virtual-only).</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {form.boutiques.map((b, i) => (
+                        <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_2fr_auto] gap-2 items-center">
+                          <input value={b.name} onChange={(e) => updateBoutique(i, "name", e.target.value)} placeholder="Name" className={input} />
+                          <input value={b.city} onChange={(e) => updateBoutique(i, "city", e.target.value)} placeholder="City" className={input} />
+                          <input value={b.address} onChange={(e) => updateBoutique(i, "address", e.target.value)} placeholder="Address" className={input} />
+                          <button onClick={() => removeBoutique(i)} className="p-2 text-muted-foreground hover:text-destructive border border-border rounded-lg justify-self-start sm:justify-self-auto" title="Remove">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Time slots */}
+                <div className="pt-6 border-t border-border">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium flex items-center gap-2"><CalendarDays size={16} className="text-gold" /> Time slots</h3>
+                    <button onClick={addSlot} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider font-medium text-gold hover:underline">
+                      <Plus size={14} /> Add slot
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.timeSlots.map((s, i) => (
+                      <div key={i} className="flex items-center gap-1 border border-border rounded-lg pl-2 pr-1 py-1">
+                        <input type="time" value={s} onChange={(e) => updateSlot(i, e.target.value)} className="bg-transparent text-sm outline-none w-[92px]" />
+                        <button onClick={() => removeSlot(i)} className="p-1 text-muted-foreground hover:text-destructive" title="Remove"><Trash2 size={13} /></button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-3">These boutiques and slots power the storefront Book-Appointment page.</p>
                 </div>
               </>
             )}
