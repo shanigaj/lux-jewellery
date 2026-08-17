@@ -1,5 +1,6 @@
 import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
+import { ContactForm } from "@/components/shared/ContactForm";
 
 export const metadata = {
   title: "Contact Us",
@@ -95,18 +96,21 @@ export default function ContactPage() {
           </a>
         </div>
 
-        {/* Right — Real Map */}
-        <div className="min-h-[420px] overflow-hidden rounded-[2px] border border-border">
-          <iframe
-            title="Sparenza & Co. boutique location"
-            src={mapSrc}
-            className="h-full min-h-[420px] w-full"
-            style={{ border: 0 }}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            allowFullScreen
-          />
-        </div>
+        {/* Right — Enquiry form */}
+        <ContactForm />
+      </div>
+
+      {/* Map — full width */}
+      <div className="mt-8 min-h-[380px] overflow-hidden rounded-[2px] border border-border">
+        <iframe
+          title="Sparenza & Co. boutique location"
+          src={mapSrc}
+          className="h-full min-h-[380px] w-full"
+          style={{ border: 0 }}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
       </div>
     </div>
   );

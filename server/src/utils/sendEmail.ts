@@ -6,6 +6,7 @@ interface EmailOptions {
   subject: string;
   text?: string;
   html?: string;
+  replyTo?: string;
 }
 
 const transporter = nodemailer.createTransport({
@@ -23,6 +24,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
     const info = await transporter.sendMail({
       from: `"Sparenza & Co." <${process.env.SMTP_USER}>`,
       to: options.to,
+      replyTo: options.replyTo,
       subject: options.subject,
       text: options.text,
       html: options.html,
