@@ -15,13 +15,14 @@ interface MetalRates {
 }
 
 // Indicative fallback (₹/gram) used only when every live source is unreachable.
+// Indicative Indian retail rates (₹/gram) — used only if every live source fails.
 const FALLBACK: Omit<MetalRates, "updatedAt" | "source"> = {
   currency: "INR",
-  gold24k: 7450,
-  gold22k: 6830,
-  gold18k: 5590,
-  silver: 95,
-  usdInr: 85,
+  gold24k: 15550,
+  gold22k: 14250,
+  gold18k: 11660,
+  silver: 232,
+  usdInr: 95,
 };
 
 let cache: MetalRates | null = null;
@@ -63,12 +64,19 @@ async function loadLiveRates(): Promise<MetalRates> {
 
   const haveLive = Number.isFinite(gold24k) && Number.isFinite(xagUsdOz);
 
+  // The feeds give the *international spot* price. Indian retail rates add
+  // import duty + 3% GST + a dealer premium (~15%). Apply that so the ticker
+  // matches the rate customers actually see. Tunable via env.
+  const premium = Number(process.env.INDIA_METAL_PREMIUM) || 1.155;
+  const inr = (spot: number, fb: number) =>
+    Number.isFinite(spot) ? Math.round(spot * premium) : fb;
+
   return {
     currency: "INR",
-    gold24k: Number.isFinite(gold24k) ? Math.round(gold24k) : FALLBACK.gold24k,
-    gold22k: Number.isFinite(gold22k) ? Math.round(gold22k) : FALLBACK.gold22k,
-    gold18k: Number.isFinite(gold18k) ? Math.round(gold18k) : FALLBACK.gold18k,
-    silver: Math.round(silver),
+    gold24k: inr(gold24k, FALLBACK.gold24k),
+    gold22k: inr(gold22k, FALLBACK.gold22k),
+    gold18k: inr(gold18k, FALLBACK.gold18k),
+    silver: inr(silver, FALLBACK.silver),
     usdInr: Math.round(usdInr * 100) / 100,
     source: haveLive ? "live" : "fallback",
     updatedAt: new Date().toISOString(),
