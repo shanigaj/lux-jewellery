@@ -15,7 +15,6 @@ export const mainNavigation: NavItem[] = [
   {
     label: "Rings",
     href: "/categories/rings",
-    image: "/images/hero-ring.png",
     children: [
       {
         label: "Engagement Rings",
@@ -47,7 +46,6 @@ export const mainNavigation: NavItem[] = [
   {
     label: "Necklaces",
     href: "/categories/necklaces",
-    image: "/images/products/necklace.png",
     children: [
       {
         label: "Pendants",
@@ -74,7 +72,6 @@ export const mainNavigation: NavItem[] = [
   {
     label: "Earrings",
     href: "/categories/earrings",
-    image: "/images/products/earrings.png",
     children: [
       {
         label: "Studs",
@@ -101,7 +98,6 @@ export const mainNavigation: NavItem[] = [
   {
     label: "Bracelets",
     href: "/categories/bracelets",
-    image: "/images/products/bracelet.png",
     children: [
       {
         label: "Tennis Bracelets",
@@ -124,7 +120,6 @@ export const mainNavigation: NavItem[] = [
     label: "Discover",
     href: "/about",
     featured: true,
-    image: "/images/collections/hero-collection.png",
     children: [
       {
         label: "Our Story",

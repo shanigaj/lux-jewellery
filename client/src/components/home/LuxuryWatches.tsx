@@ -8,9 +8,11 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/Skeletons";
 import { useGetProductsQuery } from "@/store/api/productApi";
 import { hasRealImage } from "@/lib/product-image";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 export function LuxuryWatches() {
   const { data, isLoading } = useGetProductsQuery({ category: "watches" });
+  const { imageFor } = useCategoryImages();
   // Only showcase watches with real, distinct photography — avoids a row of
   // identical stock-image seed pieces on the home page.
   const watches = (data?.data ?? []).filter(hasRealImage);
@@ -54,7 +56,7 @@ export function LuxuryWatches() {
           <AnimatedSection animation="fadeLeft" delay={0.2} className="hidden lg:block">
             <div className="relative aspect-square max-w-md ml-auto">
               <Image
-                src="/images/products/watch.png"
+                src={imageFor("watches")}
                 alt="Luxury Watch"
                 fill
                 className="object-cover rounded-2xl"

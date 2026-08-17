@@ -5,37 +5,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useGetProductsQuery } from "@/store/api/productApi";
 
 export default function WishlistPage() {
-  const [wishlistItems, setWishlistItems] = useState([
-    {
-      id: "w1",
-      name: "Celestial Solitaire Ring",
-      price: 285000,
-      image: "/images/products/ring-1.png",
-      slug: "celestial-solitaire-ring",
-      inStock: true,
-    },
-    {
-      id: "w2",
-      name: "Eternal Grace Necklace",
-      price: 425000,
-      image: "/images/products/necklace-1.png",
-      slug: "eternal-grace-necklace",
-      inStock: true,
-    },
-    {
-      id: "w3",
-      name: "Aurora Diamond Earrings",
-      price: 195000,
-      image: "/images/products/earring-1.png",
-      slug: "aurora-diamond-earrings",
-      inStock: false,
-    },
-  ]);
+  // No dedicated wishlist backend yet — showcase real catalogue pieces
+  // (with genuine DB photography) instead of hard-coded stock items.
+  const { data } = useGetProductsQuery({ limit: 6 });
+  const [removed, setRemoved] = useState<string[]>([]);
+
+  const wishlistItems = (data?.data ?? [])
+    .filter((p) => !removed.includes(p._id))
+    .slice(0, 3)
+    .map((p) => ({
+      id: p._id,
+      name: p.name,
+      price: p.basePrice,
+      image: p.thumbnail,
+      slug: p._id,
+      inStock: (p.stockQuantity ?? 0) > 0,
+    }));
 
   const removeItem = (id: string) => {
-    setWishlistItems(wishlistItems.filter((item) => item.id !== id));
+    setRemoved((prev) => [...prev, id]);
   };
 
   return (

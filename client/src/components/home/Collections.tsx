@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
-import { useGetProductsQuery } from "@/store/api/productApi";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const collections = [
   {
@@ -14,7 +14,6 @@ const collections = [
     slug: "rings",
     dbCategory: "rings",
     description: "Where love stories begin",
-    image: "/images/hero-ring.png",
     gradient: "from-[#C9A96E]/20 via-transparent to-transparent",
   },
   {
@@ -22,7 +21,6 @@ const collections = [
     slug: "necklaces",
     dbCategory: "necklaces",
     description: "Grace that adorns",
-    image: "/images/products/necklace.png",
     gradient: "from-[#B76E79]/20 via-transparent to-transparent",
   },
   {
@@ -30,7 +28,6 @@ const collections = [
     slug: "earrings",
     dbCategory: "earrings",
     description: "Frames of brilliance",
-    image: "/images/products/earrings.png",
     gradient: "from-[#E8D5B5]/20 via-transparent to-transparent",
   },
   {
@@ -38,15 +35,13 @@ const collections = [
     slug: "bracelets",
     dbCategory: "bracelets",
     description: "Circles of elegance",
-    image: "/images/products/bracelet.png",
     gradient: "from-[#C9A96E]/20 via-transparent to-transparent",
   },
 ];
 
 export function Collections() {
-  // Live product list → real per-category counts (no more hardcoded numbers).
-  const { data } = useGetProductsQuery({ limit: 1000 });
-  const products = data?.data ?? [];
+  // Live product list → real per-category counts + real per-category imagery.
+  const { products, imageFor } = useCategoryImages();
 
   const countFor = (dbCategory: string) =>
     products.filter((p) => {
@@ -103,7 +98,7 @@ export function Collections() {
                   >
                     {/* Image */}
                     <Image
-                      src={collection.image}
+                      src={imageFor(collection.dbCategory)}
                       alt={collection.name}
                       fill
                       className="object-cover transition-transform duration-[1.2s] group-hover:scale-110"

@@ -12,6 +12,7 @@ import { PasswordInput } from "@/components/auth/PasswordInput";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 import { Loader2 } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const registerSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -29,6 +30,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { heroImage } = useCategoryImages();
 
   const {
     register,
@@ -70,7 +72,7 @@ export default function RegisterPage() {
       <div className="hidden lg:block w-1/2 relative bg-muted">
         <div 
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/hero-ring.png')" }}
+          style={{ backgroundImage: `url('${heroImage}')` }}
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex flex-col justify-end p-12 text-white">

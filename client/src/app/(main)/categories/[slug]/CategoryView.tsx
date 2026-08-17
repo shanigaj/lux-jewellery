@@ -9,6 +9,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { useGetProductsQuery } from "@/store/api/productApi";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 import { getCategoryMeta } from "@/config/categories";
 
 // Number of curated pieces surfaced on each category landing page.
@@ -23,6 +24,9 @@ export function CategoryView({ slug }: { slug: string }) {
     { skip: !meta }
   );
 
+  // Hero art comes straight from real catalogue photography for this family.
+  const { imageFor } = useCategoryImages();
+
   if (!meta) {
     notFound();
   }
@@ -35,7 +39,7 @@ export function CategoryView({ slug }: { slug: string }) {
       {/* ── Hero Banner (category-based image) ── */}
       <div className="relative bg-onyx text-white overflow-hidden">
         <Image
-          src={meta.heroImage}
+          src={imageFor(meta.dbCategory)}
           alt={meta.title}
           fill
           priority

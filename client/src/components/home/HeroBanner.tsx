@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const slides = [
   {
@@ -54,6 +55,7 @@ const bokeh = [
 export function HeroBanner() {
   const [current, setCurrent] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { heroImage } = useCategoryImages();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -103,7 +105,7 @@ export function HeroBanner() {
         muted
         loop
         playsInline
-        poster="/images/hero-ring.png"
+        poster={heroImage}
       >
         <source src="/videos/hero.webm" type="video/webm" />
         <source src="/videos/hero.mp4" type="video/mp4" />

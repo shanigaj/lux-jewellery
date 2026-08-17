@@ -13,6 +13,7 @@ import { login } from "@/store/slices/authSlice";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Loader2 } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const { heroImage } = useCategoryImages();
 
   const {
     register,
@@ -70,7 +72,7 @@ export default function LoginPage() {
       <div className="hidden lg:block w-1/2 relative bg-muted">
         <div 
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/hero-ring.png')" }}
+          style={{ backgroundImage: `url('${heroImage}')` }}
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex flex-col justify-end p-12 text-white">

@@ -1,9 +1,9 @@
 import type { IProduct } from "@/types/product.types";
 
-// Seed/top-up products reuse a single local stock photo per category
-// (e.g. "/images/products/earrings.png"), which reads as "repeated images"
-// when many are shown together. Real catalogue pieces have their own remote
-// (Cloudinary) photography. This flags the pieces with genuine, distinct art.
+// Some seed/top-up products have no photography yet and fall back to the
+// neutral placeholder, which reads as "repeated images" when many are shown
+// together. Real catalogue pieces have their own remote (Cloudinary)
+// photography. This flags the pieces with genuine, distinct art.
 export function hasRealImage(product: Pick<IProduct, "thumbnail" | "images">): boolean {
   const thumb =
     product?.thumbnail ||

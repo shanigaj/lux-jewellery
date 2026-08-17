@@ -5,15 +5,19 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Camera, Heart, MessageCircle } from "lucide-react";
 import { AnimatedSection, StaggerContainer, StaggerItem } from "@/components/shared/AnimatedSection";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const instagramPosts = [
-  { id: 1, type: "image", src: "/images/instagram/grid.png", likes: "12.4k", comments: "142", delay: 0.1 },
-  { id: 2, type: "video", src: "/images/hero-ring.png", likes: "8.9k", comments: "95", delay: 0.2 },
-  { id: 3, type: "image", src: "/images/products/necklace.png", likes: "15.2k", comments: "218", delay: 0.3 },
-  { id: 4, type: "image", src: "/images/products/bracelet.png", likes: "10.1k", comments: "87", delay: 0.4 },
+  { id: 1, type: "image", likes: "12.4k", comments: "142", delay: 0.1 },
+  { id: 2, type: "video", likes: "8.9k", comments: "95", delay: 0.2 },
+  { id: 3, type: "image", likes: "15.2k", comments: "218", delay: 0.3 },
+  { id: 4, type: "image", likes: "10.1k", comments: "87", delay: 0.4 },
 ];
 
 export function InstagramGallery() {
+  // Feed the grid with real catalogue photography instead of stock art.
+  const { imageAt } = useCategoryImages();
+
   return (
     <section className="section-padding bg-background border-t border-border/50">
       <div className="container-luxury">
@@ -54,7 +58,7 @@ export function InstagramGallery() {
           {instagramPosts.map((post, i) => (
             <StaggerItem key={post.id} className="group relative aspect-square overflow-hidden rounded-xl bg-muted cursor-pointer">
               <Image
-                src={post.src}
+                src={imageAt(i)}
                 alt="Instagram Post"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"

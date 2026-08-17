@@ -42,7 +42,21 @@ export interface CreateProductInput {
   isFeatured?: boolean;
 }
 
-const adaptProduct = (product: any): IProduct => ({
+// The catalogue no longer ships local stock photos. Any image that isn't a
+// genuine remote (http/https, i.e. Cloudinary) URL — e.g. a legacy seed path
+// like "/images/products/necklace.png" that no longer exists on disk — is
+// dropped so the piece falls back to the neutral placeholder instead of a
+// broken image.
+const PLACEHOLDER = '/images/placeholder.png';
+const isRemote = (url: unknown): url is string =>
+  typeof url === 'string' && /^https?:\/\//i.test(url);
+
+const adaptProduct = (product: any): IProduct => {
+  const remoteImages: string[] = Array.isArray(product.images)
+    ? product.images.filter(isRemote)
+    : [];
+
+  return {
   ...product,
   slug: product._id, // Temporary fallback if no slug exists
   basePrice: product.price || 0,
@@ -63,8 +77,8 @@ const adaptProduct = (product: any): IProduct => ({
   metalType: product.metalType || 'gold',
   metalPurity: '18K',
   weight: 5,
-  images: Array.isArray(product.images) && product.images.length > 0
-    ? product.images.map((url: string, i: number) => ({
+  images: remoteImages.length > 0
+    ? remoteImages.map((url: string, i: number) => ({
         _id: `img_${i}`,
         url: optimizeCloudinaryImage(url),
         publicId: '',
@@ -72,8 +86,8 @@ const adaptProduct = (product: any): IProduct => ({
         sortOrder: i,
         isDefault: i === 0
       }))
-    : [{ _id: 'default', url: '/images/placeholder.png', publicId: '', altText: 'Placeholder', sortOrder: 0, isDefault: true }],
-  thumbnail: Array.isArray(product.images) && product.images.length > 0 ? optimizeCloudinaryImage(product.images[0]) : '/images/placeholder.png',
+    : [{ _id: 'default', url: PLACEHOLDER, publicId: '', altText: 'Placeholder', sortOrder: 0, isDefault: true }],
+  thumbnail: remoteImages.length > 0 ? optimizeCloudinaryImage(remoteImages[0]) : PLACEHOLDER,
   videos: Array.isArray(product.videos) ? product.videos.map((v: string) => optimizeCloudinaryVideo(v)) : [],
   video: Array.isArray(product.videos) && product.videos.length > 0 ? optimizeCloudinaryVideo(product.videos[0]) : product.video,
   variants: [],
@@ -87,7 +101,8 @@ const adaptProduct = (product: any): IProduct => ({
   reviewCount: product.ratingsQuantity || 0,
   seo: {},
   tags: [],
-});
+  };
+};
 
 export const productApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -141,8 +156,34 @@ export const productApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
+    updateProduct: builder.mutation<ProductResponse, { id: string; body: Partial<CreateProductInput> }>({
+      query: ({ id, body }) => ({
+        url: `/products/${id}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Product', id },
+        { type: 'Product', id: 'LIST' },
+      ],
+    }),
+    deleteProduct: builder.mutation<{ status: string }, string>({
+      query: (id) => ({
+        url: `/products/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+    }),
   }),
-  overrideExisting: false,
+  // In dev, Fast Refresh re-evaluates this module and re-injects the endpoints;
+  // allow the override so it doesn't throw a console error on every edit.
+  overrideExisting: process.env.NODE_ENV === "development",
 });
 
-export const { useGetProductsQuery, useGetProductByIdQuery, useCreateProductMutation } = productApi;
+export const {
+  useGetProductsQuery,
+  useGetProductByIdQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} = productApi;

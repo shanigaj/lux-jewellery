@@ -23,7 +23,7 @@ export function ProductGallery({ images, videos, video }: ProductGalleryProps) {
 
   // Default to placeholder if no images
   const safeImages = images.length > 0 ? images : [
-    { _id: "default", url: "/images/hero-ring.png", publicId: "default", altText: "Product Image", sortOrder: 1, isDefault: true }
+    { _id: "default", url: "/images/placeholder.png", publicId: "default", altText: "Product Image", sortOrder: 1, isDefault: true }
   ];
 
   // Support one or many product videos (falls back to the legacy single `video`).

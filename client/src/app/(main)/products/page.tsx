@@ -8,8 +8,10 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import { Pagination } from "@/components/shared/Pagination";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { useGetProductsQuery } from "@/store/api/productApi";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 export default function ProductsPage() {
+  const { heroImage } = useCategoryImages();
   const [filters, setFilters] = useState({
     category: "all",
     sort: "featured",
@@ -30,7 +32,10 @@ export default function ProductsPage() {
     <div className="bg-background min-h-screen">
       {/* Header Banner */}
       <div className="bg-onyx text-white py-12 md:py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/collections/hero-collection.png')] opacity-20 bg-cover bg-center" />
+        <div
+          className="absolute inset-0 opacity-20 bg-cover bg-center"
+          style={{ backgroundImage: `url('${heroImage}')` }}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-onyx to-transparent" />
         <div className="container-luxury relative z-10 text-center">
           <AnimatedSection animation="fadeUp">

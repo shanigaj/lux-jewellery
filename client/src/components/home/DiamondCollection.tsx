@@ -7,6 +7,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Gem } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const diamondShapes = [
   { name: "Round Brilliant", pieces: 342, slug: "round" },
@@ -19,6 +20,7 @@ const diamondShapes = [
 
 export function DiamondCollection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { heroImage } = useCategoryImages();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
@@ -30,7 +32,7 @@ export function DiamondCollection() {
       {/* Parallax Background */}
       <motion.div style={{ y: bgY }} className="absolute inset-0 -top-20 -bottom-20">
         <Image
-          src="/images/collections/hero-collection.png"
+          src={heroImage}
           alt="Diamond Collection"
           fill
           className="object-cover"

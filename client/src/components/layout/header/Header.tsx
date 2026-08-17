@@ -23,6 +23,7 @@ import { useGetSettingsQuery } from "@/store/api/settingsApi";
 import { LivePriceTicker } from "@/components/layout/header/LivePriceTicker";
 import { Logo } from "@/components/shared/Logo";
 import { mainNavigation, type NavItem } from "@/config/navigation";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Accordion,
@@ -102,6 +103,13 @@ function MegaMenu({
   onMouseEnter: () => void;
   onMouseLeave: () => void;
 }) {
+  // Featured art is pulled from real catalogue photography for this family;
+  // non-category menus (e.g. Discover) use a general hero piece.
+  const { imageFor, heroImage } = useCategoryImages();
+  const featuredImage = item.href.startsWith("/categories/")
+    ? imageFor(item.href.split("/").pop() || "")
+    : heroImage;
+
   if (!item.children) return null;
 
   return (
@@ -147,7 +155,7 @@ function MegaMenu({
                   className="col-span-2 relative rounded-lg overflow-hidden bg-muted aspect-[16/10] group cursor-pointer"
                 >
                   <Image
-                    src={item.image || "/images/hero-ring.png"}
+                    src={featuredImage}
                     alt={item.label}
                     fill
                     sizes="(max-width: 1024px) 50vw, 33vw"

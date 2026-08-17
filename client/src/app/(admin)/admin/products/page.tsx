@@ -3,15 +3,27 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Loader2 } from "lucide-react";
-import { useGetProductsQuery } from "@/store/api/productApi";
+import { Plus, Search, Filter, Edit, Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useGetProductsQuery, useDeleteProductMutation } from "@/store/api/productApi";
 
 export default function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading } = useGetProductsQuery({ search: searchTerm, limit: 50 });
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const filteredProducts = data?.data || [];
   const totalCount = data?.total || 0;
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    try {
+      await deleteProduct(id).unwrap();
+      toast.success("Product deleted");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to delete product");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -98,10 +110,19 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-1.5 text-muted-foreground hover:text-foreground bg-background rounded border border-border">
+                      <Link
+                        href={`/admin/products/${product._id}/edit`}
+                        className="p-1.5 text-muted-foreground hover:text-foreground bg-background rounded border border-border"
+                        aria-label="Edit product"
+                      >
                         <Edit size={14} />
-                      </button>
-                      <button className="p-1.5 text-muted-foreground hover:text-destructive bg-background rounded border border-border">
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(product._id, product.name)}
+                        disabled={isDeleting}
+                        className="p-1.5 text-muted-foreground hover:text-destructive bg-background rounded border border-border disabled:opacity-50"
+                        aria-label="Delete product"
+                      >
                         <Trash2 size={14} />
                       </button>
                     </div>

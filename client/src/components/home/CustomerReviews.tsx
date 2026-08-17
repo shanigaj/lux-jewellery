@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
+import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const reviews = [
   {
@@ -16,7 +17,7 @@ const reviews = [
     title: "Beyond Expectations",
     text: "The engagement ring my fiancé chose from Sparenza & Co. is absolutely breathtaking. The diamond brilliance is unlike anything I've ever seen. The attention to detail in the platinum setting is truly remarkable. Every time I look at my hand, I fall in love all over again.",
     product: "Celestial Solitaire Ring",
-    image: "/images/hero-ring.png",
+    category: "rings",
     date: "2 weeks ago",
     verified: true,
   },
@@ -28,7 +29,7 @@ const reviews = [
     title: "Exceptional Service & Quality",
     text: "I've purchased jewellery from many luxury brands across the world, but Sparenza & Co. stands apart. Their concierge service made the entire experience feel exclusive and personal. The tennis bracelet I bought for our anniversary exceeded every expectation.",
     product: "Heritage Tennis Bracelet",
-    image: "/images/products/bracelet.png",
+    category: "bracelets",
     date: "1 month ago",
     verified: true,
   },
@@ -40,7 +41,7 @@ const reviews = [
     title: "My Everyday Luxury",
     text: "The Aurora pendant has become my signature piece. It catches light beautifully and I receive compliments everywhere I go. The craftsmanship is impeccable — you can feel the quality the moment you hold it. Worth every penny.",
     product: "Aurora Diamond Pendant",
-    image: "/images/products/necklace.png",
+    category: "necklaces",
     date: "3 weeks ago",
     verified: true,
   },
@@ -52,7 +53,7 @@ const reviews = [
     title: "Perfect Anniversary Gift",
     text: "Surprised my wife with the Radiance Drop Earrings for our 10th anniversary. The tears of joy said it all. The packaging, the presentation, the reveal — Sparenza & Co. made every moment magical. This is what luxury should feel like.",
     product: "Radiance Drop Earrings",
-    image: "/images/products/earrings.png",
+    category: "earrings",
     date: "1 week ago",
     verified: true,
   },
@@ -60,6 +61,7 @@ const reviews = [
 
 export function CustomerReviews() {
   const [current, setCurrent] = useState(0);
+  const { imageFor } = useCategoryImages();
 
   const next = () => setCurrent((prev) => (prev + 1) % reviews.length);
   const prev = () => setCurrent((prev) => (prev - 1 + reviews.length) % reviews.length);
@@ -106,7 +108,7 @@ export function CustomerReviews() {
                 <div className="lg:col-span-2">
                   <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
                     <Image
-                      src={review.image}
+                      src={imageFor(review.category)}
                       alt={review.product}
                       fill
                       className="object-cover"

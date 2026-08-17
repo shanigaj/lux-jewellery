@@ -53,7 +53,7 @@ export const mockOrders: IOrder[] = [
       {
         product: {} as any,
         name: "Celestial Solitaire Ring",
-        thumbnail: "/images/products/ring-1.png",
+        thumbnail: "/images/placeholder.png",
         sku: "CSR-001",
         metalType: "white_gold",
         metalPurity: "18K",
@@ -106,7 +106,7 @@ export const mockOrders: IOrder[] = [
       {
         product: {} as any,
         name: "Eternal Grace Necklace",
-        thumbnail: "/images/products/necklace-1.png",
+        thumbnail: "/images/placeholder.png",
         sku: "EGN-002",
         metalType: "rose_gold",
         metalPurity: "18K",
@@ -117,7 +117,7 @@ export const mockOrders: IOrder[] = [
       {
         product: {} as any,
         name: "Aurora Diamond Earrings",
-        thumbnail: "/images/products/earring-1.png",
+        thumbnail: "/images/placeholder.png",
         sku: "ADE-003",
         metalType: "platinum",
         metalPurity: "950Pt",
@@ -171,7 +171,7 @@ export const mockOrders: IOrder[] = [
       {
         product: {} as any,
         name: "Royal Heritage Bracelet",
-        thumbnail: "/images/products/bracelet-1.png",
+        thumbnail: "/images/placeholder.png",
         sku: "RHB-004",
         metalType: "gold",
         metalPurity: "22K",
