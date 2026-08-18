@@ -63,6 +63,8 @@ const nextConfig: NextConfig = {
           "form-action 'self'",
           "frame-ancestors 'self'",
           "object-src 'none'",
+          // Google Maps embed on the contact page is framed from these origins.
+          "frame-src 'self' https://maps.google.com https://www.google.com",
           "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "img-src 'self' data: blob: https:",
