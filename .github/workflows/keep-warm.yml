@@ -1,0 +1,43 @@
+name: Keep backend warm
+
+# Render's free tier spins the backend down after ~15 min of inactivity, so the
+# next visitor waits ~50s for a cold start (data + images feel slow on the client).
+# This pings the API often enough that it never sleeps. Public repo => the minutes
+# are free and unlimited.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # every 10 minutes (safely under the 15-min sleep)
+  workflow_dispatch: # allow a manual "wake it now" from the Actions tab
+
+# Never let two runs stack up on top of each other.
+concurrency:
+  group: keep-warm
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BACKEND: https://sparenza-api.onrender.com
+    steps:
+      - name: Wake and warm the backend
+        run: |
+          set +e
+          warm() {
+            echo "-> $(date -u +%H:%M:%S)  pinging $BACKEND"
+            # /health wakes the dyno; a real data route warms Mongo's pool + the
+            # in-memory cache, so the first real visitor also gets a fast response.
+            curl -sS -o /dev/null -w "   health    %{http_code}  (%{time_total}s)\n" \
+                 --max-time 120 --retry 3 --retry-delay 5 "$BACKEND/api/health"
+            curl -sS -o /dev/null -w "   products  %{http_code}  (%{time_total}s)\n" \
+                 --max-time 120 --retry 2 --retry-delay 5 "$BACKEND/api/products?limit=1"
+          }
+          # Ping a few times across ~4.5 min. If GitHub delays the next scheduled
+          # run (it can), these tail pings keep the gap comfortably under 15 min.
+          for i in 1 2 3 4; do
+            warm
+            [ "$i" -lt 4 ] && sleep 90
+          done
+          echo "warm-up complete"
