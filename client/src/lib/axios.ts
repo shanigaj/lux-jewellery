@@ -4,6 +4,8 @@ import axios from "axios";
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
   withCredentials: true, // Crucial for sending/receiving HttpOnly cookies
+  // Never let a stalled request spin the UI forever — surface an error instead.
+  timeout: 30000,
 });
 
 // Response Interceptor for handling 401 Unauthorized (Token Expiration)
