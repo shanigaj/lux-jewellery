@@ -56,7 +56,19 @@ app.use(
 );
 
 // Security Middlewares
-app.use(helmet());
+app.use(
+  helmet({
+    // This service returns JSON, not HTML, so a page CSP belongs on the web app
+    // (see next.config). Disabling it here avoids blocking legitimate API use.
+    contentSecurityPolicy: false,
+    // The storefront is a different origin; let it read our responses (CORS
+    // already gates who is allowed). Same-origin CORP would break cross-origin reads.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    // Force HTTPS for two years.
+    hsts: { maxAge: 63072000, includeSubDomains: true, preload: true },
+    referrerPolicy: { policy: "no-referrer" },
+  })
+);
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
