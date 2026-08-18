@@ -28,6 +28,14 @@ dotenv.config({ path: [".env.local", ".env"] });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Render (and most hosts) put a reverse proxy in front of us, so the real client
+// IP arrives in X-Forwarded-For. Trust exactly one proxy hop so express-rate-limit
+// keys off the actual visitor's IP — otherwise every request looks like it comes
+// from the proxy's single IP and the whole site shares one rate-limit bucket
+// (one burst then 429s for everyone). "1" (not `true`) also avoids the spoofable
+// trust-all mode express-rate-limit warns about.
+app.set("trust proxy", 1);
+
 // CORS first — so even rate-limited (429) and other error responses carry the
 // Access-Control-Allow-Origin header. Otherwise the browser reports a
 // misleading CORS error stacked on top of the real status.
