@@ -503,3 +503,37 @@
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   🔒 Content-protection deterrents (pairs with <SiteGuard/>)
+   Casual deterrent only — not a security boundary.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Imagery: block dragging and the iOS long-press "Save Image" callout. */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+/* Discourage text selection/copying across the page… */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* …but keep form fields fully usable (type, select, paste in cart/checkout). */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}

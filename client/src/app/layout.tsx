@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { Providers } from "@/providers/Providers";
+import SiteGuard from "@/components/shared/SiteGuard";
 import Script from "next/script";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
@@ -140,6 +141,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
         />
+        <SiteGuard />
         <Providers>{children}</Providers>
       </body>
     </html>
