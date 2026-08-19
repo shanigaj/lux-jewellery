@@ -6,6 +6,11 @@ function fmt(n: number) {
   return `₹${n.toLocaleString("en-IN")}`;
 }
 
+// Indicative rates (₹/gram) so the bar never disappears if the rates request is
+// still loading or momentarily unreachable. Live data replaces these as soon as
+// it arrives. Kept roughly in sync with the backend's own fallback.
+const FALLBACK_RATES = { gold24k: 15550, gold22k: 14250, silver: 232 };
+
 /**
  * Live gold & silver market rates (₹ per gram) for the top bar.
  * Polls every 5 minutes; the backend itself caches hourly.
@@ -16,8 +21,9 @@ export function LivePriceTicker() {
     refetchOnFocus: true,
   });
 
-  const r = data?.data;
-  if (!r) return null;
+  // Never render nothing: fall back to indicative rates until live data loads,
+  // so the ticker is always present in the top bar.
+  const r = data?.data ?? FALLBACK_RATES;
 
   const items = [
     { label: "Gold 24K", value: fmt(r.gold24k), hideOnMobile: false },
