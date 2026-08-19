@@ -27,6 +27,21 @@ const FALLBACK: Omit<MetalRates, "updatedAt" | "source"> = {
 
 let cache: MetalRates | null = null;
 let cachedAt = 0;
+let refreshing = false;
+
+// Refresh the cache without blocking a request (stale-while-revalidate).
+async function refreshCache(): Promise<void> {
+  if (refreshing) return;
+  refreshing = true;
+  try {
+    cache = await loadLiveRates();
+    cachedAt = Date.now();
+  } catch {
+    // loadLiveRates already falls back internally; ignore transient failures.
+  } finally {
+    refreshing = false;
+  }
+}
 
 async function fetchJson(url: string, ms = 8000): Promise<any | null> {
   try {
@@ -42,11 +57,15 @@ async function fetchJson(url: string, ms = 8000): Promise<any | null> {
 }
 
 async function loadLiveRates(): Promise<MetalRates> {
-  // Gold per-gram INR (all karats), no key required.
-  const goldInr = await fetchJson("https://api.goldprice.dev/v1/carat?currency=INR");
-  // Gold & silver spot in USD/oz, no key required.
-  const xau = await fetchJson("https://api.gold-api.com/price/XAU");
-  const xag = await fetchJson("https://api.gold-api.com/price/XAG");
+  // Fetch all three feeds in parallel so a cold (uncached) request resolves in
+  // ~one timeout window instead of three back-to-back (was up to 24s).
+  const [goldInr, xau, xag] = await Promise.all([
+    // Gold per-gram INR (all karats), no key required.
+    fetchJson("https://api.goldprice.dev/v1/carat?currency=INR"),
+    // Gold & silver spot in USD/oz, no key required.
+    fetchJson("https://api.gold-api.com/price/XAU"),
+    fetchJson("https://api.gold-api.com/price/XAG"),
+  ]);
 
   const gold24k = goldInr ? Number(goldInr.price_gram_24k) : NaN;
   const gold22k = goldInr ? Number(goldInr.price_gram_22k) : NaN;
@@ -88,10 +107,15 @@ async function loadLiveRates(): Promise<MetalRates> {
 // @access  Public
 export const getMetalRates = async (_req: Request, res: Response) => {
   try {
-    if (cache && Date.now() - cachedAt < CACHE_TTL_MS) {
+    // Serve any cached value instantly; if it's stale, refresh in the
+    // background so no user request ever waits on the slow external feeds.
+    if (cache) {
+      if (Date.now() - cachedAt >= CACHE_TTL_MS) void refreshCache();
       res.status(200).json({ success: true, data: cache });
       return;
     }
+    // Cold start with no cache yet — load once (loadLiveRates never rejects;
+    // it returns indicative values if the live feeds are unreachable).
     const rates = await loadLiveRates();
     cache = rates;
     cachedAt = Date.now();
@@ -103,3 +127,6 @@ export const getMetalRates = async (_req: Request, res: Response) => {
     });
   }
 };
+
+// Warm the cache on boot so the very first storefront request is instant.
+void refreshCache();

@@ -104,8 +104,7 @@ export function DiamondCollection() {
                 <motion.div
                   key={stat.label}
                   initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + i * 0.15, duration: 0.5 }}
                 >
                   <p className="text-2xl md:text-3xl font-heading text-gold">{stat.value}</p>
@@ -130,8 +129,7 @@ export function DiamondCollection() {
                 <motion.div
                   key={shape.slug}
                   initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
+                  animate={{ opacity: 1, scale: 1 }}
                   transition={{
                     duration: 0.5,
                     delay: 0.3 + index * 0.08,

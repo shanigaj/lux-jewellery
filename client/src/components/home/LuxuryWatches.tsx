@@ -66,8 +66,7 @@ export function LuxuryWatches() {
               {/* Floating badge */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
                 className="absolute -bottom-4 -left-4 bg-card border border-border rounded-xl px-5 py-4 shadow-luxury-lg"
               >
