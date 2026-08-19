@@ -20,7 +20,7 @@ export function FeaturedProducts() {
   }, [data]);
 
   return (
-    <section className="section-padding bg-muted/30">
+    <section className="pt-16 md:pt-24 lg:pt-32 pb-14 md:pb-16 bg-muted/30">
       <div className="container-luxury">
         {/* Header */}
         <AnimatedSection animation="fadeUp" className="text-center mb-16">
@@ -53,7 +53,7 @@ export function FeaturedProducts() {
         </div>
 
         {/* CTA */}
-        <AnimatedSection animation="fadeUp" delay={0.4} className="text-center mt-14">
+        <AnimatedSection animation="fadeUp" delay={0.4} className="text-center mt-10">
           <Link
             href="/products"
             className="group inline-flex items-center gap-3 px-8 py-4 border border-foreground text-foreground text-[12px] font-medium uppercase tracking-wider rounded-full hover:bg-foreground hover:text-background transition-all duration-500"

@@ -55,7 +55,7 @@ export function BestSellers() {
   }, [data]);
 
   return (
-    <section className="section-padding bg-gradient-to-b from-muted/40 via-background to-background overflow-hidden">
+    <section className="pt-12 md:pt-16 pb-16 md:pb-24 lg:pb-32 bg-gradient-to-b from-muted/40 via-background to-background overflow-hidden">
       <div className="container-luxury">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">

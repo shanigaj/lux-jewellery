@@ -33,9 +33,12 @@ export function ProductCard({
 
   return (
     <motion.div
+      // `animate` (mount-triggered) instead of `whileInView`: the
+      // IntersectionObserver behind whileInView doesn't reliably fire on a hard
+      // reload under Next 16, which left product cards stuck at opacity:0 (their
+      // images/prices never appeared). Same fix already applied to AnimatedSection.
       initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.6,
         delay: index * 0.1,
