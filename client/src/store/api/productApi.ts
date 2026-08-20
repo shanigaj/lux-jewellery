@@ -4,6 +4,7 @@ import { optimizeCloudinaryImage, optimizeCloudinaryVideo, productThumb } from '
 
 interface GetProductsParams {
   category?: string;
+  metalType?: string;
   search?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -112,9 +113,10 @@ export const productApi = baseApi.injectEndpoints({
         if (params) {
           const queryParams = new URLSearchParams();
           if (params.category && params.category !== 'all') queryParams.append('category', params.category);
+          if (params.metalType) queryParams.append('metalType', params.metalType);
           if (params.search) queryParams.append('search', params.search);
-          if (params.minPrice) queryParams.append('price[gte]', params.minPrice.toString());
-          if (params.maxPrice) queryParams.append('price[lte]', params.maxPrice.toString());
+          if (params.minPrice) queryParams.append('minPrice', params.minPrice.toString());
+          if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
           if (params.sort) queryParams.append('sort', params.sort);
           if (params.page) queryParams.append('page', params.page.toString());
           if (params.limit) queryParams.append('limit', params.limit.toString());

@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Search, Copy, Trash2, X } from "lucide-react";
+import { Plus, Search, Copy, Trash2, X, Pencil, Power } from "lucide-react";
 import { toast } from "sonner";
 import {
   useGetCouponsQuery,
   useCreateCouponMutation,
+  useUpdateCouponMutation,
   useDeleteCouponMutation,
 } from "@/store/api/couponApi";
 
@@ -22,10 +23,12 @@ const emptyForm = {
 export default function AdminCouponsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
 
   const { data, isLoading } = useGetCouponsQuery();
   const [createCoupon, { isLoading: isCreating }] = useCreateCouponMutation();
+  const [updateCoupon, { isLoading: isUpdating }] = useUpdateCouponMutation();
   const [deleteCoupon] = useDeleteCouponMutation();
 
   const coupons = useMemo(() => {
@@ -57,24 +60,60 @@ export default function AdminCouponsPage() {
     }
   };
 
-  const handleCreate = async () => {
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setShowForm(true);
+  };
+
+  const openEdit = (coupon: (typeof coupons)[number]) => {
+    setEditingId(coupon._id);
+    setForm({
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      minOrderAmount: coupon.minOrderAmount,
+      usageLimit: coupon.usageLimit,
+      expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().slice(0, 10) : "",
+      isActive: coupon.isActive,
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async () => {
     if (!form.code.trim() || !form.expiresAt) {
       toast.error("Code and expiry date are required");
       return;
     }
+    const body = {
+      ...form,
+      code: form.code.trim().toUpperCase(),
+      discountValue: Number(form.discountValue),
+      minOrderAmount: Number(form.minOrderAmount),
+      usageLimit: Number(form.usageLimit),
+    };
     try {
-      await createCoupon({
-        ...form,
-        code: form.code.trim().toUpperCase(),
-        discountValue: Number(form.discountValue),
-        minOrderAmount: Number(form.minOrderAmount),
-        usageLimit: Number(form.usageLimit),
-      }).unwrap();
-      toast.success("Coupon created");
+      if (editingId) {
+        await updateCoupon({ id: editingId, body }).unwrap();
+        toast.success("Coupon updated");
+      } else {
+        await createCoupon(body).unwrap();
+        toast.success("Coupon created");
+      }
       setShowForm(false);
+      setEditingId(null);
       setForm(emptyForm);
     } catch (e) {
-      toast.error((e as { data?: { message?: string } })?.data?.message || "Failed to create coupon");
+      toast.error((e as { data?: { message?: string } })?.data?.message || "Failed to save coupon");
+    }
+  };
+
+  const toggleActive = async (id: string, isActive: boolean) => {
+    try {
+      await updateCoupon({ id, body: { isActive: !isActive } }).unwrap();
+      toast.success(!isActive ? "Coupon activated" : "Coupon deactivated");
+    } catch {
+      toast.error("Failed to update coupon");
     }
   };
 
@@ -86,7 +125,7 @@ export default function AdminCouponsPage() {
           <p className="text-sm text-muted-foreground">Create and manage promotional campaigns.</p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={openCreate}
           className="flex items-center gap-2 bg-onyx dark:bg-gold text-white dark:text-onyx px-4 py-2 rounded-lg text-sm font-medium hover:bg-gold dark:hover:bg-white transition-colors"
         >
           <Plus size={16} /> Create Coupon
@@ -161,6 +200,12 @@ export default function AdminCouponsPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => toggleActive(coupon._id, coupon.isActive)} className={`p-1.5 bg-background rounded border border-border ${coupon.isActive ? "text-green-600 hover:text-green-700" : "text-muted-foreground hover:text-foreground"}`} title={coupon.isActive ? "Deactivate" : "Activate"}>
+                          <Power size={14} />
+                        </button>
+                        <button onClick={() => openEdit(coupon)} className="p-1.5 text-muted-foreground hover:text-foreground bg-background rounded border border-border" title="Edit">
+                          <Pencil size={14} />
+                        </button>
                         <button onClick={() => handleDelete(coupon._id, coupon.code)} className="p-1.5 text-muted-foreground hover:text-destructive bg-background rounded border border-border" title="Delete">
                           <Trash2 size={14} />
                         </button>
@@ -176,11 +221,11 @@ export default function AdminCouponsPage() {
 
       {/* Create Coupon Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowForm(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => { setShowForm(false); setEditingId(null); }}>
           <div className="bg-card border border-border rounded-xl shadow-luxury-lg w-full max-w-md p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-xl">Create Coupon</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-muted rounded" aria-label="Close"><X size={18} /></button>
+              <h2 className="font-heading text-xl">{editingId ? "Edit Coupon" : "Create Coupon"}</h2>
+              <button onClick={() => { setShowForm(false); setEditingId(null); }} className="p-1 hover:bg-muted rounded" aria-label="Close"><X size={18} /></button>
             </div>
 
             <div className="space-y-3">
@@ -218,9 +263,9 @@ export default function AdminCouponsPage() {
             </div>
 
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowForm(false)} className="flex-1 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">Cancel</button>
-              <button onClick={handleCreate} disabled={isCreating} className="flex-1 py-2 bg-onyx dark:bg-gold text-white dark:text-onyx rounded-lg text-sm font-medium hover:bg-gold dark:hover:bg-white transition-colors disabled:opacity-50">
-                {isCreating ? "Creating…" : "Create"}
+              <button onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">Cancel</button>
+              <button onClick={handleSubmit} disabled={isCreating || isUpdating} className="flex-1 py-2 bg-onyx dark:bg-gold text-white dark:text-onyx rounded-lg text-sm font-medium hover:bg-gold dark:hover:bg-white transition-colors disabled:opacity-50">
+                {isCreating || isUpdating ? "Saving…" : editingId ? "Save Changes" : "Create"}
               </button>
             </div>
           </div>

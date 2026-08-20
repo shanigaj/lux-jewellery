@@ -41,8 +41,27 @@ export const orderApi = baseApi.injectEndpoints({
       query: (id) => `/orders/${id}`,
       providesTags: (result, error, id) => [{ type: 'Order', id }],
     }),
+    updateOrderStatus: builder.mutation<
+      OrderResponse,
+      { id: string; status: string; trackingNumber?: string }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/orders/${id}/status`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Order', id },
+        { type: 'Order', id: 'LIST' },
+      ],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetUserOrdersQuery, useGetAllOrdersQuery, useGetOrderByIdQuery } = orderApi;
+export const {
+  useGetUserOrdersQuery,
+  useGetAllOrdersQuery,
+  useGetOrderByIdQuery,
+  useUpdateOrderStatusMutation,
+} = orderApi;

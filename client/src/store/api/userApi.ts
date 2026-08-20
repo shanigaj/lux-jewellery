@@ -23,8 +23,19 @@ export const userApi = baseApi.injectEndpoints({
       query: () => '/auth/users',
       providesTags: [{ type: 'User', id: 'LIST' }],
     }),
+    updateUserRole: builder.mutation<
+      { success: boolean; data: IAdminUser },
+      { id: string; role: IAdminUser['role'] }
+    >({
+      query: ({ id, role }) => ({
+        url: `/auth/users/${id}/role`,
+        method: 'PUT',
+        body: { role },
+      }),
+      invalidatesTags: [{ type: 'User', id: 'LIST' }],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetUsersQuery } = userApi;
+export const { useGetUsersQuery, useUpdateUserRoleMutation } = userApi;
