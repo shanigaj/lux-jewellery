@@ -1,20 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
-  TrendingUp,
   Package,
   CreditCard,
   ShoppingBag,
   ArrowUpRight,
   ArrowDownRight,
-  MoreHorizontal,
+  Download,
   AlertTriangle,
 } from "lucide-react";
 
 import { useGetProductsQuery } from "@/store/api/productApi";
 import { useGetAllOrdersQuery, type IOrder } from "@/store/api/orderApi";
+import { exportCsv } from "@/lib/export-csv";
 
 // Dynamically import heavy chart components
 const AdminAreaChart = dynamic(
@@ -27,8 +27,18 @@ const AdminBarChart = dynamic(
   { ssr: false, loading: () => <div className="w-full h-full animate-pulse bg-muted/50 rounded-lg"></div> }
 );
 
-const LOW_STOCK_THRESHOLD = 3;
+const LOW_STOCK_THRESHOLD = 5;
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+type Range = "all" | "7d" | "30d" | "year";
+const RANGE_LABEL: Record<Range, string> = { all: "All time", "7d": "Last 7 Days", "30d": "Last 30 Days", year: "This Year" };
+function rangeStart(range: Range): number {
+  const now = new Date();
+  if (range === "7d") return now.getTime() - 7 * 864e5;
+  if (range === "30d") return now.getTime() - 30 * 864e5;
+  if (range === "year") return new Date(now.getFullYear(), 0, 1).getTime();
+  return 0;
+}
 
 function formatINR(amount: number) {
   return `₹${Math.round(amount).toLocaleString("en-IN")}`;
@@ -53,14 +63,22 @@ export default function AdminDashboardPage() {
   // Orders require admin auth; guard against undefined / 401.
   const { data: orderData } = useGetAllOrdersQuery();
 
+  const [range, setRange] = useState<Range>("all");
+
   const products = useMemo(() => productData?.data ?? [], [productData]);
   const totalProducts = productData?.total ?? products.length;
   const orders: IOrder[] = useMemo(() => orderData?.orders ?? [], [orderData]);
 
+  // Orders within the selected date range (drives the KPI cards).
+  const scopedOrders = useMemo(() => {
+    const start = rangeStart(range);
+    return start === 0 ? orders : orders.filter((o) => new Date(o.createdAt).getTime() >= start);
+  }, [orders, range]);
+
   // ── Derived stats ──
   const totalRevenue = useMemo(
-    () => orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0),
-    [orders]
+    () => scopedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0),
+    [scopedOrders]
   );
   const lowStockCount = useMemo(
     () => products.filter((p) => (p.stockQuantity ?? 0) <= LOW_STOCK_THRESHOLD).length,
@@ -102,9 +120,30 @@ export default function AdminDashboardPage() {
     [orders]
   );
 
+  const downloadReport = () => {
+    if (!scopedOrders.length) return;
+    exportCsv(
+      `dashboard-${range}.csv`,
+      scopedOrders.map((o) => ({
+        order: o.orderNumber,
+        date: new Date(o.createdAt).toLocaleDateString("en-IN"),
+        customer: [o.shippingAddress?.firstName, o.shippingAddress?.lastName].filter(Boolean).join(" "),
+        amount: o.totalAmount,
+        status: o.status,
+      })),
+      [
+        { key: "order", header: "Order" },
+        { key: "date", header: "Date" },
+        { key: "customer", header: "Customer" },
+        { key: "amount", header: "Amount (INR)" },
+        { key: "status", header: "Status" },
+      ]
+    );
+  };
+
   const stats = [
-    { title: "Total Revenue", value: formatINR(totalRevenue), icon: CreditCard, trend: `${orders.length} orders`, isPositive: true },
-    { title: "Total Orders", value: orders.length.toLocaleString("en-IN"), icon: ShoppingBag, trend: "All time", isPositive: true },
+    { title: "Total Revenue", value: formatINR(totalRevenue), icon: CreditCard, trend: `${scopedOrders.length} orders`, isPositive: true },
+    { title: "Total Orders", value: scopedOrders.length.toLocaleString("en-IN"), icon: ShoppingBag, trend: RANGE_LABEL[range], isPositive: true },
     { title: "Total Products", value: totalProducts.toLocaleString("en-IN"), icon: Package, trend: "In catalogue", isPositive: true },
     { title: "Low Stock", value: lowStockCount.toLocaleString("en-IN"), icon: AlertTriangle, trend: `≤ ${LOW_STOCK_THRESHOLD} left`, isPositive: lowStockCount === 0 },
   ];
@@ -119,14 +158,21 @@ export default function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <select aria-label="Select date range" className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-gold">
-            <option>All time</option>
-            <option>Last 7 Days</option>
-            <option>Last 30 Days</option>
-            <option>This Year</option>
+          <select
+            aria-label="Select date range"
+            value={range}
+            onChange={(e) => setRange(e.target.value as Range)}
+            className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-gold"
+          >
+            {(Object.keys(RANGE_LABEL) as Range[]).map((r) => (
+              <option key={r} value={r}>{RANGE_LABEL[r]}</option>
+            ))}
           </select>
-          <button className="bg-onyx dark:bg-gold text-white dark:text-onyx px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gold dark:hover:bg-white transition-colors">
-            Download Report
+          <button
+            onClick={downloadReport}
+            className="flex items-center gap-2 bg-onyx dark:bg-gold text-white dark:text-onyx px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gold dark:hover:bg-white transition-colors"
+          >
+            <Download size={15} /> Download Report
           </button>
         </div>
       </div>
@@ -163,9 +209,6 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-4 bg-card border border-border rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-heading text-lg">Revenue (last 7 days)</h3>
-            <button aria-label="More options" className="text-muted-foreground hover:text-foreground">
-              <MoreHorizontal size={20} />
-            </button>
           </div>
           <div className="h-[300px] w-full">
             <AdminAreaChart data={revenueData} />

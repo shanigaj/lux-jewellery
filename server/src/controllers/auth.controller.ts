@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import User, { IUser } from "../models/User";
+import type { AuthRequest } from "../middleware/auth";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail";
@@ -334,6 +335,34 @@ export const getUsers = async (_req: Request, res: Response) => {
       .select("firstName lastName email role tier isVerified createdAt")
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: users.length, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// @desc    Change a user's role (admin)
+// @route   PUT /api/auth/users/:id/role
+// @access  Admin
+export const updateUserRole = async (req: AuthRequest, res: Response) => {
+  try {
+    const { role } = req.body as { role?: string };
+    const allowed = ["user", "admin", "manager", "support"];
+    if (!role || !allowed.includes(role)) {
+      return res.status(400).json({ success: false, message: "Invalid role" });
+    }
+    // Don't let an admin strip their own admin access and lock themselves out.
+    if (req.user && String(req.user._id) === req.params.id && role !== "admin") {
+      return res.status(400).json({ success: false, message: "You cannot change your own admin role" });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true }
+    ).select("firstName lastName email role tier isVerified createdAt");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }

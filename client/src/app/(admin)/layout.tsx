@@ -21,8 +21,6 @@ import {
   BarChart,
   Shield,
   Settings,
-  Bell,
-  Search,
   Menu,
   X,
   LogOut,
@@ -31,6 +29,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/Logo";
+import { AdminSearch } from "@/components/admin/AdminSearch";
+import { NotificationBell } from "@/components/admin/NotificationBell";
 
 const adminSidebarLinks = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
@@ -248,30 +248,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
             )}
             
-            {/* Search Bar */}
-            <div className="hidden md:flex items-center relative group">
-              <Search size={16} className="absolute left-3 text-muted-foreground group-focus-within:text-gold transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search orders, customers, or products..." 
-                className="w-80 pl-10 pr-4 py-2 bg-muted/50 border border-transparent focus:border-gold rounded-lg text-sm outline-none transition-all focus:bg-background"
-              />
-              <div className="absolute right-3 flex gap-1">
-                <kbd className="px-1.5 py-0.5 text-[10px] bg-background border border-border rounded shadow-sm text-muted-foreground font-sans">
-                  Ctrl
-                </kbd>
-                <kbd className="px-1.5 py-0.5 text-[10px] bg-background border border-border rounded shadow-sm text-muted-foreground font-sans">
-                  K
-                </kbd>
-              </div>
-            </div>
+            {/* Global product search */}
+            <AdminSearch />
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors">
-              <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full border-2 border-card" />
-            </button>
+            <NotificationBell />
           </div>
         </header>
 

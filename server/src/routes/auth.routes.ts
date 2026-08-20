@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, verifyOTP, refreshToken, logout, forgotPassword, resetPassword, getMe, updateMe, getUsers } from "../controllers/auth.controller";
+import { register, login, verifyOTP, refreshToken, logout, forgotPassword, resetPassword, getMe, updateMe, getUsers, updateUserRole } from "../controllers/auth.controller";
 import { getAddresses, addAddress, updateAddress, deleteAddress } from "../controllers/address.controller";
 import { protect, authorize } from "../middleware/auth";
 
@@ -23,5 +23,6 @@ router.route("/addresses/:addrId").put(protect, updateAddress).delete(protect, d
 
 // Admin
 router.get("/users", protect, authorize("admin"), getUsers);
+router.put("/users/:id/role", protect, authorize("admin"), updateUserRole);
 
 export default router;

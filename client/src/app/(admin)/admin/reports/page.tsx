@@ -5,6 +5,7 @@ import { Download, FileText, TrendingUp, ShoppingBag, Package, Wallet } from "lu
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useGetAllOrdersQuery } from "@/store/api/orderApi";
 import { useGetProductsQuery } from "@/store/api/productApi";
+import { exportCsv } from "@/lib/export-csv";
 
 function inr(n: number) {
   return `₹${Math.round(n).toLocaleString("en-IN")}`;
@@ -23,6 +24,33 @@ export default function AdminReportsPage() {
     () => products.reduce((s, p) => s + (p.basePrice || 0) * (p.stockQuantity || 0), 0),
     [products]
   );
+
+  // Per-customer lifetime value, aggregated from order history.
+  const ltv = useMemo(() => {
+    const m = new Map<string, { name: string; email: string; orders: number; spent: number }>();
+    for (const o of orders) {
+      const email = (o.shippingAddress?.email || "guest").toLowerCase();
+      const name = [o.shippingAddress?.firstName, o.shippingAddress?.lastName].filter(Boolean).join(" ") || "Guest";
+      const e = m.get(email) || { name, email: o.shippingAddress?.email || "—", orders: 0, spent: 0 };
+      e.orders += 1;
+      e.spent += o.totalAmount || 0;
+      m.set(email, e);
+    }
+    return Array.from(m.values()).sort((a, b) => b.spent - a.spent);
+  }, [orders]);
+  const avgLtv = ltv.length ? ltv.reduce((s, c) => s + c.spent, 0) / ltv.length : 0;
+
+  const exportLtvCsv = () =>
+    exportCsv(
+      "customer-ltv.csv",
+      ltv.map((c) => ({ name: c.name, email: c.email, orders: c.orders, ltv: Math.round(c.spent) })),
+      [
+        { key: "name", header: "Customer" },
+        { key: "email", header: "Email" },
+        { key: "orders", header: "Orders" },
+        { key: "ltv", header: "Lifetime Value (INR)" },
+      ]
+    );
 
   // Real revenue + order count for the last 7 calendar months.
   const monthly = useMemo(() => {
@@ -108,7 +136,7 @@ export default function AdminReportsPage() {
         {[
           { name: "Sales Summary", desc: "All orders with customer & totals", action: exportOrdersCsv, type: "CSV" },
           { name: "Inventory Valuation", desc: `${products.length} products • ${inr(inventoryValue)} on hand`, action: undefined, type: "Live" },
-          { name: "Customer LTV", desc: "Lifetime value from order history", action: undefined, type: "Live" },
+          { name: "Customer LTV", desc: `${ltv.length} customers • avg ${inr(avgLtv)}`, action: exportLtvCsv, type: "CSV" },
         ].map((report, idx) => (
           <div key={idx} className="bg-card border border-border rounded-xl p-5 hover:border-gold/50 transition-colors group">
             <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-muted-foreground mb-4 group-hover:bg-gold/10 group-hover:text-gold transition-colors">

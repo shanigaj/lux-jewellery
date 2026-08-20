@@ -2,14 +2,27 @@
 
 import { useMemo, useState } from "react";
 import { Search, Check, X as XIcon, MessageSquare, Star } from "lucide-react";
+import { toast } from "sonner";
 import {
   useGetAllReviewsQuery,
   useUpdateReviewStatusMutation,
 } from "@/store/api/reviewApi";
+import { Modal } from "@/components/admin/Modal";
+
+interface ReviewRow {
+  id: string;
+  productName: string;
+  customerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  status: string;
+}
 
 export default function AdminReviewsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [viewing, setViewing] = useState<ReviewRow | null>(null);
 
   const { data, isLoading } = useGetAllReviewsQuery();
   const [updateStatus] = useUpdateReviewStatusMutation();
@@ -36,8 +49,13 @@ export default function AdminReviewsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const moderate = (id: string, approve: boolean) => {
-    updateStatus({ id, isApproved: approve });
+  const moderate = async (id: string, approve: boolean) => {
+    try {
+      await updateStatus({ id, isApproved: approve }).unwrap();
+      toast.success(approve ? "Review approved" : "Review rejected");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update review");
+    }
   };
 
   return (
@@ -139,7 +157,7 @@ export default function AdminReviewsPage() {
                             <XIcon size={16} />
                           </button>
                         )}
-                        <button className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded border border-transparent transition-colors" title="View Details">
+                        <button onClick={() => setViewing(review)} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded border border-transparent transition-colors" title="View Details">
                           <MessageSquare size={16} />
                         </button>
                       </div>
@@ -156,6 +174,27 @@ export default function AdminReviewsPage() {
           <p>Showing {filteredReviews.length} of {reviews.length} reviews</p>
         </div>
       </div>
+
+      <Modal open={!!viewing} onClose={() => setViewing(null)} title="Review details">
+        {viewing && (
+          <div className="space-y-4 text-sm">
+            <div>
+              <p className="font-medium text-base">{viewing.productName}</p>
+              <p className="text-muted-foreground">by {viewing.customerName} · {new Date(viewing.date).toLocaleDateString("en-IN")}</p>
+            </div>
+            <div className="flex text-gold">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} size={16} fill={i < viewing.rating ? "currentColor" : "none"} className={i >= viewing.rating ? "text-muted" : ""} />
+              ))}
+            </div>
+            <p className="text-foreground leading-relaxed whitespace-pre-line">&ldquo;{viewing.comment}&rdquo;</p>
+            <div className="flex justify-end gap-2 pt-2 border-t border-border">
+              <button onClick={() => { moderate(viewing.id, false); setViewing(null); }} className="flex items-center gap-1.5 px-4 py-2 border border-border rounded-lg text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"><XIcon size={14} /> Reject</button>
+              <button onClick={() => { moderate(viewing.id, true); setViewing(null); }} className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"><Check size={14} /> Approve</button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
