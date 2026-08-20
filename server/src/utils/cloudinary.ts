@@ -19,5 +19,9 @@ const storage = new CloudinaryStorage({
   } as any,
 });
 
-export const upload = multer({ storage: storage });
+// Cap uploads at 10 MB each so a single request can't balloon storage/bandwidth.
+export const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 export default cloudinary;
