@@ -60,7 +60,7 @@ export default function RewardsPage() {
               </div>
               <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-1">Available Balance</h2>
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="font-heading text-5xl">{lifetime.toLocaleString("en-IN")}</span>
+                <span className="font-heading text-4xl sm:text-5xl">{lifetime.toLocaleString("en-IN")}</span>
                 <span className="text-lg text-gold font-medium">Pts</span>
               </div>
               {tier !== "diamond" && (

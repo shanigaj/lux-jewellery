@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import {
   User,
@@ -58,24 +58,22 @@ export default function AccountLayout({
             <span className="font-medium">{breadcrumbLabel}</span>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 -m-2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={mobileMenuOpen ? "Close account menu" : "Open account menu"}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
 
-          {/* Sidebar */}
-          <AnimatePresence>
-            {(mobileMenuOpen || typeof window === "undefined" || window.innerWidth >= 1024) && (
-              <motion.aside
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className={cn(
-                  "lg:w-64 flex-shrink-0 lg:block overflow-hidden lg:overflow-visible",
-                  !mobileMenuOpen && "hidden"
-                )}
-              >
+          {/* Sidebar — always in the DOM; shown on desktop, toggled on mobile
+              via CSS (no window-width read, so no hydration mismatch). */}
+          <aside
+            className={cn(
+              "lg:w-64 flex-shrink-0 lg:block",
+              mobileMenuOpen ? "block" : "hidden"
+            )}
+          >
                 <div className="sticky top-24 space-y-8">
                   {/* User Info Brief */}
                   <div className="pb-6 border-b border-border">
@@ -123,9 +121,7 @@ export default function AccountLayout({
                     </button>
                   </div>
                 </div>
-              </motion.aside>
-            )}
-          </AnimatePresence>
+          </aside>
 
           {/* Main Content Area */}
           <main className="flex-1 min-w-0">

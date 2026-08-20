@@ -30,7 +30,7 @@ export function ProductGallery({ images, videos, video }: ProductGalleryProps) {
   const allVideos = (videos && videos.length > 0 ? videos : video ? [video] : []).filter(Boolean);
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 lg:gap-6 sticky top-24">
+    <div className="flex flex-col md:flex-row gap-4 lg:gap-6 lg:sticky lg:top-24">
       {/* Thumbnails - Left side on desktop, bottom on mobile */}
       <div className="order-2 md:order-1 flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar md:w-20 lg:w-24 shrink-0">
         {safeImages.map((img, idx) => (

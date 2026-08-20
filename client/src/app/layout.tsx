@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { Providers } from "@/providers/Providers";
 import SiteGuard from "@/components/shared/SiteGuard";
@@ -72,6 +72,16 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+};
+
+// Explicit mobile viewport: fit device width, allow the user to zoom (never
+// disable pinch-zoom — it's an accessibility must), and paint under the
+// status bar with the brand cream.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#F7F3EC",
 };
 
 export default function RootLayout({

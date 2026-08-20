@@ -95,7 +95,7 @@ export function DiamondCollection() {
             </p>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-8 mb-12">
+            <div className="grid grid-cols-3 gap-3 sm:gap-8 mb-12">
               {[
                 { value: "10,000+", label: "Certified Diamonds" },
                 { value: "D-F", label: "Color Range" },
@@ -107,8 +107,8 @@ export function DiamondCollection() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + i * 0.15, duration: 0.5 }}
                 >
-                  <p className="text-2xl md:text-3xl font-heading text-gold">{stat.value}</p>
-                  <p className="text-[10px] uppercase tracking-luxury text-white/40 mt-1">{stat.label}</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-heading text-gold">{stat.value}</p>
+                  <p className="text-[9px] sm:text-[10px] uppercase tracking-luxury text-white/40 mt-1">{stat.label}</p>
                 </motion.div>
               ))}
             </div>

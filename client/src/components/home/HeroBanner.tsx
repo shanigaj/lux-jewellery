@@ -127,7 +127,7 @@ export function HeroBanner() {
 
       {/* ── Content ── */}
       <div className="container-luxury relative z-10 flex min-h-[90vh] items-center">
-        <div className="max-w-2xl py-24">
+        <div className="max-w-2xl py-16 sm:py-24">
           <AnimatePresence mode="wait">
             <motion.div
               key={slide.id}
@@ -145,7 +145,7 @@ export function HeroBanner() {
               </div>
 
               {/* Headline */}
-              <h1 className="font-heading text-5xl leading-[1.05] text-foreground [text-shadow:0_2px_28px_rgba(247,243,236,0.85)] md:text-6xl lg:text-7xl">
+              <h1 className="font-heading text-[2rem] leading-[1.08] text-foreground [text-shadow:0_2px_28px_rgba(247,243,236,0.85)] sm:text-5xl sm:leading-[1.05] md:text-6xl lg:text-7xl">
                 {slide.lead}{" "}
                 <em className="italic text-primary">{slide.em}</em>
                 {slide.tail ? <> {slide.tail}</> : null}

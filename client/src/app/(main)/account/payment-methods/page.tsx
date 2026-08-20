@@ -72,8 +72,11 @@ export default function PaymentMethodsPage() {
               </div>
             </div>
 
-            <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="p-2 text-muted-foreground hover:text-destructive transition-colors bg-background rounded-full shadow-sm">
+            <div className="absolute bottom-6 right-6 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+              <button
+                aria-label="Remove card"
+                className="flex min-h-[40px] min-w-[40px] items-center justify-center p-2 text-muted-foreground hover:text-destructive transition-colors bg-background rounded-full shadow-sm"
+              >
                 <Trash2 size={16} />
               </button>
             </div>
