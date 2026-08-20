@@ -15,18 +15,25 @@ const sendTokenResponse = (user: IUser, statusCode: number, res: Response) => {
   const token = signToken(userIdStr, process.env.JWT_SECRET as string, "15m");
   const refreshToken = signToken(userIdStr, process.env.JWT_REFRESH_SECRET as string, "7d");
 
+  // Frontend (Vercel) and API (Render) live on different sites in production,
+  // so the auth cookie must be `SameSite=None; Secure` or the browser won't send
+  // it on cross-site API calls. Locally (same-site localhost) `lax` is fine and
+  // avoids the `Secure` requirement over plain http.
+  const isProd = process.env.NODE_ENV === "production";
+  const crossSite = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+  };
+
   const options = {
     expires: new Date(Date.now() + 15 * 60 * 1000), // 15 mins
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict" as const,
+    ...crossSite,
   };
 
   const refreshOptions = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict" as const,
+    ...crossSite,
   };
 
   res
@@ -182,14 +189,17 @@ export const refreshToken = async (req: Request, res: Response) => {
 // @route   POST /api/auth/logout
 // @access  Public
 export const logout = (req: Request, res: Response) => {
-  res.cookie("jwt", "none", {
+  // Must match the attributes the cookie was set with, or the browser won't
+  // clear it (SameSite=None; Secure in production).
+  const isProd = process.env.NODE_ENV === "production";
+  const clear = {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-  });
-  res.cookie("jwtRefresh", "none", {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true,
-  });
+    secure: isProd,
+    sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+  };
+  res.cookie("jwt", "none", clear);
+  res.cookie("jwtRefresh", "none", clear);
 
   res.status(200).json({ success: true, message: "Logged out successfully" });
 };
