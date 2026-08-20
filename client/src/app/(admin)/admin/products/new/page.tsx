@@ -2,17 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, UploadCloud, X } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "sonner";
 import { useCreateProductMutation } from "@/store/api/productApi";
-import { useUploadMultipleImagesMutation } from "@/store/api/mediaApi";
+import { ProductImageUploader } from "@/components/admin/ProductImageUploader";
 
 export default function NewProductPage() {
   const router = useRouter();
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
-  const [uploadImages, { isLoading: isUploading }] = useUploadMultipleImagesMutation();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -26,48 +24,23 @@ export default function NewProductPage() {
     gemstone: "",
   });
 
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  // Final Cloudinary URLs (uploaded + AI-polished by the uploader component).
+  const [images, setImages] = useState<string[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
-      setSelectedFiles((prev) => [...prev, ...filesArray]);
-      
-      const newPreviewUrls = filesArray.map(file => URL.createObjectURL(file));
-      setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (selectedFiles.length === 0) {
-      toast.error("Please select at least one image");
+
+    if (images.length === 0) {
+      toast.error("Please add at least one image");
       return;
     }
 
     try {
-      // 1. Upload Images to Cloudinary
-      const imageFormData = new FormData();
-      selectedFiles.forEach(file => {
-        imageFormData.append("images", file);
-      });
-
-      const uploadResult = await uploadImages(imageFormData).unwrap();
-      const imageUrls = uploadResult.data.map(img => img.url);
-
-      // 2. Create Product
       const productPayload = {
         name: formData.name,
         sku: formData.sku,
@@ -78,7 +51,7 @@ export default function NewProductPage() {
         category: formData.category as any,
         metalType: formData.metalType as any,
         gemstone: formData.gemstone,
-        images: imageUrls, // Store Cloudinary URLs
+        images, // already-uploaded Cloudinary URLs
       };
 
       await createProduct(productPayload).unwrap();
@@ -136,36 +109,7 @@ export default function NewProductPage() {
 
             <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-sm">
               <h2 className="font-heading text-lg border-b border-border pb-2 mb-4">Media (Cloudinary)</h2>
-              
-              <div className="border-2 border-dashed border-border rounded-xl p-8 text-center bg-muted/5 hover:bg-muted/10 transition-colors relative">
-                <input 
-                  type="file" 
-                  multiple 
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <UploadCloud className="mx-auto text-muted-foreground mb-4" size={32} />
-                <p className="text-sm font-medium mb-1">Click or drag images to upload</p>
-                <p className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 5MB</p>
-              </div>
-
-              {previewUrls.length > 0 && (
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  {previewUrls.map((url, index) => (
-                    <div key={index} className="relative aspect-square border border-border rounded-lg overflow-hidden group">
-                      <Image src={url} alt="Preview" fill className="object-cover" />
-                      <button 
-                        type="button"
-                        onClick={() => removeFile(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ProductImageUploader value={images} onChange={setImages} />
             </div>
           </div>
 
@@ -222,13 +166,13 @@ export default function NewProductPage() {
           <Link href="/admin/products" className="px-6 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
             Cancel
           </Link>
-          <button 
-            type="submit" 
-            disabled={isCreating || isUploading}
+          <button
+            type="submit"
+            disabled={isCreating}
             className="flex items-center gap-2 bg-onyx dark:bg-gold text-white dark:text-onyx px-6 py-2 rounded-lg text-sm font-medium hover:bg-gold dark:hover:bg-white transition-colors disabled:opacity-50"
           >
-            {(isCreating || isUploading) ? <Loader2 size={16} className="animate-spin" /> : null}
-            {isUploading ? "Uploading..." : isCreating ? "Saving..." : "Save Product"}
+            {isCreating ? <Loader2 size={16} className="animate-spin" /> : null}
+            {isCreating ? "Saving..." : "Save Product"}
           </button>
         </div>
       </form>

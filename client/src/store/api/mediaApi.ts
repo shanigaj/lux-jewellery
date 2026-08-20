@@ -16,8 +16,22 @@ export const mediaApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    enhanceImage: builder.mutation<
+      { status: string; data: { url: string } },
+      { imageUrl: string; mode: 'enhance' | 'studio' }
+    >({
+      query: (body) => ({
+        url: '/media/enhance',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useUploadImageMutation, useUploadMultipleImagesMutation } = mediaApi;
+export const {
+  useUploadImageMutation,
+  useUploadMultipleImagesMutation,
+  useEnhanceImageMutation,
+} = mediaApi;

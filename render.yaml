@@ -32,6 +32,9 @@ services:
         sync: false
       - key: CLOUDINARY_URL
         sync: false
+      # OpenAI (gpt-image-1) powers the admin "Studio" AI product-photo feature.
+      - key: OPENAI_API_KEY
+        sync: false
       # Email is sent via Resend's HTTPS API (Render blocks outbound SMTP).
       - key: RESEND_API_KEY
         sync: false

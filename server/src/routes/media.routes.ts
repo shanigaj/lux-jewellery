@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { uploadImage, uploadMultipleImages } from "../controllers/media.controller";
+import { uploadImage, uploadMultipleImages, enhanceImage } from "../controllers/media.controller";
 import { upload } from "../utils/cloudinary";
 import { protect, authorize } from "../middleware/auth";
 
@@ -15,5 +15,8 @@ router.post(
   upload.array("images", 10),
   uploadMultipleImages
 );
+
+// AI / Cloudinary enhancement of an already-uploaded image (admin only).
+router.post("/enhance", protect, authorize("admin"), enhanceImage);
 
 export default router;
