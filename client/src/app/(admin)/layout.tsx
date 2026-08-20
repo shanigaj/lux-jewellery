@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { logout as logoutAction } from "@/store/slices/authSlice";
+import { api } from "@/lib/axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -68,6 +70,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // persisted auth state set at login; the API still enforces real security.
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
   const [authChecked, setAuthChecked] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const handleLogout = async () => {
+    try {
+      // Clear the httpOnly auth cookies on the API side.
+      await api.post("/auth/logout");
+    } catch {
+      // Even if the network call fails, still clear local state and leave.
+    } finally {
+      dispatch(logoutAction());
+      router.replace("/login");
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== "admin") {
@@ -203,7 +218,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 >
                   Storefront
                 </Link>
-                <button className="flex items-center justify-center gap-2 w-full py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors rounded-lg font-medium">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors rounded-lg font-medium"
+                >
                   <LogOut size={16} /> Logout
                 </button>
               </div>
