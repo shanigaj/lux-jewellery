@@ -22,6 +22,16 @@ export function optimizeCloudinaryImage(url: string): string {
   return withTransform(url, IMAGE_TRANSFORM);
 }
 
+// Square, subject-aware auto-crop for product thumbnails / cards, so mixed
+// source aspect ratios all present as a tidy consistent tile.
+//   c_fill,g_auto → crop to fill, keeping the piece (auto gravity) in frame
+const THUMB_TRANSFORM = "c_fill,g_auto,ar_1:1,f_auto,q_auto,w_800";
+
+/** Auto-cropped, optimised square thumbnail (no-op for non-Cloudinary URLs). */
+export function productThumb(url: string): string {
+  return withTransform(url, THUMB_TRANSFORM);
+}
+
 /** Optimise a Cloudinary video URL (no-op for non-Cloudinary URLs). */
 export function optimizeCloudinaryVideo(url: string): string {
   return withTransform(url, VIDEO_TRANSFORM);

@@ -16,6 +16,10 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "sparenza-jewels",
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    // Optimise on the way in: never store more than 2400px on the long edge
+    // (jewellery photos are often 6–9 MB straight off a phone) and let
+    // Cloudinary keep the best quality for that size.
+    transformation: [{ width: 2400, height: 2400, crop: "limit", quality: "auto:good" }],
   } as any,
 });
 
