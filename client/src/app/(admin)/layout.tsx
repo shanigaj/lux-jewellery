@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -55,13 +56,41 @@ const adminSidebarLinks = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  // Desktop-first default so SSR and the first client render agree (no hydration
+  // mismatch); the resize effect corrects it on mount.
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  // Client-side admin guard. The httpOnly auth cookie lives on the API's
+  // (Render) domain, so the Next proxy on the frontend (Vercel) can't see it —
+  // cookie-based route protection there loops forever. Instead we gate on the
+  // persisted auth state set at login; the API still enforces real security.
+  const { user, isAuthenticated } = useAppSelector((s) => s.auth);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== "admin") {
+      router.replace(`/login?callbackUrl=${encodeURIComponent(pathname || "/admin")}`);
+    } else {
+      setAuthChecked(true);
+    }
+  }, [isAuthenticated, user, router, pathname]);
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+      </div>
+    );
+  }
 
   // Responsive sidebar handling
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024) setSidebarOpen(false);
-      else setSidebarOpen(true);
+      const desktop = window.innerWidth >= 1024;
+      setIsDesktop(desktop);
+      setSidebarOpen(desktop);
     };
     handleResize(); // Init
     window.addEventListener("resize", handleResize);
@@ -79,7 +108,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       
       {/* 1. Sidebar */}
       <AnimatePresence mode="wait">
-        {(isSidebarOpen || typeof window === "undefined" || window.innerWidth >= 1024) && (
+        {(isSidebarOpen || isDesktop) && (
           <>
             {/* Mobile Backdrop */}
             {isSidebarOpen && (
