@@ -134,18 +134,18 @@ export default function AddressesPage() {
               <button onClick={() => setShowForm(false)} className="p-1 hover:bg-muted rounded" aria-label="Close"><X size={18} /></button>
             </div>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div><label className="text-xs text-muted-foreground">Label</label><input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Home / Work" className={inputCls} /></div>
                 <div><label className="text-xs text-muted-foreground">Full name *</label><input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className={inputCls} /></div>
               </div>
               <div><label className="text-xs text-muted-foreground">Phone *</label><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls} /></div>
               <div><label className="text-xs text-muted-foreground">Address line 1 *</label><input value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} className={inputCls} /></div>
               <div><label className="text-xs text-muted-foreground">Address line 2</label><input value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} className={inputCls} /></div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div><label className="text-xs text-muted-foreground">City *</label><input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} /></div>
                 <div><label className="text-xs text-muted-foreground">State *</label><input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className={inputCls} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div><label className="text-xs text-muted-foreground">Postal code *</label><input value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} className={inputCls} /></div>
                 <div><label className="text-xs text-muted-foreground">Country</label><input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className={inputCls} /></div>
               </div>

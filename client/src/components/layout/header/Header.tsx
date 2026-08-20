@@ -273,7 +273,7 @@ function MobileMenu() {
           <Menu size={22} />
         </div>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[340px] p-0 bg-background">
+      <SheetContent side="left" className="w-[86vw] max-w-[340px] p-0 bg-background">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-center py-8 border-b border-border">

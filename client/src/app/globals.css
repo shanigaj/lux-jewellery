@@ -272,12 +272,50 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Site-wide guard against accidental horizontal scroll on mobile.
+       `clip` (not `hidden`) does NOT create a scroll container, so the
+       sticky header keeps working. */
+    overflow-x: clip;
   }
 
   html {
     @apply font-sans scroll-smooth;
     scrollbar-width: thin;
     scrollbar-color: var(--gold) transparent;
+    /* Stop iOS from auto-inflating text (esp. in landscape). */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Media never forces the page wider than the phone screen. */
+  img,
+  video,
+  iframe,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  /* Long words / URLs wrap instead of pushing the layout sideways. */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  li,
+  a,
+  span {
+    overflow-wrap: break-word;
+  }
+
+  /* iOS Safari auto-zooms the page when a focused field's font is < 16px.
+     Force 16px on form controls on phones to stop that jarring zoom, without
+     touching the (smaller) desktop styling. */
+  @media (max-width: 640px) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      font-size: 16px;
+    }
   }
 
   /* Luxury scrollbar */

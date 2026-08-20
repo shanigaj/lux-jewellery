@@ -75,7 +75,7 @@ export default function WishlistPage() {
                   </Link>
                   <button
                     onClick={() => removeItem(item.id)}
-                    className="absolute top-4 right-4 p-2 bg-background/80 backdrop-blur-sm rounded-full text-muted-foreground hover:text-destructive hover:bg-background transition-all shadow-sm"
+                    className="absolute top-4 right-4 flex min-h-[40px] min-w-[40px] items-center justify-center p-2 bg-background/80 backdrop-blur-sm rounded-full text-muted-foreground hover:text-destructive hover:bg-background transition-all shadow-sm"
                     aria-label="Remove from wishlist"
                   >
                     <Trash2 size={16} />
