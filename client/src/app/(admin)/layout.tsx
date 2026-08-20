@@ -77,14 +77,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isAuthenticated, user, router, pathname]);
 
-  if (!authChecked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
-      </div>
-    );
-  }
-
   // Responsive sidebar handling
   useEffect(() => {
     const handleResize = () => {
@@ -102,6 +94,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (window.innerWidth < 1024) setSidebarOpen(false);
   }, [pathname]);
+
+  // Gate AFTER every hook has run (never before) so the hook order stays stable
+  // across renders — an early return above any hook triggers React error #310.
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row overflow-hidden font-sans">
