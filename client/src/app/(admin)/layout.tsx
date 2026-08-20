@@ -158,12 +158,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="flex-1 overflow-y-auto py-6 custom-scrollbar">
                 <div className="px-4 mb-6">
                   <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border/50">
-                    <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold font-heading font-medium">
-                      AS
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-gold/20 flex items-center justify-center text-gold font-heading font-medium uppercase">
+                      {`${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`.trim() || "A"}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">Admin User</p>
-                      <p className="text-xs text-muted-foreground">Super Admin</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {user ? `${user.firstName} ${user.lastName}`.trim() : "Admin"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user?.email || "Administrator"}
+                      </p>
                     </div>
                   </div>
                 </div>

@@ -16,6 +16,11 @@ interface ProductImageUploaderProps {
   onChange: (urls: string[]) => void;
 }
 
+interface PendingItem {
+  id: string;
+  preview: string; // local blob URL, shown instantly while uploading
+}
+
 /**
  * Uploads product images straight to Cloudinary and lets the admin polish each
  * one with AI: "Enhance" (fast Cloudinary auto-improve) or "Studio" (gpt-image-1
@@ -23,20 +28,37 @@ interface ProductImageUploaderProps {
  * ever deals with the final URL list.
  */
 export function ProductImageUploader({ value, onChange }: ProductImageUploaderProps) {
-  const [uploadImages, { isLoading: isUploading }] = useUploadMultipleImagesMutation();
+  const [uploadImages] = useUploadMultipleImagesMutation();
   const [enhanceImage] = useEnhanceImageMutation();
+  const [pending, setPending] = useState<PendingItem[]>([]);
   const [busyIdx, setBusyIdx] = useState<number | null>(null);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
+    const chosen = Array.from(files);
+
+    // Show the picked images immediately (local blobs) so the admin sees them
+    // right away, even while the (possibly slow) upload is still in flight.
+    const items: PendingItem[] = chosen.map((f, i) => ({
+      id: `${Date.now()}-${i}-${f.name}`,
+      preview: URL.createObjectURL(f),
+    }));
+    setPending((p) => [...p, ...items]);
+
     try {
       const fd = new FormData();
-      Array.from(files).forEach((f) => fd.append("images", f));
+      chosen.forEach((f) => fd.append("images", f));
       const res = await uploadImages(fd).unwrap();
       onChange([...value, ...res.data.map((d) => d.url)]);
+      toast.success(
+        res.data.length > 1 ? `${res.data.length} images uploaded` : "Image uploaded"
+      );
     } catch (err) {
       const e = err as { data?: { message?: string } };
-      toast.error(e?.data?.message || "Upload failed");
+      toast.error(e?.data?.message || "Upload failed — please try again");
+    } finally {
+      items.forEach((it) => URL.revokeObjectURL(it.preview));
+      setPending((p) => p.filter((it) => !items.some((x) => x.id === it.id)));
     }
   };
 
@@ -61,6 +83,8 @@ export function ProductImageUploader({ value, onChange }: ProductImageUploaderPr
     }
   };
 
+  const hasTiles = value.length > 0 || pending.length > 0;
+
   return (
     <div className="space-y-4">
       {/* Dropzone */}
@@ -69,26 +93,22 @@ export function ProductImageUploader({ value, onChange }: ProductImageUploaderPr
           type="file"
           multiple
           accept="image/*"
-          onChange={(e) => handleFiles(e.target.files)}
-          disabled={isUploading}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-wait"
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = ""; // allow re-picking the same file
+          }}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
-        {isUploading ? (
-          <Loader2 className="mx-auto text-gold mb-4 animate-spin" size={32} />
-        ) : (
-          <UploadCloud className="mx-auto text-muted-foreground mb-4" size={32} />
-        )}
-        <p className="text-sm font-medium mb-1">
-          {isUploading ? "Uploading…" : "Click or drag images to upload"}
-        </p>
+        <UploadCloud className="mx-auto text-muted-foreground mb-4" size={32} />
+        <p className="text-sm font-medium mb-1">Click or drag images to upload</p>
         <p className="text-xs text-muted-foreground">
           PNG, JPG, WEBP up to 10MB — then polish with AI below
         </p>
       </div>
 
-      {/* Previews + per-image AI actions */}
-      {value.length > 0 && (
+      {hasTiles && (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+          {/* Uploaded images */}
           {value.map((url, index) => (
             <div
               key={`${url}-${index}`}
@@ -137,6 +157,21 @@ export function ProductImageUploader({ value, onChange }: ProductImageUploaderPr
                 >
                   <Wand2 size={11} /> Studio
                 </button>
+              </div>
+            </div>
+          ))}
+
+          {/* In-flight uploads — instant preview with a spinner overlay */}
+          {pending.map((item) => (
+            <div
+              key={item.id}
+              className="relative aspect-square border border-border rounded-lg overflow-hidden"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.preview} alt="Uploading" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-1">
+                <Loader2 className="animate-spin text-white" size={20} />
+                <span className="text-[9px] text-white/90 uppercase tracking-wider">Uploading…</span>
               </div>
             </div>
           ))}
