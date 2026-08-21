@@ -19,7 +19,7 @@ const filterOptions = {
     { label: "Necklaces", value: "necklaces" },
     { label: "Earrings", value: "earrings" },
     { label: "Bracelets", value: "bracelets" },
-    { label: "Watches", value: "watches" },
+    { label: "Diamonds", value: "diamonds" },
   ],
   metals: [
     { label: "Platinum", value: "platinum" },
@@ -68,21 +68,27 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
         Filter Products
       </button>
 
-      {/* Filter Sidebar */}
+      {/* Filter Sidebar — full-screen drawer on mobile (above the sticky header),
+          plain sidebar on desktop. */}
       <div className={cn(
-        "fixed inset-0 z-50 bg-background lg:static lg:block lg:bg-transparent transition-transform duration-300",
+        "fixed inset-0 z-[70] flex flex-col bg-background transition-transform duration-300",
+        "lg:static lg:z-auto lg:block lg:bg-transparent",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         className
       )}>
-        <div className="flex flex-col h-full lg:block lg:h-auto">
-          {/* Mobile Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border lg:hidden">
-            <h2 className="font-heading text-lg">Filters</h2>
-            <button onClick={() => setIsOpen(false)} className="p-2">
-              <X size={20} />
-            </button>
-          </div>
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border lg:hidden">
+          <h2 className="font-heading text-lg">Filters</h2>
+          <button
+            onClick={() => setIsOpen(false)}
+            aria-label="Close filters"
+            className="flex h-10 w-10 -mr-2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
+        <div className="flex-1 min-h-0 flex flex-col lg:block">
           <div className="flex-1 overflow-y-auto p-4 lg:p-0 no-scrollbar">
             <Accordion defaultValue={DEFAULT_OPEN_SECTIONS} className="w-full">
               {/* Category */}

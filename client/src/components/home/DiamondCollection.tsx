@@ -114,7 +114,7 @@ export function DiamondCollection() {
             </div>
 
             <Link
-              href="/diamonds"
+              href="/categories/diamonds"
               className="group inline-flex items-center gap-3 px-8 py-4 bg-gold text-onyx text-sm font-medium uppercase tracking-wider rounded-full hover:bg-gold-light transition-all duration-500 hover:shadow-gold-lg"
             >
               Explore Diamonds
@@ -138,7 +138,7 @@ export function DiamondCollection() {
                   whileHover={{ y: -6, transition: { duration: 0.3 } }}
                 >
                   <Link
-                    href={`/diamonds?shape=${shape.slug}`}
+                    href="/categories/diamonds"
                     className="group block p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm hover:border-gold/30 hover:bg-white/10 transition-all duration-500 text-center"
                   >
                     {/* Diamond icon */}

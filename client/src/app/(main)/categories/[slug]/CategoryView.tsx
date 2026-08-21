@@ -39,7 +39,7 @@ export function CategoryView({ slug }: { slug: string }) {
       {/* ── Hero Banner (category-based image) ── */}
       <div className="relative bg-onyx text-white overflow-hidden">
         <Image
-          src={imageFor(meta.dbCategory)}
+          src={products[0]?.thumbnail || imageFor(meta.dbCategory)}
           alt={meta.title}
           fill
           priority
