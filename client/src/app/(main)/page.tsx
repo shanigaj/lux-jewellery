@@ -3,7 +3,7 @@ import { Collections } from "@/components/home/Collections";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { BestSellers } from "@/components/home/BestSellers";
 import { DiamondCollection } from "@/components/home/DiamondCollection";
-import { LuxuryWatches } from "@/components/home/LuxuryWatches";
+import { DiamondShowcase } from "@/components/home/DiamondShowcase";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
       <FeaturedProducts />
       <BestSellers />
       <DiamondCollection />
-      <LuxuryWatches />
+      <DiamondShowcase />
       <InstagramGallery />
     </>
   );

@@ -15,7 +15,10 @@ export type TDbCategory =
   | "necklaces"
   | "earrings"
   | "bracelets"
-  | "watches";
+  | "watches"
+  // Virtual bucket — the API resolves `diamonds` to every diamond-set piece
+  // across the catalogue rather than a stored category.
+  | "diamonds";
 
 export interface CategoryMeta {
   slug: string;
@@ -176,7 +179,16 @@ export const categoryMeta: Record<string, CategoryMeta> = {
     parent: "bracelets",
   },
 
-  // ── Watches ──
+  // ── Diamonds (virtual — diamond-set pieces from across the catalogue) ──
+  diamonds: {
+    slug: "diamonds",
+    title: "Diamonds",
+    description:
+      "Our finest diamond jewellery — hand-selected brilliance drawn from every collection.",
+    dbCategory: "diamonds",
+  },
+
+  // ── Watches (kept for existing links; no longer surfaced on the storefront) ──
   watches: {
     slug: "watches",
     title: "Luxury Watches",

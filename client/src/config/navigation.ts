@@ -12,110 +12,14 @@ export interface NavItem {
 }
 
 export const mainNavigation: NavItem[] = [
-  {
-    label: "Rings",
-    href: "/categories/rings",
-    children: [
-      {
-        label: "Engagement Rings",
-        href: "/categories/engagement-rings",
-        description: "Begin your forever with brilliance",
-      },
-      {
-        label: "Wedding Bands",
-        href: "/categories/wedding-bands",
-        description: "Symbols of eternal commitment",
-      },
-      {
-        label: "Solitaire Rings",
-        href: "/categories/solitaire-rings",
-        description: "Timeless single-stone elegance",
-      },
-      {
-        label: "Eternity Rings",
-        href: "/categories/eternity-rings",
-        description: "An unbroken circle of diamonds",
-      },
-      {
-        label: "Cocktail Rings",
-        href: "/categories/cocktail-rings",
-        description: "Bold statements of luxury",
-      },
-    ],
-  },
-  {
-    label: "Necklaces",
-    href: "/categories/necklaces",
-    children: [
-      {
-        label: "Pendants",
-        href: "/categories/pendants",
-        description: "Delicate drops of brilliance",
-      },
-      {
-        label: "Chains",
-        href: "/categories/chains",
-        description: "Refined everyday luxury",
-      },
-      {
-        label: "Chokers",
-        href: "/categories/chokers",
-        description: "Bold and contemporary",
-      },
-      {
-        label: "Statement Necklaces",
-        href: "/categories/statement-necklaces",
-        description: "Masterpieces that captivate",
-      },
-    ],
-  },
-  {
-    label: "Earrings",
-    href: "/categories/earrings",
-    children: [
-      {
-        label: "Studs",
-        href: "/categories/studs",
-        description: "Classic diamond brilliance",
-      },
-      {
-        label: "Hoops",
-        href: "/categories/hoops",
-        description: "Modern elegance redefined",
-      },
-      {
-        label: "Drop Earrings",
-        href: "/categories/drop-earrings",
-        description: "Graceful movement and light",
-      },
-      {
-        label: "Chandelier",
-        href: "/categories/chandelier-earrings",
-        description: "Red carpet worthy drama",
-      },
-    ],
-  },
-  {
-    label: "Bracelets",
-    href: "/categories/bracelets",
-    children: [
-      {
-        label: "Tennis Bracelets",
-        href: "/categories/tennis-bracelets",
-        description: "An icon of diamond luxury",
-      },
-      {
-        label: "Bangles",
-        href: "/categories/bangles",
-        description: "Sculptural beauty",
-      },
-      {
-        label: "Cuffs",
-        href: "/categories/cuffs",
-        description: "Architectural elegance",
-      },
-    ],
-  },
+  // Top-level links map straight to real catalogue categories. (The old
+  // sub-menus — "Engagement Rings", "Studs", … — had no distinct products, so
+  // every one of them opened the same list; they've been removed.)
+  { label: "Rings", href: "/categories/rings" },
+  { label: "Necklaces", href: "/categories/necklaces" },
+  { label: "Earrings", href: "/categories/earrings" },
+  { label: "Bracelets", href: "/categories/bracelets" },
+  { label: "Diamonds", href: "/categories/diamonds" },
   {
     label: "Discover",
     href: "/about",
@@ -151,6 +55,7 @@ export const footerNavigation = {
     { label: "Necklaces", href: "/categories/necklaces" },
     { label: "Earrings", href: "/categories/earrings" },
     { label: "Bracelets", href: "/categories/bracelets" },
+    { label: "Diamonds", href: "/categories/diamonds" },
     { label: "All Jewellery", href: "/products" },
   ],
   about: [

@@ -37,7 +37,18 @@ export const getProducts = async (
     const query: any = {};
 
     // Filtering
-    if (category) query.category = category;
+    if (category) {
+      if (category === "diamonds") {
+        // "Diamonds" isn't a stored category — it's a curated view of every
+        // piece set with diamonds, drawn from across the catalogue.
+        query.$or = [
+          { gemstone: { $regex: "diamond", $options: "i" } },
+          { name: { $regex: "diamond", $options: "i" } },
+        ];
+      } else {
+        query.category = category;
+      }
+    }
     if (metalType) query.metalType = metalType;
     if (minPrice || maxPrice) {
       query.price = {};

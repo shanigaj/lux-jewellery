@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { ProductSort } from "@/components/product/ProductSort";
@@ -10,14 +11,30 @@ import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { useGetProductsQuery } from "@/store/api/productApi";
 import { useCategoryImages } from "@/lib/useCategoryImages";
 
-export default function ProductsPage() {
+const titleCase = (s: string) =>
+  s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+function ProductsPageInner() {
   const { heroImage } = useCategoryImages();
+  const searchParams = useSearchParams();
+
   const [filters, setFilters] = useState({
-    category: "all",
-    sort: "featured",
+    category: searchParams.get("category") || "all",
+    sort: searchParams.get("sort") || "featured",
     page: 1,
   });
-  
+
+  // Keep the active category in sync with the URL (e.g. arriving from a
+  // category page's "View all", or from the header/footer links). Previously
+  // the page ignored `?category=…` entirely and always showed everything.
+  useEffect(() => {
+    const category = searchParams.get("category") || "all";
+    const sort = searchParams.get("sort") || "featured";
+    setFilters((f) =>
+      f.category === category && f.sort === sort ? f : { ...f, category, sort, page: 1 }
+    );
+  }, [searchParams]);
+
   const { data, isLoading, isFetching } = useGetProductsQuery(filters);
   const products = data?.data || [];
   const totalPages = data?.pages || 1;
@@ -40,7 +57,9 @@ export default function ProductsPage() {
         <div className="container-luxury relative z-10 text-center">
           <AnimatedSection animation="fadeUp">
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl mb-4">
-              Fine Jewellery Collection
+              {filters.category === "all"
+                ? "Fine Jewellery Collection"
+                : titleCase(filters.category)}
             </h1>
             <p className="text-white/60 max-w-2xl mx-auto font-light leading-relaxed">
               Discover our masterfully crafted pieces, where exceptional diamonds meet extraordinary design.
@@ -53,7 +72,7 @@ export default function ProductsPage() {
         <Breadcrumb
           items={[
             { label: "Jewellery", href: "/products" },
-            { label: filters.category === "all" ? "All Collections" : filters.category },
+            { label: filters.category === "all" ? "All Collections" : titleCase(filters.category) },
           ]}
         />
 
@@ -95,5 +114,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProductsPageInner />
+    </Suspense>
   );
 }
