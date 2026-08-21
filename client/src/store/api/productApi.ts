@@ -4,6 +4,7 @@ import { optimizeCloudinaryImage, optimizeCloudinaryVideo, productThumb } from '
 
 interface GetProductsParams {
   category?: string;
+  subcategory?: string;
   metalType?: string | string[];
   search?: string;
   minPrice?: number;
@@ -113,6 +114,7 @@ export const productApi = baseApi.injectEndpoints({
         if (params) {
           const queryParams = new URLSearchParams();
           if (params.category && params.category !== 'all') queryParams.append('category', params.category);
+          if (params.subcategory) queryParams.append('subcategory', params.subcategory);
           // metalType can be one value or several (filter checkboxes / mega-menu).
           if (params.metalType) {
             const metals = Array.isArray(params.metalType) ? params.metalType : [params.metalType];

@@ -5,6 +5,7 @@ import { Check, SlidersHorizontal } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet";
+import { subCategoriesFor } from "@/config/subcategories";
 import { cn } from "@/lib/utils";
 
 interface ProductFiltersProps {
@@ -32,7 +33,7 @@ const filterOptions = {
 
 // Stable reference so Base UI's uncontrolled Accordion doesn't see the
 // defaultValue "change" on every render (which triggers a console warning).
-const DEFAULT_OPEN_SECTIONS = ["category", "metal"];
+const DEFAULT_OPEN_SECTIONS = ["category", "type", "metal"];
 
 export function ProductFilters({ filters, setFilters, className }: ProductFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,7 +64,7 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
                     {filterOptions.categories.map((cat) => (
                       <button
                         key={cat.value}
-                        onClick={() => setFilters({ ...filters, category: cat.value })}
+                        onClick={() => setFilters({ ...filters, category: cat.value, subcategory: undefined })}
                         className={cn(
                           "text-left text-sm transition-colors",
                           (filters.category || "all") === cat.value
@@ -77,6 +78,42 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
                   </div>
                 </AccordionContent>
               </AccordionItem>
+
+              {/* Type (sub-category) — only for categories that have them. */}
+              {subCategoriesFor(filters.category).length > 0 && (
+                <AccordionItem value="type" className="border-border">
+                  <AccordionTrigger className="text-xs uppercase tracking-wider hover:no-underline font-semibold">
+                    Type
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col gap-2.5 pt-2">
+                      <button
+                        onClick={() => setFilters({ ...filters, subcategory: undefined })}
+                        className={cn(
+                          "text-left text-sm transition-colors",
+                          !filters.subcategory ? "text-gold font-medium" : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        All Types
+                      </button>
+                      {subCategoriesFor(filters.category).map((sub) => (
+                        <button
+                          key={sub.slug}
+                          onClick={() => setFilters({ ...filters, subcategory: sub.slug })}
+                          className={cn(
+                            "text-left text-sm transition-colors",
+                            filters.subcategory === sub.slug
+                              ? "text-gold font-medium"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {sub.label}
+                        </button>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
               {/* Price — temporarily hidden (prices not shown to customers yet).
                   Re-enable by changing `{false && (` back to render this block

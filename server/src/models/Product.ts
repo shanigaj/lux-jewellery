@@ -7,6 +7,7 @@ export interface IProduct extends Document {
   price: number;
   discountPrice?: number;
   category: "rings" | "necklaces" | "earrings" | "bracelets" | "watches";
+  subcategory?: string;
   metalType: "gold" | "platinum" | "rose_gold" | "white_gold" | "silver";
   gemstone?: string;
   images: string[];
@@ -29,6 +30,9 @@ const ProductSchema: Schema = new Schema(
       required: true,
       enum: ["rings", "necklaces", "earrings", "bracelets", "watches"],
     },
+    // Sub-category slug (e.g. "engagement-rings", "tennis-bracelets"). Free-form
+    // string so the taxonomy can evolve without a migration.
+    subcategory: { type: String, index: true },
     metalType: {
       type: String,
       required: true,

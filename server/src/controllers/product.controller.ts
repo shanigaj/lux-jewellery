@@ -21,6 +21,7 @@ export const getProducts = async (
       limit = 12,
       search,
       category,
+      subcategory,
       metalType,
       minPrice,
       maxPrice,
@@ -49,6 +50,7 @@ export const getProducts = async (
         query.category = category;
       }
     }
+    if (subcategory) query.subcategory = subcategory;
     // metalType may arrive as one value or several (filter checkboxes / mega-menu).
     if (metalType) {
       const metals = Array.isArray(metalType) ? metalType : [metalType];
