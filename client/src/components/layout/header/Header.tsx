@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  ShoppingBag,
   Heart,
   User,
   Menu,
@@ -264,8 +263,16 @@ function SearchOverlay({
 
 // ── Mobile Menu ──
 function MobileMenu() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  // Auto-close the drawer whenever navigation happens (tapping any link).
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger>
         <div
           role="button"
@@ -373,11 +380,6 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const wishlistCount = useAppSelector((state) => state.product.wishlist.length);
-
-  // Live cart count — total quantity across all cart items.
-  const cartCount = useAppSelector((state) =>
-    state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
-  );
 
   const handleMouseEnter = (href: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -495,23 +497,6 @@ export function Header() {
                 </Link>
               )}
 
-              {/* Cart */}
-              <Link
-                href="/cart"
-                className="relative p-2.5 rounded-full hover:bg-muted transition-colors duration-300"
-                aria-label={`Cart (${cartCount} items)`}
-              >
-                <ShoppingBag size={18} />
-                {cartCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center text-[9px] font-semibold bg-gold text-white rounded-full"
-                  >
-                    {cartCount}
-                  </motion.span>
-                )}
-              </Link>
             </div>
           </div>
         </div>
