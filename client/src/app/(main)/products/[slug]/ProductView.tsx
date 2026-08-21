@@ -13,6 +13,7 @@ import { Rating } from "@/components/shared/Rating";
 import { WhatsAppInquiryButton } from "@/components/shared/WhatsAppInquiryButton";
 import { NotifyMeButton } from "@/components/shared/NotifyMeButton";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
+import { BrandLoader } from "@/components/shared/BrandLoader";
 import { useGetProductByIdQuery, useGetProductsQuery } from "@/store/api/productApi";
 import { Heart, Truck, ShieldCheck, ArrowRightLeft } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -47,7 +48,7 @@ export function ProductView({ slug }: { slug: string }) {
   }
 
   if (isLoading || !product) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <BrandLoader />;
   }
 
   const isWishlisted = wishlist.some((p) => p._id === product._id);
@@ -105,6 +106,7 @@ export function ProductView({ slug }: { slug: string }) {
                 defaultMetal={product.metalType}
                 onPriceChange={() => {}}
                 onSelectionChange={setSelection}
+                category={product.category?.slug}
               />
 
               {/* Action Buttons */}

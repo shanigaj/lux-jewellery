@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
 import { TMetalType, IProductVariant } from "@/types/product.types";
 import { Ruler } from "lucide-react";
 import { SizeGuideModal } from "@/components/shared/SizeGuideModal";
@@ -13,15 +12,9 @@ interface ProductConfiguratorProps {
   onPriceChange: (price: number) => void;
   /** Reports the current metal (as a readable colour name) and size selection. */
   onSelectionChange?: (selection: { metal: string; size: string }) => void;
+  /** Product category slug — ring sizing only applies to rings. */
+  category?: string;
 }
-
-const metalColors: Record<string, string> = {
-  platinum: "bg-slate-200",
-  white_gold: "bg-zinc-100",
-  gold: "bg-yellow-400",
-  rose_gold: "bg-rose-300",
-  silver: "bg-gray-300",
-};
 
 const metalNames: Record<string, string> = {
   platinum: "Platinum",
@@ -37,6 +30,7 @@ export function ProductConfigurator({
   defaultMetal,
   onPriceChange,
   onSelectionChange,
+  category,
 }: ProductConfiguratorProps) {
   const [selectedMetal, setSelectedMetal] = useState<TMetalType>(defaultMetal || "platinum");
   const [selectedSize, setSelectedSize] = useState<string>("");
@@ -81,66 +75,70 @@ export function ProductConfigurator({
     }
   };
 
+  const isRing = category === "rings";
+
   return (
     <div className="space-y-8 py-6 border-y border-border my-8">
-      {/* Metal Selection */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="text-xs uppercase tracking-luxury font-medium">
-            Metal
-          </label>
-          <span className="text-sm text-muted-foreground">{metalNames[selectedMetal]}</span>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {displayMetals.map((metal) => (
-            <button
-              key={metal}
-              onClick={() => handleMetalSelect(metal)}
-              className={cn(
-                "w-12 h-12 rounded-full border-2 transition-all p-1",
-                selectedMetal === metal ? "border-gold scale-110" : "border-transparent hover:border-border"
-              )}
-              title={metalNames[metal]}
-            >
-              <div className={cn("w-full h-full rounded-full shadow-inner", metalColors[metal])} />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Ring Size */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="text-xs uppercase tracking-luxury font-medium">
-            Ring Size
-          </label>
-          <button
-            type="button"
-            onClick={() => setSizeGuideOpen(true)}
-            className="text-xs text-gold hover:underline flex items-center gap-1"
-          >
-            <Ruler size={12} />
-            Size Guide
-          </button>
-        </div>
+      {/* Metal — a simple choice with a note that we craft to order. */}
+      <div className="space-y-3">
+        <label className="text-xs uppercase tracking-luxury font-medium">Metal</label>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Choose the metal you&apos;d like this piece crafted in — every order is
+          made to your selection.
+        </p>
         <div className="relative">
           <select
-            value={selectedSize}
-            onChange={handleSizeSelect}
+            value={selectedMetal}
+            onChange={(e) => handleMetalSelect(e.target.value as TMetalType)}
             className="w-full appearance-none bg-transparent border border-border px-4 py-3 rounded-none focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold text-sm transition-colors cursor-pointer"
           >
-            <option value="" disabled>Select a size</option>
-            {displaySizes.map(size => (
-              <option key={size} value={size}>US {size}</option>
+            {displayMetals.map((metal) => (
+              <option key={metal} value={metal}>
+                {metalNames[metal] || metal}
+              </option>
             ))}
           </select>
           <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
         </div>
       </div>
+
+      {/* Ring Size — only relevant for rings. */}
+      {isRing && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="text-xs uppercase tracking-luxury font-medium">Ring Size</label>
+            <button
+              type="button"
+              onClick={() => setSizeGuideOpen(true)}
+              className="text-xs text-gold hover:underline flex items-center gap-1"
+            >
+              <Ruler size={12} />
+              Size Guide
+            </button>
+          </div>
+          <div className="relative">
+            <select
+              value={selectedSize}
+              onChange={handleSizeSelect}
+              className="w-full appearance-none bg-transparent border border-border px-4 py-3 rounded-none focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold text-sm transition-colors cursor-pointer"
+            >
+              <option value="" disabled>Select a size</option>
+              {displaySizes.map((size) => (
+                <option key={size} value={size}>US {size}</option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SizeGuideModal open={sizeGuideOpen} onOpenChange={setSizeGuideOpen} />
     </div>

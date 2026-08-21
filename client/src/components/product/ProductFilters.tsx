@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Check, SlidersHorizontal, X } from "lucide-react";
+import { Check, SlidersHorizontal } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
+import { Sheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 interface ProductFiltersProps {
@@ -27,13 +28,6 @@ const filterOptions = {
     { label: "18K Yellow Gold", value: "gold" },
     { label: "18K Rose Gold", value: "rose_gold" },
   ],
-  shapes: [
-    { label: "Round", value: "round" },
-    { label: "Princess", value: "princess" },
-    { label: "Oval", value: "oval" },
-    { label: "Emerald", value: "emerald" },
-    { label: "Pear", value: "pear" },
-  ]
 };
 
 // Stable reference so Base UI's uncontrolled Accordion doesn't see the
@@ -57,40 +51,8 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
     setFilters({ ...filters, minPrice: val[0], maxPrice: val[1] });
   };
 
-  return (
-    <>
-      {/* Mobile Filter Toggle */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="lg:hidden w-full flex items-center justify-center gap-2 py-3.5 mb-6 border border-border text-sm font-medium uppercase tracking-wider"
-      >
-        <SlidersHorizontal size={16} />
-        Filter Products
-      </button>
-
-      {/* Filter Sidebar — full-screen drawer on mobile (above the sticky header),
-          plain sidebar on desktop. */}
-      <div className={cn(
-        "fixed inset-0 z-[70] flex flex-col bg-background transition-transform duration-300",
-        "lg:static lg:z-auto lg:block lg:bg-transparent",
-        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-        className
-      )}>
-        {/* Mobile Header */}
-        <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border lg:hidden">
-          <h2 className="font-heading text-lg">Filters</h2>
-          <button
-            onClick={() => setIsOpen(false)}
-            aria-label="Close filters"
-            className="flex h-10 w-10 -mr-2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 min-h-0 flex flex-col lg:block">
-          <div className="flex-1 overflow-y-auto p-4 lg:p-0 no-scrollbar">
-            <Accordion defaultValue={DEFAULT_OPEN_SECTIONS} className="w-full">
+  const filterBody = (
+    <Accordion defaultValue={DEFAULT_OPEN_SECTIONS} className="w-full">
               {/* Category */}
               <AccordionItem value="category" className="border-border">
                 <AccordionTrigger className="text-xs uppercase tracking-wider hover:no-underline font-semibold">
@@ -152,7 +114,12 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
                     {filterOptions.metals.map((metal) => {
                       const isChecked = (filters.metalType || []).includes(metal.value);
                       return (
-                        <label key={metal.value} className="flex items-center gap-3 cursor-pointer group">
+                        <button
+                          type="button"
+                          key={metal.value}
+                          onClick={() => handleCheckboxChange("metalType", metal.value)}
+                          className="flex items-center gap-3 cursor-pointer group text-left"
+                        >
                           <div className={cn(
                             "w-4 h-4 rounded border flex items-center justify-center transition-colors",
                             isChecked ? "bg-gold border-gold" : "border-border group-hover:border-gold/50"
@@ -162,54 +129,40 @@ export function ProductFilters({ filters, setFilters, className }: ProductFilter
                           <span className={cn("text-sm", isChecked ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
                             {metal.label}
                           </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Diamond Shape */}
-              <AccordionItem value="shape" className="border-border">
-                <AccordionTrigger className="text-xs uppercase tracking-wider hover:no-underline font-semibold">
-                  Diamond Shape
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {filterOptions.shapes.map((shape) => {
-                      const isChecked = (filters.diamondShape || []).includes(shape.value);
-                      return (
-                        <button
-                          key={shape.value}
-                          onClick={() => handleCheckboxChange("diamondShape", shape.value)}
-                          className={cn(
-                            "px-3 py-1.5 rounded-full text-xs transition-colors border",
-                            isChecked 
-                              ? "border-gold bg-gold/10 text-gold" 
-                              : "border-border text-muted-foreground hover:border-gold/50 hover:text-foreground"
-                          )}
-                        >
-                          {shape.label}
                         </button>
                       );
                     })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
-            </Accordion>
-          </div>
 
-          {/* Mobile Footer */}
-          <div className="p-4 border-t border-border lg:hidden">
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="w-full py-3.5 bg-gold text-onyx text-sm font-medium uppercase tracking-wider"
-            >
-              View Results
-            </button>
+    </Accordion>
+  );
+
+  return (
+    <>
+      {/* Mobile: a portal drawer (Radix Sheet) — always a correct full-screen
+          overlay with a built-in close button, above the sticky header. */}
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger className="lg:hidden w-full flex items-center justify-center gap-2 py-3.5 mb-6 border border-border text-sm font-medium uppercase tracking-wider">
+          <SlidersHorizontal size={16} />
+          Filter Products
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[86vw] max-w-[360px] p-0 flex flex-col bg-background">
+          <div className="flex items-center h-14 px-4 border-b border-border shrink-0">
+            <h2 className="font-heading text-lg">Filters</h2>
           </div>
-        </div>
-      </div>
+          <div className="flex-1 overflow-y-auto p-4 no-scrollbar">{filterBody}</div>
+          <div className="p-4 border-t border-border shrink-0">
+            <SheetClose className="w-full py-3.5 bg-gold text-onyx text-sm font-medium uppercase tracking-wider">
+              View Results
+            </SheetClose>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop: inline sidebar */}
+      <div className={cn("hidden lg:block", className)}>{filterBody}</div>
     </>
   );
 }
