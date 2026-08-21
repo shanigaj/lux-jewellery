@@ -106,9 +106,12 @@ function MegaMenu({
   // Featured art is pulled from real catalogue photography for this family;
   // non-category menus (e.g. Discover) use a general hero piece.
   const { imageFor, heroImage } = useCategoryImages();
-  const featuredImage = item.href.startsWith("/categories/")
+  const catImage = item.href.startsWith("/categories/")
     ? imageFor(item.href.split("/").pop() || "")
     : heroImage;
+  // Virtual categories (e.g. Diamonds) have no stored image — fall back to a
+  // real hero piece instead of the grey placeholder.
+  const featuredImage = catImage.includes("placeholder") ? heroImage : catImage;
 
   if (!item.children) return null;
 

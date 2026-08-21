@@ -11,15 +11,35 @@ export interface NavItem {
   image?: string;
 }
 
+// The old sub-menus ("Engagement Rings", "Studs", …) had no distinct products,
+// so every one opened the same list. Instead the hover menu now offers real,
+// working filters: "Shop all" + by metal (each shows a genuinely different set).
+const METALS = [
+  { label: "Yellow Gold", value: "gold" },
+  { label: "White Gold", value: "white_gold" },
+  { label: "Rose Gold", value: "rose_gold" },
+  { label: "Platinum", value: "platinum" },
+];
+
+const categoryMenu = (cat: string, title: string): NavItem[] => [
+  {
+    label: `Shop All ${title}`,
+    href: `/categories/${cat}`,
+    description: `The complete ${title.toLowerCase()} collection`,
+  },
+  ...METALS.map((m) => ({
+    label: m.label,
+    href: `/products?category=${cat}&metal=${m.value}`,
+    description: `${title} crafted in ${m.label.toLowerCase()}`,
+  })),
+];
+
 export const mainNavigation: NavItem[] = [
-  // Top-level links map straight to real catalogue categories. (The old
-  // sub-menus — "Engagement Rings", "Studs", … — had no distinct products, so
-  // every one of them opened the same list; they've been removed.)
-  { label: "Rings", href: "/categories/rings" },
-  { label: "Necklaces", href: "/categories/necklaces" },
-  { label: "Earrings", href: "/categories/earrings" },
-  { label: "Bracelets", href: "/categories/bracelets" },
-  { label: "Diamonds", href: "/categories/diamonds" },
+  { label: "Rings", href: "/categories/rings", children: categoryMenu("rings", "Rings") },
+  { label: "Necklaces", href: "/categories/necklaces", children: categoryMenu("necklaces", "Necklaces") },
+  { label: "Earrings", href: "/categories/earrings", children: categoryMenu("earrings", "Earrings") },
+  { label: "Bracelets", href: "/categories/bracelets", children: categoryMenu("bracelets", "Bracelets") },
+  { label: "Diamonds", href: "/categories/diamonds", children: categoryMenu("diamonds", "Diamonds") },
   {
     label: "Discover",
     href: "/about",

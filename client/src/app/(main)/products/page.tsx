@@ -18,21 +18,33 @@ function ProductsPageInner() {
   const { heroImage } = useCategoryImages();
   const searchParams = useSearchParams();
 
-  const [filters, setFilters] = useState({
+  const metalParam = searchParams.get("metal");
+  const [filters, setFilters] = useState<{
+    category: string;
+    sort: string;
+    page: number;
+    metalType?: string[];
+  }>({
     category: searchParams.get("category") || "all",
     sort: searchParams.get("sort") || "featured",
+    metalType: metalParam ? [metalParam] : [],
     page: 1,
   });
 
-  // Keep the active category in sync with the URL (e.g. arriving from a
-  // category page's "View all", or from the header/footer links). Previously
-  // the page ignored `?category=…` entirely and always showed everything.
+  // Keep category / sort / metal in sync with the URL (arriving from a category
+  // page's "View all" or the header's per-metal mega-menu links). Previously the
+  // page ignored `?category=…` entirely and always showed everything.
   useEffect(() => {
     const category = searchParams.get("category") || "all";
     const sort = searchParams.get("sort") || "featured";
-    setFilters((f) =>
-      f.category === category && f.sort === sort ? f : { ...f, category, sort, page: 1 }
-    );
+    const metal = searchParams.get("metal");
+    setFilters((f) => ({
+      ...f,
+      category,
+      sort,
+      metalType: metal ? [metal] : [],
+      page: 1,
+    }));
   }, [searchParams]);
 
   const { data, isLoading, isFetching } = useGetProductsQuery(filters);

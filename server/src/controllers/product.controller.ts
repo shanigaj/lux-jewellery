@@ -49,7 +49,11 @@ export const getProducts = async (
         query.category = category;
       }
     }
-    if (metalType) query.metalType = metalType;
+    // metalType may arrive as one value or several (filter checkboxes / mega-menu).
+    if (metalType) {
+      const metals = Array.isArray(metalType) ? metalType : [metalType];
+      query.metalType = { $in: metals };
+    }
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
