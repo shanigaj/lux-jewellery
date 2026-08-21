@@ -21,26 +21,30 @@ function ProductsPageInner() {
   const metalParam = searchParams.get("metal");
   const [filters, setFilters] = useState<{
     category: string;
+    subcategory?: string;
     sort: string;
     page: number;
     metalType?: string[];
   }>({
     category: searchParams.get("category") || "all",
+    subcategory: searchParams.get("subcategory") || undefined,
     sort: searchParams.get("sort") || "featured",
     metalType: metalParam ? [metalParam] : [],
     page: 1,
   });
 
-  // Keep category / sort / metal in sync with the URL (arriving from a category
-  // page's "View all" or the header's per-metal mega-menu links). Previously the
-  // page ignored `?category=…` entirely and always showed everything.
+  // Keep category / subcategory / sort / metal in sync with the URL (arriving
+  // from a category page's "View all" or the header's mega-menu links).
+  // Previously the page ignored `?category=…` entirely and always showed everything.
   useEffect(() => {
     const category = searchParams.get("category") || "all";
+    const subcategory = searchParams.get("subcategory") || undefined;
     const sort = searchParams.get("sort") || "featured";
     const metal = searchParams.get("metal");
     setFilters((f) => ({
       ...f,
       category,
+      subcategory,
       sort,
       metalType: metal ? [metal] : [],
       page: 1,

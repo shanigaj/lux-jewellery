@@ -11,9 +11,11 @@ export interface NavItem {
   image?: string;
 }
 
-// The old sub-menus ("Engagement Rings", "Studs", …) had no distinct products,
-// so every one opened the same list. Instead the hover menu now offers real,
-// working filters: "Shop all" + by metal (each shows a genuinely different set).
+import { subCategoriesFor } from "@/config/subcategories";
+
+// The hover menu now offers the real, catalogue-derived sub-categories (each is
+// a genuinely different set of products). Where a category has none (Diamonds),
+// it falls back to by-metal links.
 const METALS = [
   { label: "Yellow Gold", value: "gold" },
   { label: "White Gold", value: "white_gold" },
@@ -21,18 +23,31 @@ const METALS = [
   { label: "Platinum", value: "platinum" },
 ];
 
-const categoryMenu = (cat: string, title: string): NavItem[] => [
-  {
+const categoryMenu = (cat: string, title: string): NavItem[] => {
+  const shopAll: NavItem = {
     label: `Shop All ${title}`,
     href: `/categories/${cat}`,
     description: `The complete ${title.toLowerCase()} collection`,
-  },
-  ...METALS.map((m) => ({
-    label: m.label,
-    href: `/products?category=${cat}&metal=${m.value}`,
-    description: `${title} crafted in ${m.label.toLowerCase()}`,
-  })),
-];
+  };
+  const subs = subCategoriesFor(cat);
+  if (subs.length === 0) {
+    return [
+      shopAll,
+      ...METALS.map((m) => ({
+        label: m.label,
+        href: `/products?category=${cat}&metal=${m.value}`,
+        description: `${title} crafted in ${m.label.toLowerCase()}`,
+      })),
+    ];
+  }
+  return [
+    shopAll,
+    ...subs.map((s) => ({
+      label: s.label,
+      href: `/products?category=${cat}&subcategory=${s.slug}`,
+    })),
+  ];
+};
 
 export const mainNavigation: NavItem[] = [
   { label: "Rings", href: "/categories/rings", children: categoryMenu("rings", "Rings") },
