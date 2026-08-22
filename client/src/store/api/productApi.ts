@@ -38,7 +38,11 @@ export interface CreateProductInput {
   discountPrice?: number;
   category: string;
   metalType: string;
+  metalPurity?: string;
   gemstone?: string;
+  weight?: number;
+  caratWeight?: number;
+  dimensions?: string;
   images: string[];
   stock: number;
   isFeatured?: boolean;
@@ -77,8 +81,10 @@ const adaptProduct = (product: any): IProduct => {
   },
   collections: [],
   metalType: product.metalType || 'gold',
-  metalPurity: '18K',
-  weight: 5,
+  // Real values from the catalogue; fall back to sensible defaults for
+  // legacy products created before these fields existed.
+  metalPurity: (product.metalPurity || '18K') as IProduct['metalPurity'],
+  weight: typeof product.weight === 'number' ? product.weight : 5,
   images: remoteImages.length > 0
     ? remoteImages.map((url: string, i: number) => ({
         _id: `img_${i}`,

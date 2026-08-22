@@ -65,10 +65,12 @@ const nextConfig: NextConfig = {
           "object-src 'none'",
           // Google Maps embed on the contact page is framed from these origins.
           "frame-src 'self' https://maps.google.com https://www.google.com",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+          // Google Analytics (gtag.js) loads from googletagmanager.com.
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "img-src 'self' data: blob: https:",
           "font-src 'self' data: https://fonts.gstatic.com",
+          // GA beacons post to google-analytics.com / analytics.google.com (covered by https:).
           "connect-src 'self' https:",
           "upgrade-insecure-requests",
         ].join("; "),

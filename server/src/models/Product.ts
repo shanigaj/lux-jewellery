@@ -9,7 +9,11 @@ export interface IProduct extends Document {
   category: "rings" | "necklaces" | "earrings" | "bracelets" | "watches";
   subcategory?: string;
   metalType: "gold" | "platinum" | "rose_gold" | "white_gold" | "silver";
+  metalPurity?: string;
   gemstone?: string;
+  weight?: number;
+  caratWeight?: number;
+  dimensions?: string;
   images: string[];
   videos?: string[];
   stock: number;
@@ -38,7 +42,16 @@ const ProductSchema: Schema = new Schema(
       required: true,
       enum: ["gold", "platinum", "rose_gold", "white_gold", "silver"],
     },
+    // Karat / fineness, e.g. "18K", "22K", "PT950", "925". Free-form so the
+    // vocabulary can grow without a migration.
+    metalPurity: { type: String, trim: true },
     gemstone: { type: String },
+    // Gross metal weight in grams.
+    weight: { type: Number, min: 0 },
+    // Total diamond / gemstone weight in carats.
+    caratWeight: { type: Number, min: 0 },
+    // Free-form physical dimensions, e.g. "Ring size 14 · 2.3 mm band".
+    dimensions: { type: String, trim: true },
     images: {
       type: [String],
       required: true,
