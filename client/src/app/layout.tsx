@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { Providers } from "@/providers/Providers";
 import SiteGuard from "@/components/shared/SiteGuard";
+import { Analytics } from "@/components/shared/Analytics";
 import Script from "next/script";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
@@ -144,15 +145,16 @@ export default function RootLayout({
         <Script
           id="schema-jsonld"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         />
         <Script
           id="schema-website"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd).replace(/</g, "\\u003c") }}
         />
         <SiteGuard />
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );

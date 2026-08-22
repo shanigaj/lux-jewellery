@@ -78,6 +78,13 @@ export function CategoryView({ slug }: { slug: string }) {
           ]}
         />
 
+        {/* ── Intro SEO copy ── */}
+        {meta.intro && (
+          <AnimatedSection className="mt-6 max-w-3xl">
+            <p className="text-muted-foreground font-light leading-relaxed">{meta.intro}</p>
+          </AnimatedSection>
+        )}
+
         {/* ── Section heading ── */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-6 mb-10 pb-4 border-b border-border">
           <div>
@@ -100,6 +107,31 @@ export function CategoryView({ slug }: { slug: string }) {
 
         {/* ── Product grid (5 pieces) ── */}
         <ProductGrid products={products} isLoading={isLoading || isFetching} />
+
+        {/* ── FAQ (visible; mirrored as FAQPage structured data) ── */}
+        {meta.faqs && meta.faqs.length > 0 && (
+          <section className="mt-20 max-w-3xl" aria-labelledby="category-faq-heading">
+            <h2
+              id="category-faq-heading"
+              className="font-heading text-2xl md:text-3xl text-foreground mb-6"
+            >
+              Frequently asked questions
+            </h2>
+            <div className="border-t border-border">
+              {meta.faqs.map((f, i) => (
+                <details key={i} className="group border-b border-border py-4">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-foreground">
+                    {f.q}
+                    <span className="text-gold transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="mt-3 text-sm font-light leading-relaxed text-muted-foreground">
+                    {f.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

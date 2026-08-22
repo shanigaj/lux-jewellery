@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { siteConfig } from "@/config/site";
+import { getCategoryMeta } from "@/config/categories";
 import { ProductView } from "./ProductView";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -12,9 +13,19 @@ interface RawProduct {
   shortDescription?: string;
   sku?: string;
   category?: string;
+  subcategory?: string;
   gemstone?: string;
   metalType?: string;
+  metalPurity?: string;
+  weight?: number;
+  caratWeight?: number;
+  dimensions?: string;
   images?: string[];
+  price?: number;
+  discountPrice?: number;
+  stock?: number;
+  ratingsAverage?: number;
+  ratingsQuantity?: number;
 }
 
 const getProduct = cache(async (idOrSlug: string): Promise<RawProduct | null> => {
@@ -30,6 +41,10 @@ const getProduct = cache(async (idOrSlug: string): Promise<RawProduct | null> =>
     return null;
   }
 });
+
+// Turn a raw metalType enum ("white_gold") into readable text for descriptions.
+const prettyMetal = (m?: string) =>
+  m ? m.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
@@ -67,29 +82,122 @@ export default async function ProductPage({ params }: Params) {
   const { slug } = await params;
   const product = await getProduct(slug);
 
-  const jsonLd = product
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        name: product.name,
-        image: product.images ?? [],
-        description: (product.description || product.shortDescription || "").replace(/\s+/g, " ").trim(),
-        sku: product.sku,
-        category: product.category,
-        material: product.metalType,
-        brand: { "@type": "Brand", name: siteConfig.name },
-        url: `${siteConfig.url}/products/${product._id}`,
+  const graph: object[] = [];
+
+  if (product) {
+    const productUrl = `${siteConfig.url}/products/${product._id}`;
+    // Prefer the live sale price; fall back to the list price.
+    const price = product.discountPrice ?? product.price;
+
+    const productLd: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      image: product.images ?? [],
+      description: (product.description || product.shortDescription || "")
+        .replace(/\s+/g, " ")
+        .trim(),
+      sku: product.sku,
+      mpn: product.sku,
+      category: product.category,
+      material: [product.metalPurity, prettyMetal(product.metalType)]
+        .filter(Boolean)
+        .join(" "),
+      brand: { "@type": "Brand", name: siteConfig.name },
+      url: productUrl,
+    };
+
+    if (typeof product.weight === "number" && product.weight > 0) {
+      productLd.weight = {
+        "@type": "QuantitativeValue",
+        value: String(product.weight),
+        unitCode: "GRM",
+      };
+    }
+    if (product.dimensions) productLd.size = product.dimensions;
+
+    // Offers — required for Product rich results and Google free listings.
+    // Only emit when we actually have a numeric price.
+    if (typeof price === "number" && price > 0) {
+      const inStock = (product.stock ?? 0) > 0;
+      const offer: Record<string, unknown> = {
+        "@type": "Offer",
+        url: productUrl,
+        priceCurrency: "INR",
+        price: String(price),
+        // Prices are valid to the end of next year — refreshed on each revalidate.
+        priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
+        availability: inStock
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@type": "Organization", name: siteConfig.name },
+        // 30-day returns (siteConfig.features.easyReturns) — strengthens free listings.
+        hasMerchantReturnPolicy: {
+          "@type": "MerchantReturnPolicy",
+          applicableCountry: "IN",
+          returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+          merchantReturnDays: siteConfig.features.easyReturns,
+          returnMethod: "https://schema.org/ReturnByMail",
+          returnFees: "https://schema.org/FreeReturn",
+        },
+      };
+      // Free insured shipping kicks in above the threshold — only declare it
+      // for qualifying pieces so the structured data stays truthful.
+      if (siteConfig.features.freeShipping && price >= siteConfig.features.freeShippingThreshold) {
+        offer.shippingDetails = {
+          "@type": "OfferShippingDetails",
+          shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "INR" },
+          shippingDestination: { "@type": "DefinedRegion", addressCountry: "IN" },
+        };
       }
-    : null;
+      productLd.offers = offer;
+    }
+
+    // Aggregate rating — ONLY when genuine reviews exist (never fabricate).
+    if ((product.ratingsQuantity ?? 0) > 0 && (product.ratingsAverage ?? 0) > 0) {
+      productLd.aggregateRating = {
+        "@type": "AggregateRating",
+        ratingValue: String(product.ratingsAverage),
+        reviewCount: String(product.ratingsQuantity),
+      };
+    }
+
+    graph.push(productLd);
+
+    // Breadcrumb: Home › Category › Product
+    const cat = product.category ? getCategoryMeta(product.category) : undefined;
+    const crumbs: Array<{ name: string; url: string }> = [
+      { name: "Home", url: siteConfig.url },
+    ];
+    if (cat) {
+      crumbs.push({ name: cat.title, url: `${siteConfig.url}/categories/${cat.slug}` });
+    }
+    crumbs.push({ name: product.name, url: productUrl });
+
+    graph.push({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: crumbs.map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: c.name,
+        item: c.url,
+      })),
+    });
+  }
 
   return (
     <>
-      {jsonLd && (
+      {graph.map((node, i) => (
         <script
+          key={i}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(node).replace(/</g, "\\u003c"),
+          }}
         />
-      )}
+      ))}
       <ProductView slug={slug} />
     </>
   );

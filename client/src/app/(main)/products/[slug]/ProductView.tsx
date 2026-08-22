@@ -99,6 +99,46 @@ export function ProductView({ slug }: { slug: string }) {
                 {product.shortDescription}
               </p>
 
+              {/* Key specifications — mirrors the Product structured data. */}
+              <dl className="mb-8 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                {product.metalType && (
+                  <div className="flex justify-between border-b border-border/60 pb-2">
+                    <dt className="text-muted-foreground">Metal</dt>
+                    <dd className="font-medium capitalize">{product.metalType.replace(/_/g, " ")}</dd>
+                  </div>
+                )}
+                {product.metalPurity && (
+                  <div className="flex justify-between border-b border-border/60 pb-2">
+                    <dt className="text-muted-foreground">Purity</dt>
+                    <dd className="font-medium">{product.metalPurity}</dd>
+                  </div>
+                )}
+                {typeof product.weight === "number" && product.weight > 0 && (
+                  <div className="flex justify-between border-b border-border/60 pb-2">
+                    <dt className="text-muted-foreground">Weight</dt>
+                    <dd className="font-medium">{product.weight} g</dd>
+                  </div>
+                )}
+                {(product as { caratWeight?: number }).caratWeight ? (
+                  <div className="flex justify-between border-b border-border/60 pb-2">
+                    <dt className="text-muted-foreground">Total Carat</dt>
+                    <dd className="font-medium">{(product as { caratWeight?: number }).caratWeight} ct</dd>
+                  </div>
+                ) : null}
+                {(product as { gemstone?: string }).gemstone && (
+                  <div className="flex justify-between border-b border-border/60 pb-2">
+                    <dt className="text-muted-foreground">Gemstone</dt>
+                    <dd className="font-medium">{(product as { gemstone?: string }).gemstone}</dd>
+                  </div>
+                )}
+                {(product as { dimensions?: string }).dimensions && (
+                  <div className="flex justify-between border-b border-border/60 pb-2">
+                    <dt className="text-muted-foreground">Dimensions</dt>
+                    <dd className="font-medium">{(product as { dimensions?: string }).dimensions}</dd>
+                  </div>
+                )}
+              </dl>
+
               {/* Configurator (Metal, Size) */}
               <ProductConfigurator
                 basePrice={product.salePrice || product.basePrice}

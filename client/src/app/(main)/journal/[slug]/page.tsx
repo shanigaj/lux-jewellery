@@ -1,72 +1,115 @@
-"use client";
+import type { Metadata } from "next";
+import { cache } from "react";
+import { siteConfig } from "@/config/site";
+import { JournalArticleView } from "./JournalArticleView";
 
-import Link from "next/link";
-import Image from "next/image";
-import { useParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { useGetBlogBySlugQuery } from "@/store/api/blogApi";
+type Params = { params: Promise<{ slug: string }> };
 
-function formatDate(iso?: string) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+interface RawBlog {
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  coverImage?: string;
+  author?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export default function JournalArticlePage() {
-  const params = useParams();
-  const slug = typeof params?.slug === "string" ? params.slug : Array.isArray(params?.slug) ? params.slug[0] : "";
-  const { data, isLoading, isError } = useGetBlogBySlugQuery(slug, { skip: !slug });
-  const blog = data?.data;
+const getBlog = cache(async (slug: string): Promise<RawBlog | null> => {
+  try {
+    const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const res = await fetch(`${api}/blogs/${encodeURIComponent(slug)}`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data ?? null;
+  } catch {
+    return null;
+  }
+});
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  const blog = await getBlog(slug);
+  if (!blog) {
+    return { title: "Article Not Found", robots: { index: false, follow: false } };
+  }
+  const url = `/journal/${blog.slug}`;
+  const description = (blog.excerpt || blog.content || siteConfig.description)
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+  const image = blog.coverImage;
+  return {
+    title: blog.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${blog.title} | ${siteConfig.name}`,
+      description,
+      url,
+      type: "article",
+      images: image ? [{ url: image, width: 1200, height: 630, alt: blog.title }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${blog.title} | ${siteConfig.name}`,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
+
+export default async function JournalArticlePage({ params }: Params) {
+  const { slug } = await params;
+  const blog = await getBlog(slug);
+
+  const graph: object[] = [];
+  if (blog) {
+    const url = `${siteConfig.url}/journal/${blog.slug}`;
+    graph.push({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: blog.title,
+      description: (blog.excerpt || "").replace(/\s+/g, " ").trim(),
+      image: blog.coverImage ? [blog.coverImage] : undefined,
+      author: { "@type": "Organization", name: blog.author || siteConfig.name },
+      publisher: {
+        "@type": "Organization",
+        name: siteConfig.name,
+        logo: { "@type": "ImageObject", url: `${siteConfig.url}/icon.png` },
+      },
+      datePublished: blog.createdAt,
+      dateModified: blog.updatedAt || blog.createdAt,
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
+      url,
+    });
+
+    graph.push({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+        { "@type": "ListItem", position: 2, name: "Journal", item: `${siteConfig.url}/journal` },
+        { "@type": "ListItem", position: 3, name: blog.title, item: url },
+      ],
+    });
+  }
 
   return (
-    <div className="container-luxury py-16 md:py-24">
-      <Link href="/journal" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-colors mb-8">
-        <ArrowLeft size={15} /> Back to Journal
-      </Link>
-
-      {isLoading ? (
-        <div className="max-w-3xl animate-pulse">
-          <div className="h-8 w-2/3 rounded bg-muted" />
-          <div className="mt-6 aspect-[16/9] rounded-lg bg-muted" />
-          <div className="mt-6 space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-3 w-full rounded bg-muted" />)}
-          </div>
-        </div>
-      ) : isError || !blog ? (
-        <div className="max-w-3xl rounded-[2px] border border-border py-20 text-center text-muted-foreground">
-          This article isn&apos;t available.{" "}
-          <Link href="/journal" className="text-gold hover:underline">Browse the journal</Link>.
-        </div>
-      ) : (
-        <article className="max-w-3xl">
-          <p className="text-[11px] uppercase tracking-luxury-wide text-gold font-semibold">
-            {blog.author} · {formatDate(blog.createdAt)}
-          </p>
-          <h1 className="mt-3 font-heading text-4xl leading-[1.1] text-foreground md:text-5xl">
-            {blog.title}
-          </h1>
-          {blog.excerpt && (
-            <p className="mt-5 text-lg font-light leading-relaxed text-muted-foreground">{blog.excerpt}</p>
-          )}
-
-          {blog.coverImage && (
-            <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-lg bg-muted">
-              <Image src={blog.coverImage} alt={blog.title} fill sizes="(max-width: 1024px) 100vw, 768px" className="object-cover" priority />
-            </div>
-          )}
-
-          <div className="mt-8 whitespace-pre-line font-light leading-relaxed text-foreground/90">
-            {blog.content}
-          </div>
-
-          {blog.tags && blog.tags.length > 0 && (
-            <div className="mt-10 flex flex-wrap gap-2 border-t border-border pt-6">
-              {blog.tags.map((t) => (
-                <span key={t} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">{t}</span>
-              ))}
-            </div>
-          )}
-        </article>
-      )}
-    </div>
+    <>
+      {graph.map((node, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(node).replace(/</g, "\\u003c"),
+          }}
+        />
+      ))}
+      <JournalArticleView slug={slug} />
+    </>
   );
 }

@@ -31,7 +31,11 @@ export default function EditProductPage() {
     stock: "10",
     category: "rings",
     metalType: "gold",
+    metalPurity: "",
     gemstone: "",
+    weight: "",
+    caratWeight: "",
+    dimensions: "",
   });
 
   // Final Cloudinary image URLs (existing + newly uploaded/AI-polished).
@@ -51,7 +55,14 @@ export default function EditProductPage() {
       category:
         (typeof p.category === "string" ? p.category : p.category?.slug) || "rings",
       metalType: p.metalType || "gold",
+      metalPurity: (p as { metalPurity?: string }).metalPurity ?? "",
       gemstone: (p as { gemstone?: string }).gemstone ?? "",
+      weight: (p as { weight?: number }).weight != null ? String((p as { weight?: number }).weight) : "",
+      caratWeight:
+        (p as { caratWeight?: number }).caratWeight != null
+          ? String((p as { caratWeight?: number }).caratWeight)
+          : "",
+      dimensions: (p as { dimensions?: string }).dimensions ?? "",
     });
     setImages(
       (Array.isArray(p.images) ? p.images.map((img) => img.url) : []).filter(isRemote)
@@ -83,7 +94,11 @@ export default function EditProductPage() {
         stock: Number(formData.stock),
         category: formData.category,
         metalType: formData.metalType,
+        metalPurity: formData.metalPurity || undefined,
         gemstone: formData.gemstone,
+        weight: formData.weight ? Number(formData.weight) : undefined,
+        caratWeight: formData.caratWeight ? Number(formData.caratWeight) : undefined,
+        dimensions: formData.dimensions || undefined,
         images,
       };
 
@@ -211,6 +226,31 @@ export default function EditProductPage() {
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Gemstone</label>
                 <input type="text" name="gemstone" value={formData.gemstone} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. Diamond, Emerald" />
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-sm">
+              <h2 className="font-heading text-lg border-b border-border pb-2 mb-4">Specifications</h2>
+
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Metal Purity</label>
+                <input type="text" name="metalPurity" value={formData.metalPurity} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. 18K, 22K, PT950, 925" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Weight (g)</label>
+                  <input type="number" min="0" step="0.01" name="weight" value={formData.weight} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. 4.2" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Carat (ct)</label>
+                  <input type="number" min="0" step="0.01" name="caratWeight" value={formData.caratWeight} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. 1.5" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Dimensions</label>
+                <input type="text" name="dimensions" value={formData.dimensions} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. Ring size 14 · 2.3 mm band" />
               </div>
             </div>
           </div>
