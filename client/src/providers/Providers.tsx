@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/store";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { GlobalLoader } from "@/components/shared/GlobalLoader";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={<GlobalLoader />} persistor={persistor}>
         <TooltipProvider>
           {children}
         </TooltipProvider>
