@@ -11,6 +11,7 @@ import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 import { addRecentlyViewed } from "@/lib/recently-viewed";
 import { Rating } from "@/components/shared/Rating";
 import { WhatsAppInquiryButton } from "@/components/shared/WhatsAppInquiryButton";
+import { EmailInquiryButton } from "@/components/shared/EmailInquiryButton";
 import { NotifyMeButton } from "@/components/shared/NotifyMeButton";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { BrandLoader } from "@/components/shared/BrandLoader";
@@ -150,7 +151,7 @@ export function ProductView({ slug }: { slug: string }) {
               />
 
               {/* Action Buttons */}
-              <div className="flex gap-4 mb-10">
+              <div className="flex gap-4 mb-3">
                 {inStock ? (
                   <WhatsAppInquiryButton
                     className="flex-1"
@@ -188,6 +189,20 @@ export function ProductView({ slug }: { slug: string }) {
                   <Heart size={20} className={cn("transition-colors", isWishlisted ? "fill-gold text-gold" : "text-foreground")} />
                 </button>
               </div>
+
+              {/* Email enquiry — a phone-free alternative to WhatsApp (esp. for international customers) */}
+              <EmailInquiryButton
+                className="w-full mb-10"
+                inquiry={{
+                  name: product.name,
+                  sku: product.sku,
+                  id: product._id,
+                  category: product.category?.name,
+                  metal: selection.metal || undefined,
+                  size: selection.size || undefined,
+                  url: typeof window !== "undefined" ? window.location.href : undefined,
+                }}
+              />
 
               {/* Trust Features */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-y border-border mb-10">
