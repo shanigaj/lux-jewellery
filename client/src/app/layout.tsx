@@ -3,7 +3,6 @@ import { Playfair_Display, Inter } from "next/font/google";
 import { Providers } from "@/providers/Providers";
 import SiteGuard from "@/components/shared/SiteGuard";
 import { Analytics } from "@/components/shared/Analytics";
-import Script from "next/script";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -142,13 +141,14 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased" suppressHydrationWarning>
-        <Script
-          id="schema-jsonld"
+        {/* Plain <script> (not next/script) so the JSON-LD is server-rendered
+            into the initial HTML — next/script's default afterInteractive
+            strategy injects client-side, leaving it out of the SSR markup. */}
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         />
-        <Script
-          id="schema-website"
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd).replace(/</g, "\\u003c") }}
         />

@@ -14,7 +14,7 @@ import { WhatsAppInquiryButton } from "@/components/shared/WhatsAppInquiryButton
 import { EmailInquiryButton } from "@/components/shared/EmailInquiryButton";
 import { NotifyMeButton } from "@/components/shared/NotifyMeButton";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
-import { BrandLoader } from "@/components/shared/BrandLoader";
+import { GlobalLoader } from "@/components/shared/GlobalLoader";
 import { useGetProductByIdQuery, useGetProductsQuery } from "@/store/api/productApi";
 import { Heart, Truck, ShieldCheck, ArrowRightLeft } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -49,7 +49,7 @@ export function ProductView({ slug }: { slug: string }) {
   }
 
   if (isLoading || !product) {
-    return <BrandLoader />;
+    return <GlobalLoader />;
   }
 
   const isWishlisted = wishlist.some((p) => p._id === product._id);
