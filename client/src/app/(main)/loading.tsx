@@ -1,6 +1,6 @@
-import { BrandLoader } from "@/components/shared/BrandLoader";
+import { GlobalLoader } from "@/components/shared/GlobalLoader";
 
 // Shown during route transitions inside the storefront.
 export default function Loading() {
-  return <BrandLoader />;
+  return <GlobalLoader />;
 }
