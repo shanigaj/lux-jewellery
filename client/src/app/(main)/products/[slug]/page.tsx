@@ -18,7 +18,7 @@ interface RawProduct {
   metalType?: string;
   metalPurity?: string;
   weight?: number;
-  caratWeight?: number;
+  diamondCarat?: number;
   dimensions?: string;
   images?: string[];
   price?: number;
@@ -163,7 +163,16 @@ export default async function ProductPage({ params }: Params) {
       };
     }
 
-    graph.push(productLd);
+    // Google's Product snippet requires offers, review, or aggregateRating.
+    // This is a price-on-request catalogue (prices are shared via personal
+    // consultation), so pieces without a price or genuine rating would emit an
+    // "invalid Product" that clutters Search Console for no benefit. Only
+    // present the Product node when it can actually satisfy those requirements;
+    // otherwise the breadcrumb below (plus the page's <h1>, meta and visible
+    // content) still describe the piece fully.
+    if (productLd.offers || productLd.aggregateRating) {
+      graph.push(productLd);
+    }
 
     // Breadcrumb: Home › Category › Product
     const cat = product.category ? getCategoryMeta(product.category) : undefined;

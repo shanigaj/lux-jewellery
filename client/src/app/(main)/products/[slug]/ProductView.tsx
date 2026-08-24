@@ -120,10 +120,10 @@ export function ProductView({ slug }: { slug: string }) {
                     <dd className="font-medium">{product.weight} g</dd>
                   </div>
                 )}
-                {(product as { caratWeight?: number }).caratWeight ? (
+                {(product as { diamondCarat?: number }).diamondCarat ? (
                   <div className="flex justify-between border-b border-border/60 pb-2">
                     <dt className="text-muted-foreground">Total Carat</dt>
-                    <dd className="font-medium">{(product as { caratWeight?: number }).caratWeight} ct</dd>
+                    <dd className="font-medium">{(product as { diamondCarat?: number }).diamondCarat} ct</dd>
                   </div>
                 ) : null}
                 {(product as { gemstone?: string }).gemstone && (

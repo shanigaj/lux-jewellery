@@ -12,7 +12,7 @@ export interface IProduct extends Document {
   metalPurity?: string;
   gemstone?: string;
   weight?: number;
-  caratWeight?: number;
+  diamondCarat?: number;
   dimensions?: string;
   images: string[];
   videos?: string[];
@@ -49,7 +49,7 @@ const ProductSchema: Schema = new Schema(
     // Gross metal weight in grams.
     weight: { type: Number, min: 0 },
     // Total diamond / gemstone weight in carats.
-    caratWeight: { type: Number, min: 0 },
+    diamondCarat: { type: Number, min: 0 },
     // Free-form physical dimensions, e.g. "Ring size 14 · 2.3 mm band".
     dimensions: { type: String, trim: true },
     images: {

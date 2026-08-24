@@ -19,7 +19,7 @@ interface RawProduct {
   images?: string[];
   stock?: number;
   weight?: number;
-  caratWeight?: number;
+  diamondCarat?: number;
   dimensions?: string;
 }
 
@@ -111,8 +111,8 @@ function item(p: RawProduct): string {
       name
     )}</g:attribute_name><g:attribute_value>${xml(value)}</g:attribute_value></g:product_detail>`;
   if (typeof p.weight === "number" && p.weight > 0) lines.push(detail("Details", "Weight", `${p.weight} g`));
-  if (typeof p.caratWeight === "number" && p.caratWeight > 0)
-    lines.push(detail("Details", "Total Carat Weight", `${p.caratWeight} ct`));
+  if (typeof p.diamondCarat === "number" && p.diamondCarat > 0)
+    lines.push(detail("Details", "Total Carat Weight", `${p.diamondCarat} ct`));
   if (p.gemstone) lines.push(detail("Details", "Gemstone", p.gemstone));
   lines.push(`    </item>`);
   return lines.join("\n");

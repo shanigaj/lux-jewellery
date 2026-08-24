@@ -24,7 +24,7 @@ export default function NewProductPage() {
     metalPurity: "",
     gemstone: "",
     weight: "",
-    caratWeight: "",
+    diamondCarat: "",
     dimensions: "",
   });
 
@@ -57,7 +57,7 @@ export default function NewProductPage() {
         metalPurity: formData.metalPurity || undefined,
         gemstone: formData.gemstone,
         weight: formData.weight ? Number(formData.weight) : undefined,
-        caratWeight: formData.caratWeight ? Number(formData.caratWeight) : undefined,
+        diamondCarat: formData.diamondCarat ? Number(formData.diamondCarat) : undefined,
         dimensions: formData.dimensions || undefined,
         images, // already-uploaded Cloudinary URLs
       };
@@ -183,7 +183,7 @@ export default function NewProductPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Carat (ct)</label>
-                  <input type="number" min="0" step="0.01" name="caratWeight" value={formData.caratWeight} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. 1.5" />
+                  <input type="number" min="0" step="0.01" name="diamondCarat" value={formData.diamondCarat} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. 1.5" />
                 </div>
               </div>
 
