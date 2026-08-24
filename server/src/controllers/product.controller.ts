@@ -78,7 +78,15 @@ export const getProducts = async (
     const limitNum = Number(limit);
     const skip = (pageNum - 1) * limitNum;
 
+    // Optional field projection — lets the storefront request only what it
+    // needs (e.g. category + images for the homepage's decorative grids),
+    // trimming a full-catalogue response from ~2.3MB to a few hundred KB.
+    const fields = req.query.fields
+      ? String(req.query.fields).split(",").map((f) => f.trim()).filter(Boolean).join(" ")
+      : "";
+
     const products = await Product.find(query)
+      .select(fields || "")
       .sort(sortOption)
       .skip(skip)
       .limit(limitNum);

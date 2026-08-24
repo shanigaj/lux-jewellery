@@ -45,7 +45,14 @@ export interface CategoryImages {
  * so mounting this hook in several components costs one network request.
  */
 export function useCategoryImages(): CategoryImages {
-  const { data, isLoading } = useGetProductsQuery({ limit: 1000 });
+  // Only category + images + name are needed (per-category counts and the
+  // decorative image grids), so project to those fields — this trims the
+  // full-catalogue response from ~2.3MB to a few hundred KB, which was the
+  // dominant main-thread cost on the homepage.
+  const { data, isLoading } = useGetProductsQuery({
+    limit: 1000,
+    fields: "category,images,name",
+  });
 
   return useMemo(() => {
     const products = data?.data ?? [];

@@ -12,6 +12,8 @@ interface GetProductsParams {
   sort?: string;
   page?: number;
   limit?: number;
+  /** Comma-separated field projection, e.g. "category,images,name". */
+  fields?: string;
 }
 
 interface ProductsResponse {
@@ -132,6 +134,7 @@ export const productApi = baseApi.injectEndpoints({
           if (params.sort) queryParams.append('sort', params.sort);
           if (params.page) queryParams.append('page', params.page.toString());
           if (params.limit) queryParams.append('limit', params.limit.toString());
+          if (params.fields) queryParams.append('fields', params.fields);
           
           const queryString = queryParams.toString();
           if (queryString) url += `?${queryString}`;
