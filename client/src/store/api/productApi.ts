@@ -41,7 +41,7 @@ export interface CreateProductInput {
   metalPurity?: string;
   gemstone?: string;
   weight?: number;
-  caratWeight?: number;
+  diamondCarat?: number;
   dimensions?: string;
   images: string[];
   stock: number;
