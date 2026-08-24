@@ -3,10 +3,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
-import { useCategoryImages } from "@/lib/useCategoryImages";
 
 const slides = [
   {
@@ -55,7 +55,10 @@ const bokeh = [
 export function HeroBanner() {
   const [current, setCurrent] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { heroImage } = useCategoryImages();
+  // The background video is deferred until after the first paint so it never
+  // blocks LCP — the static poster image below is the LCP element.
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -64,10 +67,13 @@ export function HeroBanner() {
     return () => clearInterval(timer);
   }, []);
 
-  // Respect reduced-motion: pause the background video.
   useEffect(() => {
+    // Reduced-motion users keep just the still image — no video download.
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches && videoRef.current) videoRef.current.pause();
+    if (mq.matches) return;
+    // Mount the (heavy) video only after the hero has painted.
+    const id = window.setTimeout(() => setShowVideo(true), 600);
+    return () => window.clearTimeout(id);
   }, []);
 
   const slide = slides[current];
@@ -97,19 +103,36 @@ export function HeroBanner() {
         ))}
       </div>
 
-      {/* ── Layer 1: background video (poster = existing hero image as graceful fallback) ── */}
-      <video
-        ref={videoRef}
+      {/* ── Layer 1: static hero image — the LCP element (30KB, priority-preloaded,
+          server-rendered). Matches the video's opening frame for a seamless swap. ── */}
+      <Image
+        src="/images/hero.webp"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
         className="absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster={heroImage}
-      >
-        <source src="/videos/hero.webm" type="video/webm" />
-        <source src="/videos/hero.mp4" type="video/mp4" />
-      </video>
+      />
+
+      {/* ── Layer 1.5: background video — deferred past first paint, fades over the
+          image once it can play so it never competes for LCP bandwidth. ── */}
+      {showVideo && (
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            videoReady ? "opacity-100" : "opacity-0"
+          }`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          onCanPlay={() => setVideoReady(true)}
+        >
+          <source src="/videos/hero.webm" type="video/webm" />
+          <source src="/videos/hero.mp4" type="video/mp4" />
+        </video>
+      )}
 
       {/* ── Layer 2: cream scrim — enough on the left for text, clears out so the video shows ── */}
       <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/45 to-transparent" />
