@@ -6,24 +6,27 @@ function fmt(n: number) {
   return `₹${n.toLocaleString("en-IN")}`;
 }
 
-// Indicative rates (₹/gram) so the bar never disappears if the rates request is
-// still loading or momentarily unreachable. Live data replaces these as soon as
-// it arrives. Kept roughly in sync with the backend's own fallback.
-const FALLBACK_RATES = { gold24k: 15550, gold22k: 14250, silver: 232 };
+export type MetalTickerRates = { gold24k: number; gold22k: number; silver: number };
+
+// Indicative rates (₹/gram) — a last-resort so the bar never disappears if both
+// the server-rendered rates and the client request are unavailable.
+const FALLBACK_RATES: MetalTickerRates = { gold24k: 15550, gold22k: 14250, silver: 232 };
 
 /**
  * Live gold & silver market rates (₹ per gram) for the top bar.
- * Polls every 5 minutes; the backend itself caches hourly.
+ * `initialRates` is fetched on the server so the correct numbers are painted in
+ * the very first HTML (no visible "stale → live" flip); the client query then
+ * keeps them fresh. Polls every 3 minutes; the backend itself caches hourly.
  */
-export function LivePriceTicker() {
+export function LivePriceTicker({ initialRates }: { initialRates?: MetalTickerRates }) {
   const { data } = useGetMetalRatesQuery(undefined, {
     pollingInterval: 3 * 60 * 1000,
     refetchOnFocus: true,
   });
 
-  // Never render nothing: fall back to indicative rates until live data loads,
-  // so the ticker is always present in the top bar.
-  const r = data?.data ?? FALLBACK_RATES;
+  // Prefer live client data; before it arrives use the server-rendered rates
+  // (so first paint is already correct), then the indicative fallback.
+  const r = data?.data ?? initialRates ?? FALLBACK_RATES;
 
   const items = [
     { label: "Gold 24K", value: fmt(r.gold24k), hideOnMobile: false },
