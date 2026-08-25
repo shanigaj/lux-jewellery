@@ -8,8 +8,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 import { useCategoryImages } from "@/lib/useCategoryImages";
 
+// Each tile shows a curated, representative piece so the imagery renders
+// instantly — it no longer waits on the full catalogue fetch (which left the
+// cards blank for several seconds). The live piece-count below still comes from
+// the DB. Swap these URLs for a newer hero piece any time.
 const collections = [
   {
     name: "Rings",
@@ -17,6 +22,8 @@ const collections = [
     dbCategory: "rings",
     description: "Where love stories begin",
     offset: "lg:mt-0",
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247717/sparenza/sparenza-black-enamel-double-t-ring/main.webp",
   },
   {
     name: "Necklaces & Pendants",
@@ -24,6 +31,8 @@ const collections = [
     dbCategory: "necklaces",
     description: "Grace that adorns",
     offset: "lg:mt-14",
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247660/sparenza/sparenza-amethyst-blossom-gemstone-necklace-2/main.webp",
   },
   {
     name: "Earrings",
@@ -31,6 +40,8 @@ const collections = [
     dbCategory: "earrings",
     description: "Frames of brilliance",
     offset: "lg:mt-6",
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247664/sparenza/sparenza-amethyst-halo-teardrop-drop-earrings/main.webp",
   },
   {
     name: "Bracelets",
@@ -38,12 +49,15 @@ const collections = [
     dbCategory: "bracelets",
     description: "Circles of elegance",
     offset: "lg:mt-20",
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247658/sparenza/sparenza-adjustable-snake-chain-slider-bracelet/main.jpg",
   },
 ];
 
 export function Collections() {
-  // Live product list → real per-category counts + real per-category imagery.
-  const { products, imageFor } = useCategoryImages();
+  // Live product list → real per-category counts. (Imagery is curated per tile
+  // above so it renders instantly instead of waiting on this fetch.)
+  const { products } = useCategoryImages();
   const root = useRef<HTMLElement>(null);
 
   const countFor = (dbCategory: string) =>
@@ -175,9 +189,10 @@ export function Collections() {
                   {/* Parallax photo (taller than frame so drift never gaps) */}
                   <div className="cx-img absolute -inset-y-[10%] inset-x-0 will-change-transform">
                     <Image
-                      src={imageFor(collection.dbCategory)}
+                      src={collection.image}
                       alt={collection.name}
                       fill
+                      loader={cloudinaryLoader}
                       sizes="(max-width: 1024px) 50vw, 25vw"
                       className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
                     />
