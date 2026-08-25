@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
 import { useGetSettingsQuery } from "@/store/api/settingsApi";
-import { LivePriceTicker } from "@/components/layout/header/LivePriceTicker";
+import { LivePriceTicker, type MetalTickerRates } from "@/components/layout/header/LivePriceTicker";
 import { Logo } from "@/components/shared/Logo";
 import { mainNavigation, type NavItem } from "@/config/navigation";
 import { useCategoryImages } from "@/lib/useCategoryImages";
@@ -42,7 +42,7 @@ const DEFAULT_ANNOUNCEMENTS = [
   "Lifetime exchange & buyback on all collections",
 ];
 
-function AnnouncementBar() {
+function AnnouncementBar({ initialRates }: { initialRates?: MetalTickerRates }) {
   // Managed live from Admin → CMS; falls back to defaults until loaded.
   const { data } = useGetSettingsQuery();
   const announcements =
@@ -62,7 +62,7 @@ function AnnouncementBar() {
     <div className="bg-onyx text-white/90">
       <div className="container-luxury flex items-center justify-between py-2">
         <div className="flex items-center shrink-0">
-          <LivePriceTicker />
+          <LivePriceTicker initialRates={initialRates} />
         </div>
 
         <div className="flex-1 overflow-hidden hidden lg:block">
@@ -368,7 +368,7 @@ function MobileMenu() {
 // ══════════════════════════════════════════════════════════════
 // 🏛️ HEADER — Main Navigation Component
 // ══════════════════════════════════════════════════════════════
-export function Header() {
+export function Header({ initialRates }: { initialRates?: MetalTickerRates }) {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -405,7 +405,7 @@ export function Header() {
 
   return (
     <>
-      <AnnouncementBar />
+      <AnnouncementBar initialRates={initialRates} />
 
       <header
         className={cn(
