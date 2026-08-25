@@ -35,6 +35,7 @@ export function DiamondCollection() {
           src={heroImage}
           alt="Diamond Collection"
           fill
+          sizes="100vw"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/75" />

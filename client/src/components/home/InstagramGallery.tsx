@@ -61,6 +61,7 @@ export function InstagramGallery() {
                 src={imageAt(i)}
                 alt="Instagram Post"
                 fill
+                sizes="(max-width: 768px) 50vw, 25vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
               
