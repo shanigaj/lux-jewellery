@@ -2,6 +2,7 @@
 
 import { useState, useRef, MouseEvent } from "react";
 import Image from "next/image";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 import { cn } from "@/lib/utils";
 import { ZoomIn } from "lucide-react";
 
@@ -38,6 +39,8 @@ export function ImageZoom({ src, alt, className, zoomLevel = 2 }: ImageZoomProps
         src={src}
         alt={alt}
         fill
+        loader={cloudinaryLoader}
+        sizes="(max-width: 768px) 100vw, 50vw"
         className={cn(
           "object-cover transition-opacity duration-300",
           isZoomed ? "opacity-0" : "opacity-100"

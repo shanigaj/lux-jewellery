@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { IProductImage } from "@/types/product.types";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 import { ImageZoom } from "@/components/shared/ImageZoom";
 import { cn } from "@/lib/utils";
 import { Play, Camera } from "lucide-react";
@@ -47,7 +48,7 @@ export function ProductGallery({ images, videos, video }: ProductGalleryProps) {
                 : "border-transparent opacity-60 hover:opacity-100"
             )}
           >
-            <Image src={img.url} alt={img.altText} fill className="object-cover" />
+            <Image src={img.url} alt={img.altText} fill loader={cloudinaryLoader} sizes="96px" className="object-cover" />
           </button>
         ))}
 

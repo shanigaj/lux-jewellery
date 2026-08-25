@@ -17,6 +17,7 @@ interface ProductCardProps {
 }
 
 import Image from "next/image";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { toggleWishlist } from "@/store/slices/productSlice";
 
@@ -55,10 +56,12 @@ export function ProductCard({
           )}
         >
           {product.thumbnail && (
-            <Image 
-              src={product.thumbnail} 
+            <Image
+              src={product.thumbnail}
               alt={product.name}
               fill
+              loader={cloudinaryLoader}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
           )}
