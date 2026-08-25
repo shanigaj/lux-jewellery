@@ -7,7 +7,12 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Gem } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
-import { useCategoryImages } from "@/lib/useCategoryImages";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
+
+// Curated editorial piece for the parallax banner (dark-toned, sits well under
+// the black overlay) — renders instantly instead of waiting on the catalogue fetch.
+const heroImage =
+  "https://res.cloudinary.com/dtjxooom/image/upload/v1787247652/sparenza/sparenza-abstract-diamond-frame-pendant-necklace/main.webp";
 
 const diamondShapes = [
   { name: "Round Brilliant", pieces: 342, slug: "round" },
@@ -20,7 +25,6 @@ const diamondShapes = [
 
 export function DiamondCollection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { heroImage } = useCategoryImages();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
@@ -35,6 +39,7 @@ export function DiamondCollection() {
           src={heroImage}
           alt="Diamond Collection"
           fill
+          loader={cloudinaryLoader}
           sizes="100vw"
           className="object-cover"
         />

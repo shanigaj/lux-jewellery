@@ -23,7 +23,7 @@ const collections = [
     description: "Where love stories begin",
     offset: "lg:mt-0",
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247717/sparenza/sparenza-black-enamel-double-t-ring/main.webp",
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247749/sparenza/sparenza-blossom-diamond-engagement-ring/main.webp",
   },
   {
     name: "Necklaces & Pendants",
@@ -32,7 +32,7 @@ const collections = [
     description: "Grace that adorns",
     offset: "lg:mt-14",
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247660/sparenza/sparenza-amethyst-blossom-gemstone-necklace-2/main.webp",
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247650/sparenza/sparenza-abstract-loop-pendant-necklace-in-gold/main.webp",
   },
   {
     name: "Earrings",
@@ -50,7 +50,7 @@ const collections = [
     description: "Circles of elegance",
     offset: "lg:mt-20",
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247658/sparenza/sparenza-adjustable-snake-chain-slider-bracelet/main.jpg",
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247673/sparenza/sparenza-art-deco-diamond-bracelet/main.webp",
   },
 ];
 
