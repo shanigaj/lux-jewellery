@@ -5,18 +5,50 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Camera, Heart, MessageCircle } from "lucide-react";
 import { AnimatedSection, StaggerContainer, StaggerItem } from "@/components/shared/AnimatedSection";
-import { useCategoryImages } from "@/lib/useCategoryImages";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 
+// Curated editorial pieces (real people wearing Sparenza) — an on-brand "journey"
+// feed that renders instantly instead of waiting on the catalogue fetch.
 const instagramPosts = [
-  { id: 1, type: "image", likes: "12.4k", comments: "142", delay: 0.1 },
-  { id: 2, type: "video", likes: "8.9k", comments: "95", delay: 0.2 },
-  { id: 3, type: "image", likes: "15.2k", comments: "218", delay: 0.3 },
-  { id: 4, type: "image", likes: "10.1k", comments: "87", delay: 0.4 },
+  {
+    id: 1,
+    type: "image",
+    likes: "12.4k",
+    comments: "142",
+    delay: 0.1,
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247668/sparenza/sparenza-antique-coin-medallion-necklace/main.webp",
+  },
+  {
+    id: 2,
+    type: "video",
+    likes: "8.9k",
+    comments: "95",
+    delay: 0.2,
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247675/sparenza/sparenza-art-deco-gemstone-halo-ring/main.webp",
+  },
+  {
+    id: 3,
+    type: "image",
+    likes: "15.2k",
+    comments: "218",
+    delay: 0.3,
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247683/sparenza/sparenza-baguette-diamond-link-bracelet/main.webp",
+  },
+  {
+    id: 4,
+    type: "image",
+    likes: "10.1k",
+    comments: "87",
+    delay: 0.4,
+    image:
+      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247671/sparenza/sparenza-aquamarine-and-diamond-tennis-bracelet-short-description/main.webp",
+  },
 ];
 
 export function InstagramGallery() {
-  // Feed the grid with real catalogue photography instead of stock art.
-  const { imageAt } = useCategoryImages();
 
   return (
     <section className="section-padding bg-background border-t border-border/50">
@@ -55,12 +87,13 @@ export function InstagramGallery() {
 
         {/* Gallery Grid */}
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {instagramPosts.map((post, i) => (
+          {instagramPosts.map((post) => (
             <StaggerItem key={post.id} className="group relative aspect-square overflow-hidden rounded-xl bg-muted cursor-pointer">
               <Image
-                src={imageAt(i)}
+                src={post.image}
                 alt="Instagram Post"
                 fill
+                loader={cloudinaryLoader}
                 sizes="(max-width: 768px) 50vw, 25vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
