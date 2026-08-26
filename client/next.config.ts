@@ -82,3 +82,8 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// OpenNext (Cloudflare) — gives `next dev` access to local Cloudflare bindings.
+// No-op at build/runtime in production.
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+initOpenNextCloudflareForDev();

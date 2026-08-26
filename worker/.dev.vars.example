@@ -1,0 +1,26 @@
+# Local secrets for `wrangler dev`. Copy to `.dev.vars` and fill in.
+# In production these are set with:  wrangler secret put NAME
+# NEVER commit .dev.vars (it is gitignored).
+
+# MongoDB Atlas connection string (same one the old server used)
+MONGO_URI="mongodb+srv://USER:PASS@clustersparenza.xxxx.mongodb.net/sparenza-jewels?retryWrites=true&w=majority"
+
+JWT_SECRET="a-long-random-string"
+JWT_REFRESH_SECRET="a-different-long-random-string"
+
+CLIENT_URL="http://localhost:3000"
+
+CLOUDINARY_CLOUD_NAME="dtjxooom"
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+
+OPENAI_API_KEY=""
+
+RESEND_API_KEY=""
+MAIL_FROM="Sparenza & Co. <noreply@yourdomain.com>"
+CONTACT_EMAIL="contact@sparenza.com"
+
+STRIPE_SECRET_KEY=""
+STRIPE_WEBHOOK_SECRET=""
+
+INDIA_METAL_PREMIUM="1.155"
