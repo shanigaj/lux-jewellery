@@ -23,10 +23,10 @@ interface MetalRates {
 // Indicative Indian retail rates (₹/gram) — used only if every live feed fails.
 const FALLBACK: Omit<MetalRates, "updatedAt" | "source"> = {
   currency: "INR",
-  gold24k: 15550,
-  gold22k: 14250,
-  gold18k: 11660,
-  silver: 232,
+  gold24k: 16368,
+  gold22k: 15004,
+  gold18k: 12276,
+  silver: 243,
   usdInr: 95,
 };
 
@@ -34,7 +34,15 @@ async function fetchJson(url: string, ms = 8000): Promise<any | null> {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), ms);
-    const r = await fetch(url, { signal: ctrl.signal });
+    const r = await fetch(url, {
+      signal: ctrl.signal,
+      // Some upstreams (goldprice.dev) reject requests with no/bot User-Agent.
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+        Accept: "application/json",
+      },
+    });
     clearTimeout(t);
     if (!r.ok) return null;
     return await r.json();
@@ -44,38 +52,38 @@ async function fetchJson(url: string, ms = 8000): Promise<any | null> {
 }
 
 async function loadLiveRates(env: Bindings): Promise<MetalRates> {
-  const [goldInr, xau, xag] = await Promise.all([
-    fetchJson("https://api.goldprice.dev/v1/carat?currency=INR"),
+  // gold-api.com gives international spot in USD/oz (reliable from Workers);
+  // open.er-api.com gives USD->INR. (goldprice.dev is unreachable from Workers,
+  // so we compute the INR retail prices ourselves.)
+  const [xau, xag, fx] = await Promise.all([
     fetchJson("https://api.gold-api.com/price/XAU"),
     fetchJson("https://api.gold-api.com/price/XAG"),
+    fetchJson("https://open.er-api.com/v6/latest/USD"),
   ]);
 
-  const gold24k = goldInr ? Number(goldInr.price_gram_24k) : NaN;
-  const gold22k = goldInr ? Number(goldInr.price_gram_22k) : NaN;
-  const gold18k = goldInr ? Number(goldInr.price_gram_18k) : NaN;
-  const xauUsdOz = xau ? Number(xau.price) : NaN;
-  const xagUsdOz = xag ? Number(xag.price) : NaN;
+  const xauUsdOz = xau ? Number(xau.price) : NaN; // gold USD/oz
+  const xagUsdOz = xag ? Number(xag.price) : NaN; // silver USD/oz
+  const usdInr =
+    fx && fx.rates && Number(fx.rates.INR) ? Number(fx.rates.INR) : FALLBACK.usdInr;
 
-  let usdInr = FALLBACK.usdInr;
-  let silver = FALLBACK.silver;
-  if (Number.isFinite(gold24k) && Number.isFinite(xauUsdOz) && xauUsdOz > 0) {
-    usdInr = (gold24k * TROY_OZ_IN_GRAMS) / xauUsdOz;
-    if (Number.isFinite(xagUsdOz)) silver = (xagUsdOz * usdInr) / TROY_OZ_IN_GRAMS;
-  }
-
-  const haveLive = Number.isFinite(gold24k) && Number.isFinite(xagUsdOz);
-
-  // International spot → Indian retail: import duty + 3% GST + dealer premium (~15%).
+  // Spot per gram in INR, then International spot -> Indian retail:
+  // import duty + 3% GST + dealer premium (~15%).
   const premium = Number(env.INDIA_METAL_PREMIUM) || 1.155;
-  const inr = (spot: number, fb: number) =>
-    Number.isFinite(spot) ? Math.round(spot * premium) : fb;
+  const gold24kSpot = Number.isFinite(xauUsdOz) ? (xauUsdOz / TROY_OZ_IN_GRAMS) * usdInr : NaN;
+  const silverSpot = Number.isFinite(xagUsdOz) ? (xagUsdOz / TROY_OZ_IN_GRAMS) * usdInr : NaN;
+
+  const haveLive = Number.isFinite(gold24kSpot) && Number.isFinite(silverSpot);
+  const gold24k = Number.isFinite(gold24kSpot)
+    ? Math.round(gold24kSpot * premium)
+    : FALLBACK.gold24k;
 
   return {
     currency: "INR",
-    gold24k: inr(gold24k, FALLBACK.gold24k),
-    gold22k: inr(gold22k, FALLBACK.gold22k),
-    gold18k: inr(gold18k, FALLBACK.gold18k),
-    silver: inr(silver, FALLBACK.silver),
+    gold24k,
+    // Karat gold is priced by purity: 22K = 24K x 22/24, 18K = 24K x 18/24.
+    gold22k: Number.isFinite(gold24kSpot) ? Math.round((gold24k * 22) / 24) : FALLBACK.gold22k,
+    gold18k: Number.isFinite(gold24kSpot) ? Math.round((gold24k * 18) / 24) : FALLBACK.gold18k,
+    silver: Number.isFinite(silverSpot) ? Math.round(silverSpot * premium) : FALLBACK.silver,
     usdInr: Math.round(usdInr * 100) / 100,
     source: haveLive ? "live" : "fallback",
     updatedAt: new Date().toISOString(),
