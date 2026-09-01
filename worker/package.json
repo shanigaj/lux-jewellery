@@ -1,0 +1,30 @@
+{
+  "name": "sparenza-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sparenza & Co. API on Cloudflare Workers (Hono + Prisma Accelerate).",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "prisma generate --no-engine && tsc --noEmit",
+    "db:generate": "prisma generate --no-engine",
+    "db:push": "prisma db push",
+    "typecheck": "tsc --noEmit",
+    "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.3.0",
+    "@prisma/extension-accelerate": "^1.2.1",
+    "bcryptjs": "^2.4.3",
+    "hono": "^4.6.19",
+    "jose": "^5.9.6",
+    "stripe": "^17.7.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "@types/bcryptjs": "^2.4.6",
+    "prisma": "^6.3.0",
+    "typescript": "^5.7.3",
+    "wrangler": "^3.101.0"
+  }
+}

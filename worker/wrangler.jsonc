@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sparenza-api",
+  "main": "src/index.ts",
+  // Custom domain — the API is served at api.sparenza.com.
+  "routes": [
+    { "pattern": "api.sparenza.com", "custom_domain": true }
+  ],
+  "compatibility_date": "2025-03-20",
+  // nodejs_compat_v2 shims Node built-ins that Prisma Client + jose expect.
+  "compatibility_flags": ["nodejs_compat_v2"],
+  "observability": {
+    "enabled": true
+  },
+  // KV replaces the old in-memory node-cache (product cache, metal rates, rate-limit).
+  // Create it once with:  wrangler kv namespace create CACHE
+  // then paste the returned id below.
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "b3fc5c21b56c44fe9cb802a4e031119e"
+    }
+  ],
+  // Non-secret vars. Secrets (DATABASE_URL, JWT_SECRET, CLOUDINARY_*, OPENAI, etc.)
+  // go in via `wrangler secret put NAME` — never commit them here.
+  "vars": {
+    "NODE_ENV": "production"
+  }
+}

@@ -83,10 +83,11 @@ async function loadLiveRates(): Promise<MetalRates> {
 
   const haveLive = Number.isFinite(gold24k) && Number.isFinite(xagUsdOz);
 
-  // The feeds give the *international spot* price. Indian retail rates add
-  // import duty + 3% GST + a dealer premium (~15%). Apply that so the ticker
-  // matches the rate customers actually see. Tunable via env.
-  const premium = Number(process.env.INDIA_METAL_PREMIUM) || 1.155;
+  // International spot -> Indian *benchmark* rate. The Indian domestic price runs
+  // well above international spot (import duty + local market premium); ~1.176
+  // lands the benchmark on the rate Indian jewellers quote today. GST is NOT
+  // included — 3% GST is added at billing. Tunable via env (INDIA_METAL_PREMIUM).
+  const premium = Number(process.env.INDIA_METAL_PREMIUM) || 1.176;
   const inr = (spot: number, fb: number) =>
     Number.isFinite(spot) ? Math.round(spot * premium) : fb;
 

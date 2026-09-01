@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "sparenza-web",
+  "compatibility_date": "2025-03-20",
+  // nodejs_compat: Next.js server runtime. global_fetch_strictly_public: server-side
+  // fetch() calls go out to the public internet (required by OpenNext).
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // Custom domains — the storefront is served at the apex and www.
+  "routes": [
+    { "pattern": "sparenza.com", "custom_domain": true },
+    { "pattern": "www.sparenza.com", "custom_domain": true }
+  ]
+}

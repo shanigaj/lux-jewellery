@@ -1,0 +1,357 @@
+// Sparenza & Co. — Prisma schema (MongoDB / Atlas).
+// 1:1 translation of the Mongoose models. Runtime talks to Atlas through Prisma
+// Accelerate over HTTPS (DATABASE_URL = prisma://…) — this is what makes it work
+// on Cloudflare Workers, where the native driver's TLS handshake fails.
+// `prisma db push` uses DIRECT_DATABASE_URL (the mongodb+srv:// Atlas URL).
+// No data migration: same database, same collections (@@map).
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "mongodb"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+  manager
+  support
+}
+
+enum Tier {
+  silver
+  gold
+  platinum
+  diamond
+}
+
+enum AuthProvider {
+  local
+  google
+  apple
+}
+
+enum Category {
+  rings
+  necklaces
+  earrings
+  bracelets
+  watches
+}
+
+enum MetalType {
+  gold
+  platinum
+  rose_gold
+  white_gold
+  silver
+}
+
+enum PaymentMethod {
+  stripe
+  razorpay
+  paypal
+}
+
+enum PaymentStatus {
+  pending
+  processing
+  completed
+  failed
+  refunded
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  out_for_delivery
+  delivered
+  cancelled
+  returned
+  refunded
+}
+
+enum DiscountType {
+  percentage
+  flat
+}
+
+enum BlogStatus {
+  draft
+  published
+}
+
+enum AppointmentStatus {
+  requested
+  confirmed
+  completed
+  cancelled
+}
+
+type Address {
+  id         String? @map("_id") @db.ObjectId
+  label      String?
+  fullName   String
+  phone      String
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  postalCode String
+  country    String  @default("India")
+  isDefault  Boolean @default(false)
+}
+
+type OrderItem {
+  product     String? @db.ObjectId
+  name        String?
+  thumbnail   String?
+  sku         String?
+  metalType   String?
+  metalPurity String?
+  size        String?
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+}
+
+type ShippingAddress {
+  firstName    String?
+  lastName     String?
+  email        String?
+  phone        String?
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  postalCode   String?
+  country      String?
+}
+
+type Payment {
+  method        PaymentMethod
+  transactionId String?
+  status        PaymentStatus @default(pending)
+  amount        Float?
+  currency      String        @default("INR")
+  paidAt        DateTime?
+}
+
+type TimelineEntry {
+  status      String?
+  title       String?
+  description String?
+  timestamp   DateTime?
+  isCompleted Boolean   @default(false)
+}
+
+type Boutique {
+  id      String
+  name    String
+  city    String @default("")
+  address String @default("")
+}
+
+model User {
+  id                  String       @id @default(auto()) @map("_id") @db.ObjectId
+  firstName           String
+  lastName            String
+  email               String       @unique
+  phone               String?
+  password            String?
+  addresses           Address[]
+  role                Role         @default(user)
+  tier                Tier         @default(silver)
+  isVerified          Boolean      @default(false)
+  authProvider        AuthProvider @default(local)
+  providerId          String?
+  refreshToken        String?
+  resetPasswordToken  String?
+  resetPasswordExpire DateTime?
+  otp                 String?
+  otpExpire           DateTime?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  @@map("users")
+}
+
+model Product {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  sku             String    @unique
+  description     String
+  price           Float
+  discountPrice   Float?
+  category        Category
+  subcategory     String?
+  metalType       MetalType
+  metalPurity     String?
+  gemstone        String?
+  weight          Float?
+  diamondCarat    Float?
+  dimensions      String?
+  images          String[]
+  videos          String[]  @default([])
+  stock           Int       @default(0)
+  isFeatured      Boolean   @default(false)
+  ratingsAverage  Float     @default(0)
+  ratingsQuantity Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([category, metalType])
+  @@index([price])
+  @@map("products")
+}
+
+model Order {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber       String          @unique
+  userId            String          @map("user") @db.ObjectId
+  items             OrderItem[]
+  shippingAddress   ShippingAddress?
+  payment           Payment
+  subtotal          Float
+  shippingCost      Float           @default(0)
+  taxAmount         Float
+  taxRate           Float           @default(0.18)
+  couponDiscount    Float           @default(0)
+  giftCardAmount    Float           @default(0)
+  totalAmount       Float
+  couponCode        String?
+  giftCardCode      String?
+  status            OrderStatus     @default(pending)
+  timeline          TimelineEntry[]
+  trackingNumber    String?
+  estimatedDelivery String?
+  deliveredAt       DateTime?
+  emailSent         Boolean         @default(false)
+  smsSent           Boolean         @default(false)
+  customerNote      String?
+  adminNote         String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("orders")
+}
+
+model Review {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @map("user") @db.ObjectId
+  productId  String   @map("product") @db.ObjectId
+  rating     Int
+  comment    String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, productId])
+  @@map("reviews")
+}
+
+model Appointment {
+  id         String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String?           @map("user") @db.ObjectId
+  experience String
+  boutiqueId String?
+  date       String
+  time       String
+  name       String
+  email      String
+  phone      String
+  interest   String?
+  notes      String?
+  status     AppointmentStatus @default(requested)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@map("appointments")
+}
+
+model Blog {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  slug       String     @unique
+  excerpt    String?
+  content    String
+  coverImage String?
+  author     String     @default("Sparenza & Co.")
+  status     BlogStatus @default(draft)
+  tags       String[]   @default([])
+  views      Int        @default(0)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("blogs")
+}
+
+model Coupon {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  code           String       @unique
+  discountType   DiscountType
+  discountValue  Float
+  minOrderAmount Float        @default(0)
+  maxDiscount    Float?
+  expiresAt      DateTime
+  isActive       Boolean      @default(true)
+  usageLimit     Int          @default(100)
+  usedCount      Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("coupons")
+}
+
+model GiftCard {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  code            String   @unique
+  balance         Float
+  originalBalance Float
+  expiresAt       DateTime
+  isActive        Boolean  @default(true)
+  purchasedById   String?  @map("purchasedBy") @db.ObjectId
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("giftcards")
+}
+
+model Settings {
+  id                    String     @id @default(auto()) @map("_id") @db.ObjectId
+  key                   String     @unique @default("site")
+  storeName             String     @default("Sparenza & Co.")
+  supportEmail          String     @default("contact@sparenza.com")
+  supportPhone          String     @default("+91 63527 51091")
+  address               String     @default("")
+  currency              String     @default("INR")
+  timezone              String     @default("Asia/Kolkata")
+  freeShippingThreshold Float      @default(50000)
+  announcements         String[]   @default([])
+  boutiques             Boutique[]
+  timeSlots             String[]   @default([])
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  @@map("settings")
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  action    String
+  target    String?
+  userName  String   @default("System")
+  role      String?
+  ip        String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("auditlogs")
+}
