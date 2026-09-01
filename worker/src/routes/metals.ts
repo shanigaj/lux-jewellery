@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import type { AppEnv, Bindings } from "../lib/env";
 
 const TROY_OZ_IN_GRAMS = 31.1035;
-const CACHE_TTL_MS = 15 * 60 * 1000; // refresh at most every 15 minutes
+const CACHE_TTL_MS = 5 * 60 * 1000; // recompute at most every 5 minutes (matches the UI's 5-min poll)
 const KV_KEY = "metals:rates";
 
 interface MetalRates {
@@ -66,9 +66,13 @@ async function loadLiveRates(env: Bindings): Promise<MetalRates> {
   const usdInr =
     fx && fx.rates && Number(fx.rates.INR) ? Number(fx.rates.INR) : FALLBACK.usdInr;
 
-  // Spot per gram in INR, then International spot -> Indian retail:
-  // import duty + 3% GST + dealer premium (~15%).
-  const premium = Number(env.INDIA_METAL_PREMIUM) || 1.155;
+  // Spot per gram in INR, then international spot -> Indian *benchmark* rate.
+  // The Indian domestic gold/silver price runs well above international spot
+  // (import duty + local market premium); ~1.176 lands the benchmark on the
+  // rate Indian jewellers quote today (e.g. 24K ~₹15,700/g). GST is NOT included
+  // here — 3% GST, making charges, wastage and diamond are added at billing.
+  // Tunable via env (INDIA_METAL_PREMIUM) so it can be trimmed to the day's rate.
+  const premium = Number(env.INDIA_METAL_PREMIUM) || 1.176;
   const gold24kSpot = Number.isFinite(xauUsdOz) ? (xauUsdOz / TROY_OZ_IN_GRAMS) * usdInr : NaN;
   const silverSpot = Number.isFinite(xagUsdOz) ? (xagUsdOz / TROY_OZ_IN_GRAMS) * usdInr : NaN;
 
