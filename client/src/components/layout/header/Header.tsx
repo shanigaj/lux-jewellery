@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -13,7 +13,6 @@ import {
   X,
   ChevronDown,
   Phone,
-  MapPin,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -193,6 +192,17 @@ function SearchOverlay({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+
+  const runSearch = (term: string) => {
+    const q = term.trim();
+    if (!q) return;
+    setQuery("");
+    onClose();
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -216,18 +226,28 @@ function SearchOverlay({
                 </button>
               </div>
 
-              <div className="relative">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  runSearch(query);
+                }}
+                className="relative"
+              >
                 <Search
                   size={20}
                   className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground"
                 />
                 <input
                   type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search for rings, necklaces, diamonds..."
                   autoFocus
+                  enterKeyHint="search"
                   className="w-full pl-8 pr-4 py-4 text-lg bg-transparent border-b-2 border-border focus:border-gold outline-none transition-colors font-light tracking-wide placeholder:text-muted-foreground/50"
                 />
-              </div>
+                <button type="submit" className="sr-only">Search</button>
+              </form>
 
               <div className="mt-12">
                 <p className="text-[10px] uppercase tracking-luxury text-muted-foreground mb-4">
@@ -268,6 +288,7 @@ function MobileMenu() {
 
   // Auto-close the drawer whenever navigation happens (tapping any link).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(false);
   }, [pathname]);
 
@@ -378,6 +399,7 @@ export function Header({ initialRates }: { initialRates?: MetalTickerRates }) {
   // Wishlist count from the redux store. `mounted` avoids a hydration
   // mismatch: the server renders 0, the client fills in the real count.
   const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
   const wishlistCount = useAppSelector((state) => state.product.wishlist.length);
 
