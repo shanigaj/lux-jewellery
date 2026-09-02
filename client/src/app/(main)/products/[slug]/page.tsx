@@ -132,14 +132,12 @@ export default async function ProductPage({ params }: Params) {
           : "https://schema.org/OutOfStock",
         itemCondition: "https://schema.org/NewCondition",
         seller: { "@type": "Organization", name: siteConfig.name },
-        // 30-day returns (siteConfig.features.easyReturns) — strengthens free listings.
+        // Every piece is made to order, so change-of-mind returns are not
+        // offered — declare that truthfully rather than a return window.
         hasMerchantReturnPolicy: {
           "@type": "MerchantReturnPolicy",
           applicableCountry: "IN",
-          returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-          merchantReturnDays: siteConfig.features.easyReturns,
-          returnMethod: "https://schema.org/ReturnByMail",
-          returnFees: "https://schema.org/FreeReturn",
+          returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
         },
       };
       // Free insured shipping kicks in above the threshold — only declare it

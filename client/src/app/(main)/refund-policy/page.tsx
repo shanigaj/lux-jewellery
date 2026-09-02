@@ -4,80 +4,54 @@ import { siteConfig } from "@/config/site";
 export const metadata = {
   title: "Return & Refund Policy",
   description:
-    "Sparenza & Co.'s return, exchange and refund policy — eligibility, timelines, non-returnable items, refund methods, and our lifetime exchange & buyback promise.",
+    "Sparenza & Co.'s policy for our made-to-order jewellery — cancellations, our lifetime exchange & buyback promise, resizing, and full protection for damaged, faulty or incorrect items.",
   alternates: { canonical: "/refund-policy" },
 };
 
 const SECTIONS = [
   {
-    id: "window",
-    title: "1. Return & exchange window",
+    id: "made-to-order",
+    title: "1. Made-to-order jewellery",
     body: [
-      "You may request a return or exchange within 14 days of delivery. To be eligible, the piece must be unworn, undamaged, and returned in its original condition with all packaging, the certificate of authenticity, and any tags intact.",
-      "Returns requested after 14 days may, at our discretion, be accepted for store credit or exchange only.",
+      "Every Sparenza & Co. piece is crafted to order — made uniquely for you in your chosen design, metal, purity and gram weight. Because production begins specifically for your order, our pieces are not eligible for return or refund for a change of mind, an incorrect size or specification chosen at the time of ordering, or buyer's remorse.",
+      "Please review your design, size and specifications carefully — and speak with our team for guidance — before you confirm your order.",
     ],
   },
   {
-    id: "eligibility",
-    title: "2. Eligibility conditions",
-    list: [
-      "The item is unworn and shows no signs of wear, resizing, or alteration.",
-      "Original packaging, box, and pouch are included.",
-      "The GIA/IGI or in-house certificate is returned with the piece.",
-      "Proof of purchase (order number or invoice) is provided.",
-    ],
-  },
-  {
-    id: "non-returnable",
-    title: "3. Non-returnable items",
-    body: ["For hygiene, safety and craftsmanship reasons, the following are not eligible for return or refund:"],
-    list: [
-      "Custom-made, bespoke, or made-to-order pieces.",
-      "Engraved or personalised items.",
-      "Pierced earrings (hygiene), unless faulty.",
-      "Items damaged through misuse, accident, or normal wear.",
-      "Gift cards and items marked final sale / clearance.",
-    ],
-  },
-  {
-    id: "process",
-    title: "4. How to start a return",
-    steps: [
-      "Contact us within the return window with your order number and reason.",
-      "We share a return authorisation and secure, insured return instructions.",
-      "Pack the piece with its certificate and packaging, and hand it to the assigned courier.",
-      "On receipt, our team inspects the piece (typically within 2–3 business days).",
-    ],
-  },
-  {
-    id: "refunds",
-    title: "5. Refunds",
+    id: "cancellations",
+    title: "2. Cancellations & changes",
     body: [
-      "Once your return passes inspection, we process the refund to your original payment method within 7–10 business days. Your bank or card issuer may take additional time to reflect it.",
-      "Where a return falls outside the standard window or conditions, we may offer store credit or an exchange instead of a monetary refund.",
-      "Original shipping charges (if any) are non-refundable, except where the item was faulty or incorrectly supplied.",
+      "Need to change or cancel? Contact us as soon as possible. While crafting has not yet begun, we can amend or cancel your order and refund any advance paid, less payment-processing charges.",
+      "Once crafting of a made-to-order piece has begun, the order can no longer be cancelled or refunded, as work and materials have been committed specifically to your piece.",
     ],
   },
   {
     id: "exchanges",
-    title: "6. Exchanges & resizing",
+    title: "3. Exchanges & resizing",
     body: [
-      "Prefer a different size, metal, or design? We are happy to arrange an exchange, subject to availability and any price difference.",
-      "Complimentary first resize is offered on eligible rings within 30 days of delivery.",
+      "Prefer a different size, metal or design later on? We are happy to arrange an exchange, subject to availability and any price difference.",
+      "A complimentary first resize is offered on eligible rings within 30 days of delivery.",
     ],
   },
   {
     id: "buyback",
-    title: "7. Lifetime exchange & buyback",
+    title: "4. Lifetime exchange & buyback",
     body: [
       "As a mark of our confidence in every piece, Sparenza & Co. offers lifetime exchange and buyback on our collections. Exchange and buyback values are based on the prevailing metal rate and diamond valuation on the day of exchange, less applicable deductions, and require the original certificate and invoice.",
     ],
   },
   {
     id: "faulty",
-    title: "8. Damaged, faulty or incorrect items",
+    title: "5. Damaged, faulty or incorrect items",
     body: [
-      "If your piece arrives damaged, faulty, or not as described, contact us within 48 hours of delivery with photographs. We will arrange a free replacement, repair, or full refund — including any shipping charges.",
+      "Your piece is fully protected. If it arrives damaged, faulty, or not as described, contact us within 48 hours of delivery with photographs. We will arrange a free repair, replacement, or a full refund — including any shipping charges — at no cost to you.",
+    ],
+  },
+  {
+    id: "certificate",
+    title: "6. Certification",
+    body: [
+      "Every diamond piece is supplied with its GIA / IGI or in-house certificate. Please keep it safe — it is required for any exchange, resize or buyback.",
     ],
   },
 ];
@@ -93,11 +67,13 @@ export default function RefundPolicyPage() {
           Return &amp; Refund <em className="italic text-primary">policy</em>
         </h1>
         <p className="mt-6 font-light leading-relaxed text-muted-foreground">
-          We want you to love your jewellery. If something isn&apos;t right, this policy explains how
-          returns, exchanges and refunds work. For anything specific to your order, please{" "}
+          Every Sparenza piece is hand-crafted to order for you. This policy explains how
+          cancellations, exchanges, resizing and our lifetime exchange &amp; buyback work — and
+          how we look after you if a piece ever arrives damaged or not as described. For anything
+          specific to your order, please{" "}
           <Link href="/contact" className="text-gold hover:underline">get in touch</Link>.
         </p>
-        <p className="mt-2 text-xs text-muted-foreground">Last updated: 16 August 2026</p>
+        <p className="mt-2 text-xs text-muted-foreground">Last updated: 2 September 2026</p>
       </div>
 
       <div className="max-w-3xl space-y-10">
@@ -107,28 +83,14 @@ export default function RefundPolicyPage() {
             {s.body?.map((p, i) => (
               <p key={i} className="mb-3 font-light leading-relaxed text-muted-foreground">{p}</p>
             ))}
-            {s.list && (
-              <ul className="mt-2 space-y-2 list-disc pl-5">
-                {s.list.map((li) => (
-                  <li key={li} className="font-light leading-relaxed text-muted-foreground">{li}</li>
-                ))}
-              </ul>
-            )}
-            {s.steps && (
-              <ol className="mt-2 space-y-2 list-decimal pl-5">
-                {s.steps.map((st) => (
-                  <li key={st} className="font-light leading-relaxed text-muted-foreground">{st}</li>
-                ))}
-              </ol>
-            )}
           </section>
         ))}
 
         {/* Contact */}
         <section className="rounded-[2px] border border-border bg-card p-8">
-          <h2 className="mb-2 font-heading text-xl text-foreground">Need help with a return?</h2>
+          <h2 className="mb-2 font-heading text-xl text-foreground">Need help with your order?</h2>
           <p className="mb-4 font-light leading-relaxed text-muted-foreground">
-            Our team is happy to guide you through the process.
+            Our team is happy to guide you through cancellations, exchanges and buyback.
           </p>
           <div className="text-sm text-muted-foreground space-y-1">
             <p>Email: <a href={`mailto:${siteConfig.contact.email}`} className="text-gold hover:underline">{siteConfig.contact.email}</a></p>

@@ -51,7 +51,7 @@ export function RelatedProducts({ products, title = "You May Also Like" }: Relat
         className="flex gap-6 overflow-x-auto pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory no-scrollbar"
       >
         {products.map((product, idx) => (
-          <div key={product._id} className="min-w-[260px] md:min-w-[280px] lg:min-w-[300px] snap-start shrink-0">
+          <div key={product._id} className="w-[260px] md:w-[280px] lg:w-[300px] snap-start shrink-0">
             <ProductCard product={product} index={idx} />
           </div>
         ))}

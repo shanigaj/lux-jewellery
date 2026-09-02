@@ -1,14 +1,21 @@
-import { BadgeCheck, Repeat, Truck, RotateCcw } from "lucide-react";
+import { BadgeCheck, Repeat, Truck, Gem } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { siteConfig } from "@/config/site";
 
-// Trust strip — the four promises that reassure a first-time buyer. All copy is
-// driven by siteConfig.features so it stays truthful to the actual policy.
+// Trust strip — the four promises that reassure a first-time buyer. Every piece
+// is bespoke / made-to-order, so the fourth pillar leans into custom craft
+// rather than returns.
 const features = [
   {
     icon: BadgeCheck,
     title: "Certified Diamonds",
     description: "Every stone GIA / BIS certified for cut, colour, clarity & carat.",
+  },
+  {
+    icon: Gem,
+    title: "Bespoke, Made to Order",
+    description:
+      "Each piece hand-crafted to your design and exact gram specifications.",
   },
   {
     icon: Repeat,
@@ -21,11 +28,6 @@ const features = [
     description: `Complimentary insured delivery on orders above ₹${siteConfig.features.freeShippingThreshold.toLocaleString(
       "en-IN"
     )}.`,
-  },
-  {
-    icon: RotateCcw,
-    title: `${siteConfig.features.easyReturns}-Day Easy Returns`,
-    description: "Not the perfect fit? Return within 30 days, hassle-free.",
   },
 ];
 
@@ -42,8 +44,8 @@ export function WhySparenza() {
           </h2>
           <div className="line-separator mt-4 mb-6" />
           <p className="text-muted-foreground font-light max-w-md mx-auto">
-            Every Sparenza piece is backed by certification, care, and a promise
-            that lasts a lifetime.
+            Every Sparenza piece is certified, made to order, and backed by a
+            promise that lasts a lifetime.
           </p>
         </AnimatedSection>
 

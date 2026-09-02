@@ -54,8 +54,8 @@ export const categoryMeta: Record<string, CategoryMeta> = {
         a: "Most rings can be made in 18K yellow gold, rose gold, white gold or platinum, and crafted to your ring size. Use our size guide, or book a free appointment for a precise fitting.",
       },
       {
-        q: "What is your returns and exchange policy on rings?",
-        a: "Rings can be returned within 30 days in their original condition, and every piece is covered by our lifetime exchange programme.",
+        q: "What is your exchange policy on rings?",
+        a: "Each ring is made to order, so we do not accept change-of-mind returns — but every piece is covered by our lifetime exchange and buyback programme, with a complimentary first resize within 30 days. Any damaged or incorrect piece is always put right free of charge.",
       },
     ],
   },
@@ -167,8 +167,8 @@ export const categoryMeta: Record<string, CategoryMeta> = {
         a: "Yes. Diamond stud earrings are carefully matched for carat, colour and clarity so the pair looks balanced, and are supplied with certification.",
       },
       {
-        q: "Can I return earrings?",
-        a: "Earrings can be returned within 30 days in unworn, original condition, subject to hygiene checks, and are covered by our lifetime exchange programme.",
+        q: "Can I exchange earrings?",
+        a: "Earrings are crafted to order and, for hygiene reasons, are not returnable — but they are covered by our lifetime exchange programme, and any damaged or incorrect piece is repaired or replaced free of charge.",
       },
     ],
   },

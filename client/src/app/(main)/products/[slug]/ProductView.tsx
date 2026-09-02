@@ -229,9 +229,9 @@ export function ProductView({ slug }: { slug: string }) {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="shipping" className="border-border">
-                  <AccordionTrigger className="text-sm uppercase tracking-wider font-semibold">Delivery & Returns</AccordionTrigger>
+                  <AccordionTrigger className="text-sm uppercase tracking-wider font-semibold">Delivery & Exchange</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground font-light leading-relaxed">
-                    Complimentary express shipping on all orders. Each piece is meticulously handcrafted to order; please allow 2-3 weeks for delivery. We accept returns within 30 days of receipt, provided the item is in its original condition with all tags and certification attached.
+                    Complimentary insured shipping on all orders. Each piece is meticulously handcrafted to order; please allow 2-3 weeks for delivery. As every piece is made to order it is not returnable for change of mind, but it is covered by our lifetime exchange &amp; buyback promise, and any damaged or incorrect piece is repaired or replaced free of charge.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

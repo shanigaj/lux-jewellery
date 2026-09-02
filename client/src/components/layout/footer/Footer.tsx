@@ -10,7 +10,6 @@ import {
   Clock,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/Logo";
 import { footerNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
@@ -265,15 +264,15 @@ export function Footer() {
             </div>
 
             {/* Trust Badges */}
-            <div className="flex items-center gap-3 text-[10px] text-muted-foreground tracking-wider">
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-success" />
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground tracking-wider">
+              <span className="flex items-center gap-1 whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />
                 SSL Secured
               </span>
-              <span>•</span>
-              <span>GIA Certified</span>
-              <span>•</span>
-              <span>BIS Hallmarked</span>
+              <span aria-hidden="true">•</span>
+              <span className="whitespace-nowrap">GIA Certified</span>
+              <span aria-hidden="true">•</span>
+              <span className="whitespace-nowrap">BIS Hallmarked</span>
             </div>
           </div>
         </div>
