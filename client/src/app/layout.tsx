@@ -72,6 +72,13 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  // Google Search Console site-verification. Paste the code from the
+  // "HTML tag" method (GSC → Settings → Ownership verification → HTML tag →
+  // the value inside content="…") into NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION.
+  // Rendered as <meta name="google-site-verification"> in the <head>.
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 // Explicit mobile viewport: fit device width, allow the user to zoom (never
