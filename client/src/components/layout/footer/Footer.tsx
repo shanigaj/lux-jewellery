@@ -131,7 +131,7 @@ export function Footer() {
                     href={`tel:${num.replace(/\s+/g, "")}`}
                     className="flex items-center gap-3 text-sm text-muted-foreground hover:text-gold transition-colors group"
                   >
-                    <Phone size={14} className="text-gold" />
+                    <Phone size={14} className="text-gold shrink-0" />
                     <span>{num}</span>
                   </a>
                 ))}
@@ -139,15 +139,15 @@ export function Footer() {
                   href={`mailto:${siteConfig.contact.email}`}
                   className="flex items-center gap-3 text-sm text-muted-foreground hover:text-gold transition-colors group"
                 >
-                  <Mail size={14} className="text-gold" />
+                  <Mail size={14} className="text-gold shrink-0" />
                   <span>{siteConfig.contact.email}</span>
                 </a>
                 <div className="flex items-start gap-3 text-sm text-muted-foreground">
-                  <MapPin size={14} className="text-gold mt-0.5" />
+                  <MapPin size={14} className="text-gold mt-0.5 shrink-0" />
                   <span>{siteConfig.contact.address}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <Clock size={14} className="text-gold" />
+                  <Clock size={14} className="text-gold shrink-0" />
                   <span>Mon – Sat: 10 AM – 8 PM</span>
                 </div>
               </div>
