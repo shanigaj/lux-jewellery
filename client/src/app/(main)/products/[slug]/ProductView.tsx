@@ -44,6 +44,14 @@ export function ProductView({ slug }: { slug: string }) {
     if (product) addRecentlyViewed(product);
   }, [product]);
 
+  // The product loads on the client, so when a NEW product renders (e.g. from a
+  // related / recently-viewed link at the bottom of the page) jump back to the
+  // top — App Router's own scroll reset doesn't fire for product → product
+  // navigation within the same dynamic segment.
+  useEffect(() => {
+    if (product?._id && typeof window !== "undefined") window.scrollTo(0, 0);
+  }, [product?._id]);
+
   if (isError) {
     notFound();
   }

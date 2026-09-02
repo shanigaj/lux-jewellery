@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/header/Header";
 import { Footer } from "@/components/layout/footer/Footer";
 import { StyleAssistant } from "@/components/shared/StyleAssistant";
 import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
+import { ScrollToTop } from "@/components/shared/ScrollToTop";
 import type { MetalTickerRates } from "@/components/layout/header/LivePriceTicker";
 
 // Fetch the metal rates on the server so the top-bar ticker paints the correct
@@ -33,6 +34,7 @@ export default async function MainLayout({
 
   return (
     <>
+      <ScrollToTop />
       <Header initialRates={initialRates} />
       <main className="flex-1">{children}</main>
       <Footer />
