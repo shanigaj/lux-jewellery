@@ -47,7 +47,16 @@ export function ProductCard({
       }}
       className={cn("group relative", className)}
     >
-      <Link href={`/products/${product.slug}`} className="block">
+      <Link
+        href={`/products/${product.slug}`}
+        className="block"
+        // Jump to the top the instant the card is clicked, so the next product
+        // page is already scrolled up while it loads (the route itself takes a
+        // moment to fetch) instead of briefly showing the old scroll position.
+        onClick={() => {
+          if (typeof window !== "undefined") window.scrollTo(0, 0);
+        }}
+      >
         {/* Image Container */}
         <div
           className={cn(
