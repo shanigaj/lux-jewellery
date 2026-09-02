@@ -9,13 +9,15 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import { Pagination } from "@/components/shared/Pagination";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { useGetProductsQuery } from "@/store/api/productApi";
-import { useCategoryImages } from "@/lib/useCategoryImages";
+
+// Static banner art — the listing page no longer pulls the full 1,000-item
+// catalogue just to derive a hero image (that fetch was pure overhead here).
+const HERO_IMAGE = "/images/hero.webp";
 
 const titleCase = (s: string) =>
   s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 function ProductsPageInner() {
-  const { heroImage } = useCategoryImages();
   const searchParams = useSearchParams();
 
   const metalParam = searchParams.get("metal");
@@ -41,6 +43,8 @@ function ProductsPageInner() {
     const subcategory = searchParams.get("subcategory") || undefined;
     const sort = searchParams.get("sort") || "featured";
     const metal = searchParams.get("metal");
+    // Syncing URL params into local filter state (URL is the external source here).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFilters((f) => ({
       ...f,
       category,
@@ -67,7 +71,7 @@ function ProductsPageInner() {
       <div className="bg-onyx text-white py-12 md:py-20 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-20 bg-cover bg-center"
-          style={{ backgroundImage: `url('${heroImage}')` }}
+          style={{ backgroundImage: `url('${HERO_IMAGE}')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-onyx to-transparent" />
         <div className="container-luxury relative z-10 text-center">

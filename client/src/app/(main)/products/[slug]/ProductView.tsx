@@ -55,6 +55,16 @@ export function ProductView({ slug }: { slug: string }) {
   const isWishlisted = wishlist.some((p) => p._id === product._id);
   const inStock = !product.trackInventory || product.stockQuantity > 0;
 
+  // Some catalogue entries store a naively-truncated shortDescription that ends
+  // mid-word with an ellipsis. Prefer the full description when the short one was
+  // clipped, and strip any trailing "…"/"..." so the intro never shows a dangling
+  // ellipsis.
+  const shortIntro = product.shortDescription?.trim() || "";
+  const fullIntro = product.description?.trim() || "";
+  const intro = (/(?:\.{3}|…)$/u.test(shortIntro) && fullIntro ? fullIntro : shortIntro || fullIntro)
+    .replace(/(?:\s*(?:\.{3}|…))+$/u, "")
+    .trim();
+
   return (
     <div className="bg-background">
       <div className="container-luxury py-8">
@@ -96,9 +106,11 @@ export function ProductView({ slug }: { slug: string }) {
               </div>
 
               {/* Short Description */}
-              <p className="text-muted-foreground font-light leading-relaxed mb-8">
-                {product.shortDescription}
-              </p>
+              {intro && (
+                <p className="text-muted-foreground font-light leading-relaxed mb-8">
+                  {intro}
+                </p>
+              )}
 
               {/* Key specifications — mirrors the Product structured data. */}
               <dl className="mb-8 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">

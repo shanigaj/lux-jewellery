@@ -45,6 +45,7 @@ const categoryMenu = (cat: string, title: string): NavItem[] => {
     ...subs.map((s) => ({
       label: s.label,
       href: `/products?category=${cat}&subcategory=${s.slug}`,
+      description: s.description,
     })),
   ];
 };
