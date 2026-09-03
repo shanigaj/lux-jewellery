@@ -222,7 +222,14 @@ export default function AdminProductsPage() {
                   <td className="px-6 py-4 font-mono text-xs">{product.sku}</td>
                   <td className="px-6 py-4 capitalize">{typeof product.category === "object" ? product.category.name : product.category}</td>
                   <td className="px-6 py-4 font-medium">
-                    ₹{(product.salePrice || product.basePrice).toLocaleString("en-IN")}
+                    {product.salePrice ? (
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-foreground">₹{product.salePrice.toLocaleString("en-IN")}</span>
+                        <span className="text-xs text-muted-foreground line-through">₹{product.basePrice.toLocaleString("en-IN")}</span>
+                      </div>
+                    ) : (
+                      <span>₹{product.basePrice.toLocaleString("en-IN")}</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`${st.cls} px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold`}>
