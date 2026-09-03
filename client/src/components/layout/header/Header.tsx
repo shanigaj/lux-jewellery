@@ -18,6 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
 import { useGetSettingsQuery } from "@/store/api/settingsApi";
+import { useGetProductsQuery } from "@/store/api/productApi";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 import { LivePriceTicker, type MetalTickerRates } from "@/components/layout/header/LivePriceTicker";
 import { Logo } from "@/components/shared/Logo";
 import { mainNavigation, type NavItem } from "@/config/navigation";
@@ -194,13 +196,38 @@ function SearchOverlay({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [debounced, setDebounced] = useState("");
 
+  // Debounce the typed text so suggestions hit the API at most ~1×/300ms while
+  // the customer types (the setState runs inside the timeout, not synchronously
+  // in the effect body, so it doesn't cascade renders — and keeps API load low).
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(query.trim()), 300);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  const typing = query.trim().length >= 2;
+  const active = isOpen && debounced.length >= 2;
+  const { data, isFetching } = useGetProductsQuery(
+    { search: debounced, limit: 6 },
+    { skip: !active }
+  );
+  const suggestions = active ? data?.data ?? [] : [];
+
+  const reset = () => {
+    setQuery("");
+    setDebounced("");
+    onClose();
+  };
   const runSearch = (term: string) => {
     const q = term.trim();
     if (!q) return;
-    setQuery("");
-    onClose();
+    reset();
     router.push(`/search?q=${encodeURIComponent(q)}`);
+  };
+  const goToProduct = (slug: string) => {
+    reset();
+    router.push(`/products/${slug}`);
   };
 
   return (
@@ -211,9 +238,9 @@ function SearchOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl"
+          className="fixed inset-0 z-[100] overflow-y-auto bg-background/95 backdrop-blur-xl"
         >
-          <div className="container-luxury pt-32">
+          <div className="container-luxury pt-32 pb-16">
             <div className="max-w-2xl mx-auto">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="font-heading text-2xl text-foreground">Search</h2>
@@ -249,30 +276,87 @@ function SearchOverlay({
                 <button type="submit" className="sr-only">Search</button>
               </form>
 
-              <div className="mt-12">
-                <p className="text-[10px] uppercase tracking-luxury text-muted-foreground mb-4">
-                  Popular Searches
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Solitaire Ring",
-                    "Tennis Bracelet",
-                    "Diamond Studs",
-                    "Engagement Ring",
-                    "Pendant Necklace",
-                    "Eternity Band",
-                  ].map((term) => (
-                    <Link
-                      key={term}
-                      href={`/search?q=${encodeURIComponent(term)}`}
-                      onClick={onClose}
-                      className="px-4 py-2 rounded-full border border-border text-sm hover:border-gold hover:text-gold transition-colors duration-300"
-                    >
-                      {term}
-                    </Link>
-                  ))}
+              {typing ? (
+                <div className="mt-6">
+                  {isFetching && suggestions.length === 0 ? (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      Searching…
+                    </p>
+                  ) : suggestions.length > 0 ? (
+                    <>
+                      <ul className="divide-y divide-border/60">
+                        {suggestions.map((p) => (
+                          <li key={p._id}>
+                            <button
+                              onClick={() => goToProduct(p.slug)}
+                              className="group flex w-full items-center gap-4 py-3 text-left"
+                            >
+                              <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                                {p.thumbnail && (
+                                  <Image
+                                    src={p.thumbnail}
+                                    alt={p.name}
+                                    fill
+                                    loader={cloudinaryLoader}
+                                    sizes="56px"
+                                    className="object-cover"
+                                  />
+                                )}
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate text-sm text-foreground transition-colors group-hover:text-gold">
+                                  {p.name}
+                                </span>
+                                <span className="mt-0.5 block text-[10px] uppercase tracking-luxury text-muted-foreground">
+                                  {typeof p.category === "object" ? p.category?.name : "Jewellery"}
+                                </span>
+                              </span>
+                              <span className="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                                →
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        onClick={() => runSearch(query)}
+                        className="mt-4 flex w-full items-center gap-2 border-t border-border pt-4 text-sm text-gold hover:underline"
+                      >
+                        <Search size={15} />
+                        See all results for “{query.trim()}”
+                      </button>
+                    </>
+                  ) : (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No matches for “{query.trim()}”. Press Enter to search everything.
+                    </p>
+                  )}
                 </div>
-              </div>
+              ) : (
+                <div className="mt-12">
+                  <p className="text-[10px] uppercase tracking-luxury text-muted-foreground mb-4">
+                    Popular Searches
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "Solitaire Ring",
+                      "Tennis Bracelet",
+                      "Diamond Studs",
+                      "Engagement Ring",
+                      "Pendant Necklace",
+                      "Eternity Band",
+                    ].map((term) => (
+                      <button
+                        key={term}
+                        onClick={() => runSearch(term)}
+                        className="px-4 py-2 rounded-full border border-border text-sm hover:border-gold hover:text-gold transition-colors duration-300"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
