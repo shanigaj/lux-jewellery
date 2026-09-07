@@ -10,6 +10,16 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Workers KV incremental cache for OpenNext (ISR/SSG page cache). Free tier,
+  // no billing required. Used by open-next.config.ts (kvIncrementalCache +
+  // enableCacheInterception) to serve cached pages without a full re-render,
+  // cutting Worker CPU and preventing Error 1102 on the free plan.
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "47a3c6a020694d6eac47f831bf2e76bf"
+    }
+  ],
   // Custom domains — the storefront is served at the apex and www.
   "routes": [
     { "pattern": "sparenza.com", "custom_domain": true },
