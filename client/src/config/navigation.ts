@@ -67,6 +67,11 @@ export const mainNavigation: NavItem[] = [
         description: "The people and values behind Sparenza & Co.",
       },
       {
+        label: "Blog & Guides",
+        href: "/journal",
+        description: "Diamond buying guides, care tips and jewellery stories",
+      },
+      {
         label: "Contact Us",
         href: "/contact",
         description: "Visit, call or message our Surat boutique",
@@ -98,7 +103,7 @@ export const footerNavigation = {
     { label: "Our Story", href: "/about" },
     { label: "Craftsmanship", href: "/about/craftsmanship" },
     { label: "Sustainability", href: "/about/sustainability" },
-    { label: "Journal", href: "/journal" },
+    { label: "Blog", href: "/journal" },
   ],
   support: [
     { label: "Contact Us", href: "/contact" },
