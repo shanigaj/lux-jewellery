@@ -1,17 +1,82 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { useGetBlogsQuery } from "@/store/api/blogApi";
+import type { Metadata } from "next";
+import { siteConfig } from "@/config/site";
+import { journalArticles } from "@/config/journal-articles";
+import { getJournalCovers, coverForArticle } from "@/lib/journal-covers";
+
+export const metadata: Metadata = {
+  title: "The Journal — Diamond Guides & Jewellery Stories",
+  description:
+    "Diamond buying guides, jewellery care, bridal advice and stories from the Sparenza atelier. Learn the 4Cs, BIS hallmarking, ring sizing and more.",
+  alternates: { canonical: "/journal" },
+};
+
+// Refresh so CMS-published articles (if any) appear alongside the static ones.
+export const revalidate = 300;
+
+interface ApiBlog {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  coverImage?: string;
+  author?: string;
+  createdAt?: string;
+}
+
+async function getApiBlogs(): Promise<ApiBlog[]> {
+  try {
+    const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const res = await fetch(`${api}/blogs?status=published`, { next: { revalidate: 300 } });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json.data as ApiBlog[]) ?? [];
+  } catch {
+    return [];
+  }
+}
 
 function formatDate(iso?: string) {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function JournalPage() {
-  const { data, isLoading } = useGetBlogsQuery({ status: "published" });
-  const blogs = data?.data ?? [];
+type Card = {
+  key: string;
+  href: string;
+  title: string;
+  excerpt?: string;
+  meta: string;
+  coverImage?: string;
+  category?: string;
+};
+
+export default async function JournalPage() {
+  const staticSlugs = new Set(journalArticles.map((a) => a.slug));
+  const [apiBlogsRaw, covers] = await Promise.all([getApiBlogs(), getJournalCovers()]);
+  const apiBlogs = apiBlogsRaw.filter((b) => !staticSlugs.has(b.slug));
+
+  const staticCards: Card[] = journalArticles.map((a) => ({
+    key: a.slug,
+    href: `/journal/${a.slug}`,
+    title: a.title,
+    excerpt: a.excerpt,
+    meta: `${a.category} · ${a.readMinutes} min read`,
+    category: a.category,
+    coverImage: coverForArticle(a.slug, covers),
+  }));
+
+  const apiCards: Card[] = apiBlogs.map((b) => ({
+    key: b._id,
+    href: `/journal/${b.slug}`,
+    title: b.title,
+    excerpt: b.excerpt,
+    meta: `${b.author || "Sparenza"} · ${formatDate(b.createdAt)}`,
+    coverImage: b.coverImage,
+  }));
+
+  const cards = [...apiCards, ...staticCards];
 
   return (
     <div className="container-luxury py-16 md:py-24">
@@ -23,59 +88,55 @@ export default function JournalPage() {
           Stories &amp; <em className="italic text-primary">guides</em>
         </h1>
         <p className="mt-6 font-light leading-relaxed text-muted-foreground">
-          Diamond guides, styling notes and stories from behind the workbench.
+          Diamond buying guides, jewellery care, bridal advice and notes from behind the workbench —
+          everything you need to buy fine jewellery with confidence.
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="aspect-[4/3] rounded-lg bg-muted" />
-              <div className="mt-4 h-4 w-2/3 rounded bg-muted" />
-              <div className="mt-2 h-3 w-1/3 rounded bg-muted" />
-            </div>
-          ))}
-        </div>
-      ) : blogs.length === 0 ? (
-        <div className="rounded-[2px] border border-border py-20 text-center text-muted-foreground">
-          No articles published yet — check back soon.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {blogs.map((b) => (
-            <Link key={b._id} href={`/journal/${b.slug}`} className="group block">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted">
-                {b.coverImage ? (
-                  <Image
-                    src={b.coverImage}
-                    alt={b.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-gold/40 font-heading text-2xl">
-                    Sparenza &amp; Co.
-                  </div>
-                )}
-              </div>
-              <p className="mt-4 text-[10px] uppercase tracking-luxury text-gold font-medium">
-                {b.author} · {formatDate(b.createdAt)}
-              </p>
-              <h2 className="mt-1 font-heading text-xl text-foreground group-hover:text-gold transition-colors">
-                {b.title}
-              </h2>
-              {b.excerpt && (
-                <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground line-clamp-2">
-                  {b.excerpt}
-                </p>
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((c) => (
+          <Link key={c.key} href={c.href} className="group block">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+              {c.coverImage ? (
+                <Image
+                  src={c.coverImage}
+                  alt={c.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-onyx to-onyx/85 px-6 text-center">
+                  {c.category && (
+                    <span className="text-[10px] uppercase tracking-luxury-wide text-gold">
+                      {c.category}
+                    </span>
+                  )}
+                  <span className="font-heading text-lg italic text-white/90 line-clamp-3">
+                    {c.title}
+                  </span>
+                </div>
               )}
-              <span className="mt-3 inline-block text-sm font-medium text-gold">Read article →</span>
-            </Link>
-          ))}
-        </div>
-      )}
+            </div>
+            <p className="mt-4 text-[10px] uppercase tracking-luxury text-gold font-medium">
+              {c.meta}
+            </p>
+            <h2 className="mt-1 font-heading text-xl text-foreground transition-colors group-hover:text-gold">
+              {c.title}
+            </h2>
+            {c.excerpt && (
+              <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground line-clamp-2">
+                {c.excerpt}
+              </p>
+            )}
+            <span className="mt-3 inline-block text-sm font-medium text-gold">Read article →</span>
+          </Link>
+        ))}
+      </div>
+
+      <p className="sr-only">
+        Published by {siteConfig.name} — fine diamond jewellery, Surat.
+      </p>
     </div>
   );
 }

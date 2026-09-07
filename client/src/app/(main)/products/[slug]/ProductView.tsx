@@ -16,7 +16,7 @@ import { NotifyMeButton } from "@/components/shared/NotifyMeButton";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { GlobalLoader } from "@/components/shared/GlobalLoader";
 import { useGetProductByIdQuery, useGetProductsQuery } from "@/store/api/productApi";
-import { Heart, Truck, ShieldCheck, ArrowRightLeft } from "lucide-react";
+import { Heart, Truck, ShieldCheck, ArrowRightLeft, BadgeCheck } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { toggleWishlist } from "@/store/slices/productSlice";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
@@ -225,18 +225,22 @@ export function ProductView({ slug }: { slug: string }) {
               />
 
               {/* Trust Features */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-y border-border mb-10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-y border-border mb-10">
+                <div className="flex flex-col items-center justify-center text-center gap-2 p-4 bg-muted/30">
+                  <BadgeCheck size={24} className="text-gold" />
+                  <span className="text-[10px] uppercase tracking-wider">Certified &amp; Hallmarked</span>
+                </div>
                 <div className="flex flex-col items-center justify-center text-center gap-2 p-4 bg-muted/30">
                   <Truck size={24} className="text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider">Free Global Delivery</span>
+                  <span className="text-[10px] uppercase tracking-wider">Free Insured Delivery</span>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center gap-2 p-4 bg-muted/30">
                   <ShieldCheck size={24} className="text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider">Lifetime Warranty</span>
+                  <span className="text-[10px] uppercase tracking-wider">Lifetime Exchange</span>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center gap-2 p-4 bg-muted/30">
                   <ArrowRightLeft size={24} className="text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider">30-Day Returns</span>
+                  <span className="text-[10px] uppercase tracking-wider">Easy Exchange &amp; Buyback</span>
                 </div>
               </div>
 

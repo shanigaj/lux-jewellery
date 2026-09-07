@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 import { categoryMeta } from "@/config/categories";
+import { journalArticles } from "@/config/journal-articles";
 
 // Refresh the product list hourly so newly-added pieces appear.
 export const revalidate = 3600;
@@ -74,13 +75,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const blogs = await getBlogs();
-  const blogRoutes: MetadataRoute.Sitemap = blogs.map((b) => ({
-    url: `${base}/journal/${b.slug}`,
-    lastModified: b.updatedAt ? new Date(b.updatedAt) : now,
+  // Static, always-available Journal articles (server-rendered for SEO).
+  const articleRoutes: MetadataRoute.Sitemap = journalArticles.map((a) => ({
+    url: `${base}/journal/${a.slug}`,
+    lastModified: new Date(a.date),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...productRoutes, ...blogRoutes];
+  const articleSlugs = new Set(journalArticles.map((a) => a.slug));
+  const blogs = await getBlogs();
+  const blogRoutes: MetadataRoute.Sitemap = blogs
+    .filter((b) => !articleSlugs.has(b.slug))
+    .map((b) => ({
+      url: `${base}/journal/${b.slug}`,
+      lastModified: b.updatedAt ? new Date(b.updatedAt) : now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    }));
+
+  return [...staticRoutes, ...categoryRoutes, ...productRoutes, ...articleRoutes, ...blogRoutes];
 }
