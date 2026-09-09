@@ -16,7 +16,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { useGetProductsQuery } from "@/store/api/productApi";
-import { hasRealImage } from "@/lib/product-image";
+import { hasRealImage, diversifyByCategory } from "@/lib/product-image";
 import type { IProduct } from "@/types/product.types";
 
 // Rank by rating weighted by review count (0 for unrated pieces).
@@ -46,12 +46,13 @@ export function BestSellers() {
     const everything = data?.data ?? [];
     const withArt = everything.filter(hasRealImage);
     const base = withArt.length >= 4 ? withArt : everything;
-    return [...base]
-      .sort((a, b) => {
-        const flag = Number(b.isBestseller) - Number(a.isBestseller);
-        return flag !== 0 ? flag : popularity(b) - popularity(a);
-      })
-      .slice(0, 12);
+    const ranked = [...base].sort((a, b) => {
+      const flag = Number(b.isBestseller) - Number(a.isBestseller);
+      return flag !== 0 ? flag : popularity(b) - popularity(a);
+    });
+    // Spread the showcase across categories so it isn't dominated by rings/
+    // bracelets; ranking within each category is preserved.
+    return diversifyByCategory(ranked, 12);
   }, [data]);
 
   return (
