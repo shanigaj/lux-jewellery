@@ -10,9 +10,10 @@ import type { ImageLoaderProps } from "next/image";
 //
 // With it, the browser pulls each image straight from Cloudinary's global CDN
 // at the exact width next/image asks for. The existing crop/aspect params
-// (c_fill, g_auto, ar_1:1 on thumbnails; c_limit on detail views) are preserved
-// and quality stays q_auto, so nothing about how images LOOK changes — they just
-// arrive far quicker and correctly sized.
+// (c_fill, g_auto, ar_1:1 on thumbnails; c_limit on detail views) are preserved.
+// Quality is set to q_auto:best so product photos render crisp and true-to-life
+// (fewer compression artifacts than the default q_auto), while still arriving
+// quickly and correctly sized.
 //
 // Non-Cloudinary sources (the local placeholder, data URIs, other hosts) are
 // returned untouched so they keep working via the normal path.
@@ -42,16 +43,19 @@ export default function cloudinaryLoader({ src, width }: ImageLoaderProps): stri
   const tail = src.slice(idx + marker.length);
   const segments = tail.split("/");
 
-  // Always force f_auto/q_auto + the requested width; keep any crop/gravity/aspect.
+  // Always force f_auto + top-tier quality + the requested width; keep any crop/gravity/aspect.
+  // q_auto:best keeps jewellery photos crisp and true-to-life (fewer compression
+  // artifacts than the default q_auto) — device-pixel scaling is already handled
+  // by next/image serving the right width per screen.
   if (segments.length > 0 && isTransformSegment(segments[0])) {
     const kept = segments[0]
       .split(",")
       .filter(Boolean)
       .filter((p) => !/^w_/.test(p) && !/^f_/.test(p) && !/^q_/.test(p));
-    segments[0] = [...kept, "f_auto", "q_auto", `w_${width}`].join(",");
+    segments[0] = [...kept, "f_auto", "q_auto:best", `w_${width}`].join(",");
     return `${head}${marker}${segments.join("/")}`;
   }
 
   // No transform present (e.g. ".../upload/v123/path"): insert a safe default.
-  return `${head}${marker}f_auto,q_auto,c_limit,w_${width}/${tail}`;
+  return `${head}${marker}f_auto,q_auto:best,c_limit,w_${width}/${tail}`;
 }

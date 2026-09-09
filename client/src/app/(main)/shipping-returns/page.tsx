@@ -11,7 +11,8 @@ const BLOCKS = [
     title: "Secure, Insured Delivery",
     points: [
       "All orders are shipped fully insured until they reach your hands.",
-      "We deliver across India; timelines are confirmed at the time of your enquiry.",
+      "We deliver across India and worldwide; timelines are confirmed at the time of your enquiry.",
+      "For international orders, any customs duties, import taxes or clearance charges levied by the destination country are payable by the customer.",
       "Signature is required on delivery for your security.",
     ],
   },

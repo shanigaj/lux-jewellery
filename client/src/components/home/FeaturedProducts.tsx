@@ -7,16 +7,18 @@ import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/Skeletons";
 import { useGetProductsQuery } from "@/store/api/productApi";
-import { hasRealImage } from "@/lib/product-image";
+import { hasRealImage, diversifyByCategory } from "@/lib/product-image";
 
 export function FeaturedProducts() {
   // Pull a wide set and surface pieces that have real, distinct photography
-  // (avoids the repeated stock-image seed products dominating the home page).
+  // (avoids the repeated stock-image seed products dominating the home page),
+  // then spread the four across categories so it isn't all rings/bracelets.
   const { data, isLoading } = useGetProductsQuery({ limit: 40 });
   const products = useMemo(() => {
     const all = data?.data ?? [];
     const real = all.filter(hasRealImage);
-    return (real.length >= 4 ? real : all).slice(0, 4);
+    const pool = real.length >= 4 ? real : all;
+    return diversifyByCategory(pool, 4);
   }, [data]);
 
   return (

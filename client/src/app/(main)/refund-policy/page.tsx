@@ -29,7 +29,8 @@ const SECTIONS = [
     id: "exchanges",
     title: "3. Exchanges & resizing",
     body: [
-      "Prefer a different size, metal or design later on? We are happy to arrange an exchange, subject to availability and any price difference.",
+      "Prefer a different size, metal or design later on? We are happy to arrange an exchange on eligible pieces, subject to availability and any price difference.",
+      "Please note: customised, personalised and bespoke made-to-order pieces cannot be exchanged, as they are crafted uniquely to your specification.",
       "A complimentary first resize is offered on eligible rings within 30 days of delivery.",
     ],
   },
@@ -73,7 +74,7 @@ export default function RefundPolicyPage() {
           specific to your order, please{" "}
           <Link href="/contact" className="text-gold hover:underline">get in touch</Link>.
         </p>
-        <p className="mt-2 text-xs text-muted-foreground">Last updated: 2 September 2026</p>
+        <p className="mt-2 text-xs text-muted-foreground">Last updated: 9 September 2026</p>
       </div>
 
       <div className="max-w-3xl space-y-10">
