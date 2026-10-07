@@ -36,22 +36,6 @@ enum AuthProvider {
   apple
 }
 
-enum Category {
-  rings
-  necklaces
-  earrings
-  bracelets
-  watches
-}
-
-enum MetalType {
-  gold
-  platinum
-  rose_gold
-  white_gold
-  silver
-}
-
 enum PaymentMethod {
   stripe
   razorpay
@@ -190,9 +174,9 @@ model Product {
   description     String
   price           Float
   discountPrice   Float?
-  category        Category
+  category        String
   subcategory     String?
-  metalType       MetalType
+  metalType       String
   metalPurity     String?
   gemstone        String?
   weight          Float?

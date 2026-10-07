@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { getPrisma, sid } from "../lib/db";
 import { protect, authorize } from "../middleware/auth";
 import type { AppEnv } from "../lib/env";
-import { Prisma, type Category, type MetalType } from "../generated/prisma";
+import { Prisma } from "../generated/prisma";
 
 export const products = new Hono<AppEnv>();
 
@@ -47,11 +47,11 @@ products.get("/", async (c) => {
         { name: { contains: "diamond", mode: "insensitive" } },
       ];
     } else {
-      where.category = category as Category;
+      where.category = category;
     }
   }
   if (subcategory) where.subcategory = subcategory;
-  if (metalTypes && metalTypes.length) where.metalType = { in: metalTypes as MetalType[] };
+  if (metalTypes && metalTypes.length) where.metalType = { in: metalTypes };
   if (minPrice || maxPrice) {
     where.price = {};
     if (minPrice) where.price.gte = Number(minPrice);
