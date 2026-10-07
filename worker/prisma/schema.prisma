@@ -36,12 +36,6 @@ enum AuthProvider {
   apple
 }
 
-enum PaymentMethod {
-  stripe
-  razorpay
-  paypal
-}
-
 enum PaymentStatus {
   pending
   processing
@@ -120,7 +114,7 @@ type ShippingAddress {
 }
 
 type Payment {
-  method        PaymentMethod
+  method        String
   transactionId String?
   status        PaymentStatus @default(pending)
   amount        Float?

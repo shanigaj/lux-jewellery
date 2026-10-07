@@ -175,10 +175,12 @@ export default function OrderDetailPage() {
                       <span className="text-muted-foreground">Method</span>
                       <span className="capitalize">{order.payment.method}</span>
                     </div>
+                    {order.payment.transactionId && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Transaction ID</span>
                       <span className="font-mono text-xs">{order.payment.transactionId.slice(0, 20)}...</span>
                     </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Status</span>
                       <span className="text-green-600 capitalize">{order.payment.status}</span>

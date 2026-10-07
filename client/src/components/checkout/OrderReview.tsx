@@ -15,10 +15,14 @@ interface OrderReviewProps {
   onBack: () => void;
 }
 
-const paymentLabels: Record<TPaymentMethod, string> = {
+const paymentLabels: Record<string, string> = {
   stripe: "Stripe (Credit/Debit Card)",
   razorpay: "Razorpay (UPI/Card/NetBanking)",
   paypal: "PayPal",
+  cash: "Cash",
+  upi: "UPI",
+  card: "Card (POS)",
+  bank_transfer: "Bank Transfer",
 };
 
 export function OrderReview({ shippingAddress, paymentMethod, onBack }: OrderReviewProps) {

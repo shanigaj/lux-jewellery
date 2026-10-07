@@ -230,7 +230,11 @@ export function generateInvoice(order: IOrder): IInvoice {
       gst: "27AABCU9603R1ZM",
     },
     lineItems: order.items.map((item) => ({
-      description: `${item.name} — ${item.metalType.replace("_", " ")} ${item.metalPurity}${item.size ? ` / Size ${item.size}` : ""}`,
+      description: [
+        item.name,
+        [item.metalType?.replace("_", " "), item.metalPurity].filter(Boolean).join(" "),
+        item.size ? `Size ${item.size}` : "",
+      ].filter(Boolean).join(" — "),
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       total: item.totalPrice,
