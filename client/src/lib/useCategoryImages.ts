@@ -44,15 +44,23 @@ export interface CategoryImages {
  * Reuses the `{ limit: 1000 }` product query (shared RTK cache entry),
  * so mounting this hook in several components costs one network request.
  */
-export function useCategoryImages(): CategoryImages {
+export function useCategoryImages(enabled: boolean = true): CategoryImages {
   // Only category + images + name are needed (per-category counts and the
   // decorative image grids), so project to those fields — this trims the
   // full-catalogue response from ~2.3MB to a few hundred KB, which was the
   // dominant main-thread cost on the homepage.
-  const { data, isLoading } = useGetProductsQuery({
-    limit: 1000,
-    fields: "category,images,name",
-  });
+  //
+  // `enabled` lets callers defer this heavy ~1000-row fetch until it is
+  // actually needed (e.g. the mega-menu, which only shows imagery on open),
+  // so pages that never open the menu don't pay for it. Shared RTK cache
+  // means the first enabled caller fetches once for everyone.
+  const { data, isLoading } = useGetProductsQuery(
+    {
+      limit: 1000,
+      fields: "category,images,name",
+    },
+    { skip: !enabled }
+  );
 
   return useMemo(() => {
     const products = data?.data ?? [];
