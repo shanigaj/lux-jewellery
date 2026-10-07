@@ -162,6 +162,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
+                      prefetch={false}
                       className="text-sm text-muted-foreground hover:text-gold transition-colors duration-300 hover-underline inline-block"
                     >
                       {link.label}
@@ -180,6 +181,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
+                      prefetch={false}
                       className="text-sm text-muted-foreground hover:text-gold transition-colors duration-300 hover-underline inline-block"
                     >
                       {link.label}
@@ -198,6 +200,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
+                      prefetch={false}
                       className="text-sm text-muted-foreground hover:text-gold transition-colors duration-300 hover-underline inline-block"
                     >
                       {link.label}
@@ -216,6 +219,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
+                      prefetch={false}
                       className="text-sm text-muted-foreground hover:text-gold transition-colors duration-300 hover-underline inline-block"
                     >
                       {link.label}

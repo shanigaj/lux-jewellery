@@ -84,7 +84,7 @@ function AnnouncementBar() {
         </div>
 
         <div className="hidden md:block text-[11px] tracking-wider shrink-0">
-          <Link href="/book-appointment" className="hover:text-gold transition-colors">
+          <Link href="/book-appointment" prefetch={false} className="hover:text-gold transition-colors">
             Book an Appointment
           </Link>
         </div>
@@ -107,7 +107,10 @@ function MegaMenu({
 }) {
   // Featured art is pulled from real catalogue photography for this family;
   // non-category menus (e.g. Discover) use a general hero piece.
-  const { imageFor, heroImage } = useCategoryImages();
+  // Deferred until the menu opens so the heavy ~1000-row catalogue fetch
+  // doesn't fire on every page where the menu is never used (shared RTK
+  // cache means the first open fetches once for all menus).
+  const { imageFor, heroImage } = useCategoryImages(isOpen);
   const catImage = item.href.startsWith("/categories/")
     ? imageFor(item.href.split("/").pop() || "")
     : heroImage;
@@ -579,6 +582,7 @@ export function Header() {
               {/* Wishlist */}
               <Link
                 href="/wishlist"
+                prefetch={false}
                 className="relative hidden sm:flex p-2.5 rounded-full hover:bg-muted transition-colors duration-300"
                 aria-label={`Wishlist (${wishlistCount} items)`}
               >

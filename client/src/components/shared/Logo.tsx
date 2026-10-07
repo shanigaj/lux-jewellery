@@ -28,6 +28,7 @@ export function Logo({
   return (
     <Link
       href="/"
+      prefetch={false}
       className={cn("group inline-flex items-center", className)}
       aria-label="Sparenza & Co. — Home"
     >
