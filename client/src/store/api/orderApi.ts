@@ -15,6 +15,53 @@ interface OrderResponse {
   order: IOrder;
 }
 
+// Payload for creating an order (admin manual entry reuses the public
+// POST /orders; the backend honours `status`/`paymentStatus`/`adminNote`
+// only when the caller is an admin).
+export interface CreateOrderItemInput {
+  product?: string;
+  name: string;
+  thumbnail?: string;
+  sku?: string;
+  metalType?: string;
+  metalPurity?: string;
+  size?: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface CreateOrderBody {
+  items: CreateOrderItemInput[];
+  shippingAddress: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  paymentMethod: string;
+  transactionId?: string;
+  subtotal: number;
+  shippingCost: number;
+  taxAmount: number;
+  taxRate: number;
+  couponDiscount: number;
+  giftCardAmount: number;
+  totalAmount: number;
+  couponCode?: string;
+  customerNote?: string;
+  // Admin-only overrides
+  status?: string;
+  paymentStatus?: string;
+  adminNote?: string;
+}
+
 export const orderApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getUserOrders: builder.query<OrdersResponse, void>({
@@ -41,6 +88,14 @@ export const orderApi = baseApi.injectEndpoints({
       query: (id) => `/orders/${id}`,
       providesTags: (result, error, id) => [{ type: 'Order', id }],
     }),
+    createOrder: builder.mutation<OrderResponse, CreateOrderBody>({
+      query: (body) => ({
+        url: '/orders',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'Order', id: 'LIST' }],
+    }),
     updateOrderStatus: builder.mutation<
       OrderResponse,
       { id: string; status: string; trackingNumber?: string }
@@ -63,5 +118,6 @@ export const {
   useGetUserOrdersQuery,
   useGetAllOrdersQuery,
   useGetOrderByIdQuery,
+  useCreateOrderMutation,
   useUpdateOrderStatusMutation,
 } = orderApi;

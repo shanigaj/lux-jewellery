@@ -55,12 +55,12 @@ export interface IGiftCard {
 }
 
 // ── Payment ──
-export type TPaymentMethod = "stripe" | "razorpay" | "paypal";
+export type TPaymentMethod = "stripe" | "razorpay" | "paypal" | "cash" | "upi" | "card" | "bank_transfer" | (string & {});
 export type TPaymentStatus = "pending" | "processing" | "completed" | "failed" | "refunded";
 
 export interface IPaymentInfo {
-  method: TPaymentMethod;
-  transactionId: string;
+  method: string;
+  transactionId?: string;
   status: TPaymentStatus;
   amount: number;
   currency: string;

@@ -15,6 +15,13 @@ orders.post("/", async (c) => {
   const now = new Date();
   const orderNumber = `LUX-${Date.now().toString(36).toUpperCase()}`;
 
+  // Admins can create orders on behalf of walk-in customers and choose the
+  // order status / payment state. Normal customer checkout keeps the old
+  // defaults (confirmed + paid).
+  const isAdmin = u.role === "admin";
+  const payStatus = isAdmin && body.paymentStatus ? String(body.paymentStatus) : "completed";
+  const orderStatus = isAdmin && body.status ? String(body.status) : "confirmed";
+
   const items = (body.items || []).map((it: any) => ({
     product: it.product && /^[a-f0-9]{24}$/i.test(String(it.product)) ? String(it.product) : undefined,
     name: it.name,
@@ -52,10 +59,10 @@ orders.post("/", async (c) => {
       payment: {
         method: body.paymentMethod,
         transactionId: body.transactionId,
-        status: "completed",
+        status: payStatus as never,
         amount: body.totalAmount,
         currency: "INR",
-        paidAt: now,
+        paidAt: payStatus === "completed" ? now : null,
       },
       subtotal: body.subtotal,
       shippingCost: body.shippingCost ?? 0,
@@ -66,19 +73,22 @@ orders.post("/", async (c) => {
       totalAmount: body.totalAmount,
       couponCode: body.couponCode,
       giftCardCode: body.giftCardCode,
-      status: "confirmed",
+      status: orderStatus as never,
       timeline: [
         {
-          status: "confirmed",
-          title: "Order Confirmed",
-          description: "Your order has been placed successfully",
+          status: orderStatus,
+          title: isAdmin ? "Order Created" : "Order Confirmed",
+          description: isAdmin
+            ? "Order created by store admin"
+            : "Your order has been placed successfully",
           timestamp: now,
           isCompleted: true,
         },
       ],
       customerNote: body.customerNote,
-      emailSent: true,
-      smsSent: true,
+      adminNote: isAdmin ? body.adminNote : undefined,
+      emailSent: !isAdmin,
+      smsSent: !isAdmin,
     },
   });
   console.log(`Order ${orderNumber} confirmed for ${sa?.email ?? "—"}`);

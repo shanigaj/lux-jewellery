@@ -1,22 +1,30 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Download, Eye, Loader2 } from "lucide-react";
+import { Search, Download, Eye, Loader2, Plus, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/store/api/orderApi";
 import { exportCsv } from "@/lib/export-csv";
-import { Modal } from "@/components/admin/Modal";
+import { CreateOrderModal } from "@/components/admin/CreateOrderModal";
+import { OrderDetailModal } from "@/components/admin/OrderDetailModal";
 import type { IOrder } from "@/types/order.types";
 
-const STATUSES = ["pending", "processing", "shipped", "out_for_delivery", "delivered", "cancelled"];
+const STATUSES = ["pending", "confirmed", "processing", "shipped", "out_for_delivery", "delivered", "cancelled"];
 const PER_PAGE = 12;
 
 function statusClass(status: string) {
   if (status === "delivered") return "bg-green-500/10 text-green-600";
   if (["shipped", "out_for_delivery"].includes(status)) return "bg-gold/10 text-gold";
+  if (status === "confirmed") return "bg-emerald-500/10 text-emerald-600";
   if (status === "processing") return "bg-blue-500/10 text-blue-600";
   if (status === "pending") return "bg-orange-500/10 text-orange-600";
   if (status === "cancelled") return "bg-muted text-muted-foreground";
+  return "bg-muted text-muted-foreground";
+}
+
+function paymentBadge(status: string) {
+  if (status === "completed") return "bg-green-500/10 text-green-600";
+  if (status === "pending") return "bg-orange-500/10 text-orange-600";
   return "bg-muted text-muted-foreground";
 }
 
@@ -25,6 +33,7 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [viewing, setViewing] = useState<IOrder | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   const { data, isLoading } = useGetAllOrdersQuery();
   const [updateStatus] = useUpdateOrderStatusMutation();
@@ -36,8 +45,9 @@ export default function AdminOrdersPage() {
         const q = searchTerm.toLowerCase();
         const matchesSearch =
           o.orderNumber.toLowerCase().includes(q) ||
-          o.shippingAddress.firstName.toLowerCase().includes(q) ||
-          o.shippingAddress.lastName.toLowerCase().includes(q);
+          (o.shippingAddress?.firstName || "").toLowerCase().includes(q) ||
+          (o.shippingAddress?.lastName || "").toLowerCase().includes(q) ||
+          (o.shippingAddress?.phone || "").includes(q);
         const matchesStatus = statusFilter === "all" || o.status === statusFilter;
         return matchesSearch && matchesStatus;
       }),
@@ -46,6 +56,17 @@ export default function AdminOrdersPage() {
 
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PER_PAGE));
   const pageOrders = filteredOrders.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  // Summary stats
+  const stats = useMemo(() => {
+    const all = fetchedOrders;
+    return {
+      total: all.length,
+      revenue: all.reduce((s, o) => s + (o.totalAmount || 0), 0),
+      pending: all.filter((o) => o.status === "pending").length,
+      delivered: all.filter((o) => o.status === "delivered").length,
+    };
+  }, [fetchedOrders]);
 
   const changeStatus = async (order: IOrder, status: string) => {
     try {
@@ -63,10 +84,12 @@ export default function AdminOrdersPage() {
       filteredOrders.map((o) => ({
         order: o.orderNumber,
         date: new Date(o.createdAt).toLocaleDateString("en-IN"),
-        customer: `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}`,
-        phone: o.shippingAddress.phone,
+        customer: `${o.shippingAddress?.firstName || ""} ${o.shippingAddress?.lastName || ""}`.trim(),
+        phone: o.shippingAddress?.phone || "",
         items: o.items.length,
         total: o.totalAmount,
+        payment: o.payment?.method || "—",
+        paymentStatus: o.payment?.status || "—",
         status: o.status,
       })),
       [
@@ -76,6 +99,8 @@ export default function AdminOrdersPage() {
         { key: "phone", header: "Phone" },
         { key: "items", header: "Items" },
         { key: "total", header: "Total (INR)" },
+        { key: "payment", header: "Payment" },
+        { key: "paymentStatus", header: "Payment Status" },
         { key: "status", header: "Status" },
       ]
     );
@@ -83,23 +108,48 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="font-heading text-2xl">Orders</h1>
           <p className="text-sm text-muted-foreground">View, track, and manage all customer orders.</p>
         </div>
-        <button onClick={handleExport} className="flex items-center gap-2 border border-border px-4 py-2 rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-          <Download size={16} /> Export Orders
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 bg-gold text-onyx px-4 py-2 rounded-lg text-sm font-bold hover:bg-gold/90 transition-colors shadow-sm"
+          >
+            <Plus size={16} /> New Order
+          </button>
+          <button onClick={handleExport} className="flex items-center gap-2 border border-border px-4 py-2 rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Download size={16} /> Export
+          </button>
+        </div>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Total Orders", value: stats.total, color: "text-foreground" },
+          { label: "Revenue", value: `₹${stats.revenue.toLocaleString("en-IN")}`, color: "text-gold" },
+          { label: "Pending", value: stats.pending, color: "text-orange-500" },
+          { label: "Delivered", value: stats.delivered, color: "text-green-600" },
+        ].map((s) => (
+          <div key={s.label} className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{s.label}</p>
+            <p className={`text-xl font-heading font-bold mt-1 ${s.color}`}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Table */}
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
         <div className="p-4 border-b border-border flex flex-col sm:flex-row gap-4 justify-between items-center bg-muted/10">
           <div className="relative w-full sm:w-80">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search by Order ID or Customer..."
+              placeholder="Search by Order ID, Customer, Phone..."
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
               className="w-full pl-9 pr-4 py-2 bg-background border border-border rounded-lg text-sm outline-none focus:border-gold transition-colors"
@@ -124,25 +174,31 @@ export default function AdminOrdersPage() {
                 <th className="px-6 py-4 font-medium">Customer</th>
                 <th className="px-6 py-4 font-medium text-right">Items</th>
                 <th className="px-6 py-4 font-medium text-right">Total</th>
+                <th className="px-6 py-4 font-medium">Payment</th>
                 <th className="px-6 py-4 font-medium">Status</th>
-                <th className="px-6 py-4 font-medium text-right">View</th>
+                <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {isLoading ? (
-                <tr><td colSpan={7} className="px-6 py-12 text-center"><Loader2 className="animate-spin mx-auto text-gold mb-2" size={24} /><p className="text-sm text-muted-foreground">Loading orders...</p></td></tr>
+                <tr><td colSpan={8} className="px-6 py-12 text-center"><Loader2 className="animate-spin mx-auto text-gold mb-2" size={24} /><p className="text-sm text-muted-foreground">Loading orders...</p></td></tr>
               ) : pageOrders.length === 0 ? (
-                <tr><td colSpan={7} className="px-6 py-12 text-center text-muted-foreground text-sm">No orders match your filters.</td></tr>
+                <tr><td colSpan={8} className="px-6 py-12 text-center text-muted-foreground text-sm">No orders match your filters.</td></tr>
               ) : pageOrders.map((order) => (
                 <tr key={order._id} className="hover:bg-muted/10 transition-colors">
-                  <td className="px-6 py-4 font-medium text-foreground">{order.orderNumber}</td>
+                  <td className="px-6 py-4 font-medium text-foreground font-mono text-xs">{order.orderNumber}</td>
                   <td className="px-6 py-4 text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                   <td className="px-6 py-4">
-                    <p className="font-medium">{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
-                    <p className="text-xs text-muted-foreground">{order.shippingAddress.phone}</p>
+                    <p className="font-medium">{(order.shippingAddress?.firstName || "")} {(order.shippingAddress?.lastName || "")}</p>
+                    <p className="text-xs text-muted-foreground">{order.shippingAddress?.phone || ""}</p>
                   </td>
                   <td className="px-6 py-4 text-right">{order.items.length}</td>
                   <td className="px-6 py-4 text-right font-medium">₹{order.totalAmount.toLocaleString("en-IN")}</td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[10px] uppercase tracking-wider font-bold rounded-full px-2 py-0.5 ${paymentBadge(order.payment?.status || "")}`}>
+                      {(order.payment?.method || "—").replace(/_/g, " ")}
+                    </span>
+                  </td>
                   <td className="px-6 py-4">
                     <select
                       value={order.status}
@@ -173,58 +229,9 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* Order detail */}
-      <Modal open={!!viewing} onClose={() => setViewing(null)} title={viewing ? `Order ${viewing.orderNumber}` : ""} size="max-w-2xl">
-        {viewing && (
-          <div className="space-y-5 text-sm">
-            <div className="flex flex-wrap justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Customer</p>
-                <p className="font-medium">{viewing.shippingAddress.firstName} {viewing.shippingAddress.lastName}</p>
-                <p className="text-muted-foreground">{viewing.shippingAddress.phone}</p>
-                {viewing.shippingAddress.email && <p className="text-muted-foreground break-all">{viewing.shippingAddress.email}</p>}
-              </div>
-              <div className="text-right">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Status</p>
-                <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${statusClass(viewing.status)}`}>{viewing.status.replace(/_/g, " ")}</span>
-                <p className="text-muted-foreground mt-2">{new Date(viewing.createdAt).toLocaleString("en-IN")}</p>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Shipping address</p>
-              <p className="text-muted-foreground">
-                {[viewing.shippingAddress.addressLine1, viewing.shippingAddress.addressLine2, viewing.shippingAddress.city, viewing.shippingAddress.state, viewing.shippingAddress.postalCode, viewing.shippingAddress.country].filter(Boolean).join(", ")}
-              </p>
-            </div>
-
-            <div className="border border-border rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/30 text-xs uppercase tracking-wider text-muted-foreground">
-                  <tr><th className="px-4 py-2 text-left font-medium">Item</th><th className="px-4 py-2 text-right font-medium">Qty</th><th className="px-4 py-2 text-right font-medium">Price</th></tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {viewing.items.map((it, i) => {
-                    const item = it as { name?: string; quantity?: number; price?: number; totalPrice?: number; product?: { name?: string } };
-                    return (
-                      <tr key={i}>
-                        <td className="px-4 py-2">{item.name || item.product?.name || "Item"}</td>
-                        <td className="px-4 py-2 text-right">{item.quantity ?? 1}</td>
-                        <td className="px-4 py-2 text-right">₹{(item.totalPrice ?? item.price ?? 0).toLocaleString("en-IN")}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex justify-between border-t border-border pt-3 font-medium">
-              <span>Total</span>
-              <span className="font-heading text-lg">₹{viewing.totalAmount.toLocaleString("en-IN")}</span>
-            </div>
-          </div>
-        )}
-      </Modal>
+      {/* Modals */}
+      <CreateOrderModal open={showCreate} onClose={() => setShowCreate(false)} />
+      <OrderDetailModal order={viewing} onClose={() => setViewing(null)} />
     </div>
   );
 }
