@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { Plus, Trash2, Loader2, UserPlus, Package } from "lucide-react";
 import { toast } from "sonner";
 import { Modal } from "@/components/admin/Modal";
@@ -9,6 +9,12 @@ import {
   type CreateOrderItemInput,
   type CreateOrderBody,
 } from "@/store/api/orderApi";
+import {
+  INDIAN_STATES,
+  COUNTRIES,
+  MAJOR_CITIES,
+  lookupPincode,
+} from "@/lib/india-locations";
 
 // ── Constants ──
 const PAYMENT_METHODS = [
@@ -73,6 +79,31 @@ export function CreateOrderModal({ open, onClose }: Props) {
   const [state, setState] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [country, setCountry] = useState("India");
+
+  // City dropdown suggestions + PIN-code auto-fill state.
+  const [cityOptions, setCityOptions] = useState<string[]>(MAJOR_CITIES);
+  const [pinLoading, setPinLoading] = useState(false);
+  const lastPinRef = useRef("");
+
+  const handlePincode = async (value: string) => {
+    const pin = value.replace(/\D/g, "").slice(0, 6);
+    setPostalCode(pin);
+    if (pin.length !== 6 || pin === lastPinRef.current) return;
+    lastPinRef.current = pin;
+    setPinLoading(true);
+    const res = await lookupPincode(pin);
+    setPinLoading(false);
+    if (!res) {
+      toast.error("PIN code not found — fill city/state manually");
+      return;
+    }
+    if (res.state) setState(res.state);
+    if (res.country) setCountry(res.country);
+    if (res.city) setCity(res.city);
+    setCityOptions(
+      Array.from(new Set([res.city, ...res.areas, ...MAJOR_CITIES].filter(Boolean)))
+    );
+  };
 
   // ── Line items ──
   const [items, setItems] = useState<CreateOrderItemInput[]>([emptyItem()]);
@@ -174,6 +205,7 @@ export function CreateOrderModal({ open, onClose }: Props) {
     setFirstName(""); setLastName(""); setEmail(""); setPhone("");
     setAddressLine1(""); setAddressLine2(""); setCity(""); setState("");
     setPostalCode(""); setCountry("India");
+    setCityOptions(MAJOR_CITIES); setPinLoading(false); lastPinRef.current = "";
     setItems([emptyItem()]);
     setPaymentMethod("cash"); setTransactionId("");
     setOrderStatus("confirmed"); setPaymentStatus("completed");
@@ -211,20 +243,73 @@ export function CreateOrderModal({ open, onClose }: Props) {
               <input className={inputCx} value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} placeholder="Street address" />
             </div>
             <div>
+              <label className={labelCx}>PIN Code</label>
+              <div className="relative">
+                <input
+                  className={inputCx}
+                  value={postalCode}
+                  onChange={(e) => handlePincode(e.target.value)}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="395011 — auto-fills city/state"
+                />
+                {pinLoading && (
+                  <Loader2
+                    size={14}
+                    className="animate-spin text-gold absolute right-3 top-1/2 -translate-y-1/2"
+                  />
+                )}
+              </div>
+            </div>
+            <div>
               <label className={labelCx}>City</label>
-              <input className={inputCx} value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
+              <input
+                className={inputCx}
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                list="order-city-options"
+                placeholder="Select or type city"
+              />
+              <datalist id="order-city-options">
+                {cityOptions.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label className={labelCx}>State</label>
-              <input className={inputCx} value={state} onChange={(e) => setState(e.target.value)} placeholder="State" />
-            </div>
-            <div>
-              <label className={labelCx}>PIN Code</label>
-              <input className={inputCx} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="395011" />
+              <select
+                className={selectCx}
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              >
+                <option value="">Select state</option>
+                {(state && !INDIAN_STATES.includes(state)
+                  ? [state, ...INDIAN_STATES]
+                  : INDIAN_STATES
+                ).map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className={labelCx}>Country</label>
-              <input className={inputCx} value={country} onChange={(e) => setCountry(e.target.value)} />
+              <select
+                className={selectCx}
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              >
+                {(country && !COUNTRIES.includes(country)
+                  ? [country, ...COUNTRIES]
+                  : COUNTRIES
+                ).map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </section>
