@@ -194,12 +194,14 @@ export function Invoice({ invoice }: InvoiceProps) {
                 <span>-₹{invoice.discount.toLocaleString("en-IN")}</span>
               </div>
             )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">
-                GST ({invoice.taxRate * 100}%)
-              </span>
-              <span>₹{invoice.taxAmount.toLocaleString("en-IN")}</span>
-            </div>
+            {invoice.taxAmount > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">
+                  GST ({invoice.taxRate * 100}%)
+                </span>
+                <span>₹{invoice.taxAmount.toLocaleString("en-IN")}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Shipping</span>
               <span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { Plus, Trash2, Loader2, UserPlus, Package } from "lucide-react";
 import { toast } from "sonner";
 import { Modal } from "@/components/admin/Modal";
@@ -9,6 +9,12 @@ import {
   type CreateOrderItemInput,
   type CreateOrderBody,
 } from "@/store/api/orderApi";
+import {
+  INDIAN_STATES,
+  COUNTRIES,
+  MAJOR_CITIES,
+  lookupPincode,
+} from "@/lib/india-locations";
 
 // ── Constants ──
 const PAYMENT_METHODS = [
@@ -33,7 +39,7 @@ const PAYMENT_STATUSES = [
   { value: "processing", label: "Processing" },
 ];
 
-const TAX_RATE = 0.03; // 3% GST on gold jewellery
+const GST_RATE = 0.03; // 3% GST on gold jewellery (applied only for GST invoices)
 
 const emptyItem = (): CreateOrderItemInput => ({
   name: "",
@@ -74,6 +80,31 @@ export function CreateOrderModal({ open, onClose }: Props) {
   const [postalCode, setPostalCode] = useState("");
   const [country, setCountry] = useState("India");
 
+  // City dropdown suggestions + PIN-code auto-fill state.
+  const [cityOptions, setCityOptions] = useState<string[]>(MAJOR_CITIES);
+  const [pinLoading, setPinLoading] = useState(false);
+  const lastPinRef = useRef("");
+
+  const handlePincode = async (value: string) => {
+    const pin = value.replace(/\D/g, "").slice(0, 6);
+    setPostalCode(pin);
+    if (pin.length !== 6 || pin === lastPinRef.current) return;
+    lastPinRef.current = pin;
+    setPinLoading(true);
+    const res = await lookupPincode(pin);
+    setPinLoading(false);
+    if (!res) {
+      toast.error("PIN code not found — fill city/state manually");
+      return;
+    }
+    if (res.state) setState(res.state);
+    if (res.country) setCountry(res.country);
+    if (res.city) setCity(res.city);
+    setCityOptions(
+      Array.from(new Set([res.city, ...res.areas, ...MAJOR_CITIES].filter(Boolean)))
+    );
+  };
+
   // ── Line items ──
   const [items, setItems] = useState<CreateOrderItemInput[]>([emptyItem()]);
 
@@ -85,13 +116,18 @@ export function CreateOrderModal({ open, onClose }: Props) {
   const [adminNote, setAdminNote] = useState("");
   const [customerNote, setCustomerNote] = useState("");
   const [shippingCost, setShippingCost] = useState(0);
+  const [gstEnabled, setGstEnabled] = useState(false); // simple bill by default
 
   // ── Calculations ──
   const subtotal = useMemo(
     () => items.reduce((sum, it) => sum + (it.totalPrice || 0), 0),
     [items]
   );
-  const taxAmount = useMemo(() => Math.round(subtotal * TAX_RATE), [subtotal]);
+  const taxRate = gstEnabled ? GST_RATE : 0;
+  const taxAmount = useMemo(
+    () => (gstEnabled ? Math.round(subtotal * GST_RATE) : 0),
+    [subtotal, gstEnabled]
+  );
   const totalAmount = useMemo(
     () => subtotal + taxAmount + shippingCost,
     [subtotal, taxAmount, shippingCost]
@@ -150,7 +186,7 @@ export function CreateOrderModal({ open, onClose }: Props) {
       subtotal,
       shippingCost,
       taxAmount,
-      taxRate: TAX_RATE,
+      taxRate,
       couponDiscount: 0,
       giftCardAmount: 0,
       totalAmount,
@@ -174,10 +210,11 @@ export function CreateOrderModal({ open, onClose }: Props) {
     setFirstName(""); setLastName(""); setEmail(""); setPhone("");
     setAddressLine1(""); setAddressLine2(""); setCity(""); setState("");
     setPostalCode(""); setCountry("India");
+    setCityOptions(MAJOR_CITIES); setPinLoading(false); lastPinRef.current = "";
     setItems([emptyItem()]);
     setPaymentMethod("cash"); setTransactionId("");
     setOrderStatus("confirmed"); setPaymentStatus("completed");
-    setAdminNote(""); setCustomerNote(""); setShippingCost(0);
+    setAdminNote(""); setCustomerNote(""); setShippingCost(0); setGstEnabled(false);
   };
 
   return (
@@ -211,20 +248,73 @@ export function CreateOrderModal({ open, onClose }: Props) {
               <input className={inputCx} value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} placeholder="Street address" />
             </div>
             <div>
+              <label className={labelCx}>PIN Code</label>
+              <div className="relative">
+                <input
+                  className={inputCx}
+                  value={postalCode}
+                  onChange={(e) => handlePincode(e.target.value)}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="395011 — auto-fills city/state"
+                />
+                {pinLoading && (
+                  <Loader2
+                    size={14}
+                    className="animate-spin text-gold absolute right-3 top-1/2 -translate-y-1/2"
+                  />
+                )}
+              </div>
+            </div>
+            <div>
               <label className={labelCx}>City</label>
-              <input className={inputCx} value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
+              <input
+                className={inputCx}
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                list="order-city-options"
+                placeholder="Select or type city"
+              />
+              <datalist id="order-city-options">
+                {cityOptions.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label className={labelCx}>State</label>
-              <input className={inputCx} value={state} onChange={(e) => setState(e.target.value)} placeholder="State" />
-            </div>
-            <div>
-              <label className={labelCx}>PIN Code</label>
-              <input className={inputCx} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="395011" />
+              <select
+                className={selectCx}
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              >
+                <option value="">Select state</option>
+                {(state && !INDIAN_STATES.includes(state)
+                  ? [state, ...INDIAN_STATES]
+                  : INDIAN_STATES
+                ).map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className={labelCx}>Country</label>
-              <input className={inputCx} value={country} onChange={(e) => setCountry(e.target.value)} />
+              <select
+                className={selectCx}
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              >
+                {(country && !COUNTRIES.includes(country)
+                  ? [country, ...COUNTRIES]
+                  : COUNTRIES
+                ).map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </section>
@@ -343,6 +433,28 @@ export function CreateOrderModal({ open, onClose }: Props) {
               <label className={labelCx}>Shipping Cost (₹)</label>
               <input className={inputCx} type="number" min={0} value={shippingCost || ""} onChange={(e) => setShippingCost(+e.target.value)} placeholder="0" />
             </div>
+            <div className="sm:col-span-2 flex items-center justify-between rounded-lg border border-border bg-muted/20 px-3 py-2.5">
+              <div>
+                <p className="text-sm font-medium text-foreground">GST Invoice</p>
+                <p className="text-xs text-muted-foreground">
+                  {gstEnabled
+                    ? `Adds ${(GST_RATE * 100).toFixed(0)}% GST + GSTIN on the bill`
+                    : "Simple bill — no GST or GSTIN"}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={gstEnabled}
+                onClick={() => setGstEnabled((v) => !v)}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${gstEnabled ? "bg-gold" : "bg-border"}`}
+                aria-label="Toggle GST invoice"
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${gstEnabled ? "translate-x-5" : "translate-x-0.5"}`}
+                />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -367,10 +479,12 @@ export function CreateOrderModal({ open, onClose }: Props) {
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">{inr(subtotal)}</span>
             </div>
-            <div className="flex justify-between w-60">
-              <span className="text-muted-foreground">GST ({(TAX_RATE * 100).toFixed(0)}%)</span>
-              <span className="font-medium">{inr(taxAmount)}</span>
-            </div>
+            {gstEnabled && (
+              <div className="flex justify-between w-60">
+                <span className="text-muted-foreground">GST ({(GST_RATE * 100).toFixed(0)}%)</span>
+                <span className="font-medium">{inr(taxAmount)}</span>
+              </div>
+            )}
             {shippingCost > 0 && (
               <div className="flex justify-between w-60">
                 <span className="text-muted-foreground">Shipping</span>
