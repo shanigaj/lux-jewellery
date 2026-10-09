@@ -39,7 +39,7 @@ const PAYMENT_STATUSES = [
   { value: "processing", label: "Processing" },
 ];
 
-const TAX_RATE = 0.03; // 3% GST on gold jewellery
+const GST_RATE = 0.03; // 3% GST on gold jewellery (applied only for GST invoices)
 
 const emptyItem = (): CreateOrderItemInput => ({
   name: "",
@@ -116,13 +116,18 @@ export function CreateOrderModal({ open, onClose }: Props) {
   const [adminNote, setAdminNote] = useState("");
   const [customerNote, setCustomerNote] = useState("");
   const [shippingCost, setShippingCost] = useState(0);
+  const [gstEnabled, setGstEnabled] = useState(false); // simple bill by default
 
   // ── Calculations ──
   const subtotal = useMemo(
     () => items.reduce((sum, it) => sum + (it.totalPrice || 0), 0),
     [items]
   );
-  const taxAmount = useMemo(() => Math.round(subtotal * TAX_RATE), [subtotal]);
+  const taxRate = gstEnabled ? GST_RATE : 0;
+  const taxAmount = useMemo(
+    () => (gstEnabled ? Math.round(subtotal * GST_RATE) : 0),
+    [subtotal, gstEnabled]
+  );
   const totalAmount = useMemo(
     () => subtotal + taxAmount + shippingCost,
     [subtotal, taxAmount, shippingCost]
@@ -181,7 +186,7 @@ export function CreateOrderModal({ open, onClose }: Props) {
       subtotal,
       shippingCost,
       taxAmount,
-      taxRate: TAX_RATE,
+      taxRate,
       couponDiscount: 0,
       giftCardAmount: 0,
       totalAmount,
@@ -209,7 +214,7 @@ export function CreateOrderModal({ open, onClose }: Props) {
     setItems([emptyItem()]);
     setPaymentMethod("cash"); setTransactionId("");
     setOrderStatus("confirmed"); setPaymentStatus("completed");
-    setAdminNote(""); setCustomerNote(""); setShippingCost(0);
+    setAdminNote(""); setCustomerNote(""); setShippingCost(0); setGstEnabled(false);
   };
 
   return (
@@ -428,6 +433,28 @@ export function CreateOrderModal({ open, onClose }: Props) {
               <label className={labelCx}>Shipping Cost (₹)</label>
               <input className={inputCx} type="number" min={0} value={shippingCost || ""} onChange={(e) => setShippingCost(+e.target.value)} placeholder="0" />
             </div>
+            <div className="sm:col-span-2 flex items-center justify-between rounded-lg border border-border bg-muted/20 px-3 py-2.5">
+              <div>
+                <p className="text-sm font-medium text-foreground">GST Invoice</p>
+                <p className="text-xs text-muted-foreground">
+                  {gstEnabled
+                    ? `Adds ${(GST_RATE * 100).toFixed(0)}% GST + GSTIN on the bill`
+                    : "Simple bill — no GST or GSTIN"}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={gstEnabled}
+                onClick={() => setGstEnabled((v) => !v)}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${gstEnabled ? "bg-gold" : "bg-border"}`}
+                aria-label="Toggle GST invoice"
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${gstEnabled ? "translate-x-5" : "translate-x-0.5"}`}
+                />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -452,10 +479,12 @@ export function CreateOrderModal({ open, onClose }: Props) {
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">{inr(subtotal)}</span>
             </div>
-            <div className="flex justify-between w-60">
-              <span className="text-muted-foreground">GST ({(TAX_RATE * 100).toFixed(0)}%)</span>
-              <span className="font-medium">{inr(taxAmount)}</span>
-            </div>
+            {gstEnabled && (
+              <div className="flex justify-between w-60">
+                <span className="text-muted-foreground">GST ({(GST_RATE * 100).toFixed(0)}%)</span>
+                <span className="font-medium">{inr(taxAmount)}</span>
+              </div>
+            )}
             {shippingCost > 0 && (
               <div className="flex justify-between w-60">
                 <span className="text-muted-foreground">Shipping</span>

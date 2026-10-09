@@ -223,11 +223,14 @@ export function generateInvoice(order: IOrder): IInvoice {
     order,
     issuedAt: order.createdAt,
     companyInfo: {
-      name: "Sparenza & Co. Pvt. Ltd.",
-      address: "45 Diamond Arcade, Zaveri Bazaar, Mumbai 400002, India",
-      email: "billing@sparenza.com",
-      phone: "+91 22 4000 1234",
-      gst: "27AABCU9603R1ZM",
+      name: "Sparenza & Co.",
+      address:
+        "Shubham, BRTS Bus Stop, Mahendra Park Society, near Swagat Society, Simada Gam, Nana Varachha, Surat, Gujarat 395011",
+      email: "contact@sparenza.com",
+      phone: "+91 63537 84310",
+      // GSTIN is only shown on the bill when the order actually carries GST
+      // (i.e. the admin created it as a GST invoice). Simple bills omit it.
+      gst: order.taxAmount > 0 ? "27AABCU9603R1ZM" : undefined,
     },
     lineItems: order.items.map((item) => ({
       description: [
