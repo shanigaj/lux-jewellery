@@ -19,17 +19,18 @@ type TabType = "image" | "video";
 
 const AUTOPLAY_MS = 4000;
 
-// Normalise every gallery image to a consistent, subject-aware crop so mixed
-// source framing (ring-on-hand vs ring-on-white with lots of background) all
-// present at the SAME size. Replaces the stored transform segment with
-// c_fill,g_auto,ar_<ar>; the cloudinary loader re-adds f_auto/q_auto/width and
-// keeps these crop params. No-op for non-Cloudinary URLs (e.g. placeholder).
+// Normalise every gallery image to the SAME aspect without cropping the piece:
+// c_pad fits the whole image into the target ratio and fills the remainder with
+// a matching background (b_auto), so wide pieces (tennis bracelets, chains) are
+// shown in full at a consistent size. Replaces the stored transform segment;
+// the cloudinary loader re-adds f_auto/q_auto/width and keeps these params.
+// No-op for non-Cloudinary URLs (e.g. the placeholder).
 const PARAM_TOKEN = /(^|,)(c_|w_|h_|f_|q_|ar_|g_|e_|dpr_|b_|r_|fl_|x_|y_|z_|o_|a_)/;
 function galleryCrop(url: string, ar: string): string {
   if (!url || !url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
   const [head, tail] = url.split("/upload/");
   const segs = tail.split("/");
-  const crop = `c_fill,g_auto,ar_${ar}`;
+  const crop = `c_pad,b_auto,ar_${ar}`;
   if (segs.length > 1 && PARAM_TOKEN.test(segs[0])) segs[0] = crop;
   else segs.unshift(crop);
   return `${head}/upload/${segs.join("/")}`;
@@ -129,9 +130,9 @@ export function ProductGallery({ images, videos, video }: ProductGalleryProps) {
         ))}
       </div>
 
-      {/* Main View Area — fixed aspect so every image renders at the same size */}
+      {/* Main View Area — fixed 4:5 so every (padded) image renders in full at the same size */}
       <div
-        className="order-1 md:order-2 flex-1 relative aspect-square md:aspect-[4/5] bg-muted/30 rounded-xl overflow-hidden group"
+        className="order-1 md:order-2 flex-1 relative aspect-[4/5] bg-muted/30 rounded-xl overflow-hidden group"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onTouchStart={onTouchStart}

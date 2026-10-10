@@ -137,7 +137,7 @@ export function ProductView({ slug }: { slug: string }) {
                 {typeof product.weight === "number" && product.weight > 0 && (
                   <div className="flex justify-between border-b border-border/60 pb-2">
                     <dt className="text-muted-foreground">Weight</dt>
-                    <dd className="font-medium">{product.weight} g</dd>
+                    <dd className="font-medium">{product.weight} g approx.</dd>
                   </div>
                 )}
                 {(product as { diamondCarat?: number }).diamondCarat ? (
