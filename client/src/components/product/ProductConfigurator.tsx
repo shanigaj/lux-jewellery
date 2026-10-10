@@ -75,7 +75,7 @@ export function ProductConfigurator({
     }
   };
 
-  const isRing = category === "rings";
+  const isRing = (category || "").toLowerCase().includes("ring");
 
   return (
     <div className="space-y-8 py-6 border-y border-border my-8">

@@ -56,6 +56,13 @@ export function ProductGallery({ images, videos, video }: ProductGalleryProps) {
 
   const step = useCallback((dir: number) => showImage(activeImageIdx + dir), [activeImageIdx, showImage]);
 
+  // Reset to the first image when the product (images) changes, so navigating
+  // between products never leaves activeImageIdx out of range → crash.
+  useEffect(() => {
+    setActiveImageIdx(0);
+    setActiveTab("image");
+  }, [images]);
+
   // Auto-advance the image carousel (pauses on hover/touch and while a video plays).
   useEffect(() => {
     if (activeTab !== "image" || paused || safeImages.length <= 1) return;

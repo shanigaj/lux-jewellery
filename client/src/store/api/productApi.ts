@@ -70,7 +70,7 @@ const adaptProduct = (product: any): IProduct => {
   basePrice: product.price || 0,
   salePrice: product.discountPrice || undefined,
   currency: 'INR',
-  shortDescription: product.description?.substring(0, 120) + '...' || '',
+  shortDescription: product.description ? product.description.substring(0, 120) + '…' : '',
   category: {
     _id: product.category || 'misc',
     name: product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Misc',
@@ -103,7 +103,10 @@ const adaptProduct = (product: any): IProduct => {
   variants: [],
   stockQuantity: product.stock || 0,
   lowStockThreshold: product.lowStockThreshold ?? 5,
-  trackInventory: true,
+  // Enquiry-based (made-to-order) catalogue: don't gate availability on stock
+  // unless a product explicitly opts into inventory tracking. This keeps the
+  // "Enquire on WhatsApp" CTA instead of showing every piece as out-of-stock.
+  trackInventory: product.trackInventory ?? false,
   isActive: true,
   isBestseller: product.isFeatured || false,
   isNewArrival: false,

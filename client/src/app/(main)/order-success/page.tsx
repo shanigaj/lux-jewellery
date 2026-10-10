@@ -133,7 +133,7 @@ function OrderSuccessContent() {
         {/* Actions */}
         <div className="space-y-3">
           <Link
-            href={`/orders/${orderNumber}`}
+            href={`/account/orders/${orderNumber}`}
             className="flex items-center justify-center gap-2 w-full py-3 bg-onyx dark:bg-gold text-white dark:text-onyx text-sm uppercase tracking-widest font-medium hover:bg-gold dark:hover:bg-white hover:text-onyx transition-colors"
           >
             <Package size={16} /> Track Order
