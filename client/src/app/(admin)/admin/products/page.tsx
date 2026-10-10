@@ -7,6 +7,7 @@ import { Plus, Search, Filter, Edit, Trash2, Loader2, Download, X } from "lucide
 import { toast } from "sonner";
 import { useGetProductsQuery, useDeleteProductMutation } from "@/store/api/productApi";
 import { exportCsv } from "@/lib/export-csv";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const CATEGORIES = ["rings", "necklaces", "earrings", "bracelets", "watches"];
 const METALS = [
@@ -37,8 +38,9 @@ export default function AdminProductsPage() {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const { data, isLoading, isFetching } = useGetProductsQuery({
-    search: searchTerm || undefined,
+    search: debouncedSearch || undefined,
     category: category || undefined,
     metalType: metalType || undefined,
     sort: sort || undefined,

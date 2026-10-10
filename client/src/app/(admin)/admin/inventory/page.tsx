@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useGetProductsQuery, useUpdateProductMutation } from "@/store/api/productApi";
 import { exportCsv } from "@/lib/export-csv";
 import { Modal } from "@/components/admin/Modal";
+import { useDebounce } from "@/hooks/useDebounce";
 import type { IProduct } from "@/types/product.types";
 
 type StatusFilter = "all" | "low" | "out";
@@ -16,7 +17,8 @@ export default function AdminInventoryPage() {
   const [editing, setEditing] = useState<IProduct | null>(null);
   const [newStock, setNewStock] = useState("");
 
-  const { data, isLoading } = useGetProductsQuery({ search: searchTerm || undefined, limit: 200 });
+  const debouncedSearch = useDebounce(searchTerm, 300);
+  const { data, isLoading } = useGetProductsQuery({ search: debouncedSearch || undefined, limit: 200 });
   const [updateProduct, { isLoading: isSaving }] = useUpdateProductMutation();
   const fetchedProducts = data?.data || [];
 

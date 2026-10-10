@@ -10,6 +10,7 @@ import {
   useUpdateProductMutation,
 } from "@/store/api/productApi";
 import { ProductImageUploader } from "@/components/admin/ProductImageUploader";
+import { Toggle } from "@/components/admin/Toggle";
 
 const isRemote = (url: unknown): url is string =>
   typeof url === "string" && /^https?:\/\//i.test(url);
@@ -54,6 +55,7 @@ export default function EditProductPage() {
 
   // Final Cloudinary image URLs (existing + newly uploaded/AI-polished).
   const [images, setImages] = useState<string[]>([]);
+  const [isFeatured, setIsFeatured] = useState(false);
 
   // Hydrate the form once the product loads (guard against a mid-edit refetch
   // resetting the admin's typed changes).
@@ -84,6 +86,8 @@ export default function EditProductPage() {
     setImages(
       (Array.isArray(p.images) ? p.images.map((img) => img.url) : []).filter(isRemote)
     );
+    // adaptProduct maps the backend `isFeatured` onto `isBestseller`.
+    setIsFeatured(!!(p as { isBestseller?: boolean }).isBestseller);
   }, [data]);
 
   const handleInputChange = (
@@ -116,6 +120,7 @@ export default function EditProductPage() {
         weight: formData.weight ? Number(formData.weight) : undefined,
         diamondCarat: formData.diamondCarat ? Number(formData.diamondCarat) : undefined,
         dimensions: formData.dimensions || undefined,
+        isFeatured,
         images: images.map(stripCloudinaryTransform),
       };
 
@@ -243,6 +248,14 @@ export default function EditProductPage() {
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Gemstone</label>
                 <input type="text" name="gemstone" value={formData.gemstone} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. Diamond, Emerald" />
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Featured product</p>
+                  <p className="text-xs text-muted-foreground">Highlight in featured / homepage showcases.</p>
+                </div>
+                <Toggle checked={isFeatured} onChange={setIsFeatured} aria-label="Toggle featured product" />
               </div>
             </div>
 
