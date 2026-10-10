@@ -490,11 +490,11 @@ export function CreateOrderModal({ open, onClose, order }: Props) {
                 role="switch"
                 aria-checked={gstEnabled}
                 onClick={() => setGstEnabled((v) => !v)}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${gstEnabled ? "bg-gold" : "bg-border"}`}
                 aria-label="Toggle GST invoice"
+                className={`relative inline-flex h-[24px] w-[44px] flex-none items-center rounded-full transition-colors ${gstEnabled ? "bg-gold" : "bg-border"}`}
               >
                 <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${gstEnabled ? "translate-x-5" : "translate-x-0.5"}`}
+                  className={`inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow transition-transform ${gstEnabled ? "translate-x-[22px]" : "translate-x-[2px]"}`}
                 />
               </button>
             </div>
