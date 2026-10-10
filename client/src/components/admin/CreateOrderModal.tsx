@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Modal } from "@/components/admin/Modal";
 import {
   useCreateOrderMutation,
+  useUpdateOrderMutation,
   type CreateOrderItemInput,
   type CreateOrderBody,
 } from "@/store/api/orderApi";
@@ -15,6 +16,7 @@ import {
   MAJOR_CITIES,
   lookupPincode,
 } from "@/lib/india-locations";
+import type { IOrder } from "@/types/order.types";
 
 // ── Constants ──
 const PAYMENT_METHODS = [
@@ -31,12 +33,20 @@ const ORDER_STATUSES = [
   { value: "pending", label: "Pending" },
   { value: "confirmed", label: "Confirmed" },
   { value: "processing", label: "Processing" },
+  { value: "shipped", label: "Shipped" },
+  { value: "out_for_delivery", label: "Out for Delivery" },
+  { value: "delivered", label: "Delivered" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "returned", label: "Returned" },
+  { value: "refunded", label: "Refunded" },
 ];
 
 const PAYMENT_STATUSES = [
   { value: "pending", label: "Pending" },
-  { value: "completed", label: "Completed" },
   { value: "processing", label: "Processing" },
+  { value: "completed", label: "Completed" },
+  { value: "failed", label: "Failed" },
+  { value: "refunded", label: "Refunded" },
 ];
 
 const GST_RATE = 0.03; // 3% GST on gold jewellery (applied only for GST invoices)
@@ -47,6 +57,24 @@ const emptyItem = (): CreateOrderItemInput => ({
   unitPrice: 0,
   totalPrice: 0,
 });
+
+// Map an existing order's item (API shape) into the editable form shape.
+const toItemInput = (it: Record<string, any>): CreateOrderItemInput => {
+  const qty = it.quantity ?? 1;
+  const unit = it.unitPrice ?? 0;
+  return {
+    product: typeof it.product === "string" ? it.product : it.product?._id,
+    name: it.name ?? it.product?.name ?? "",
+    thumbnail: it.thumbnail,
+    sku: it.sku,
+    metalType: it.metalType,
+    metalPurity: it.metalPurity,
+    size: it.size,
+    quantity: qty,
+    unitPrice: unit,
+    totalPrice: it.totalPrice ?? unit * qty,
+  };
+};
 
 // ── Helpers ──
 const inr = (n: number) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
@@ -63,22 +91,30 @@ const labelCx = "block text-xs font-medium text-muted-foreground mb-1 uppercase 
 interface Props {
   open: boolean;
   onClose: () => void;
+  /** When provided, the modal edits this order instead of creating a new one.
+   *  The parent should pass a `key` of the order id so it remounts (and
+   *  re-initialises) when switching between create/edit or between orders. */
+  order?: IOrder | null;
 }
 
-export function CreateOrderModal({ open, onClose }: Props) {
-  const [createOrder, { isLoading }] = useCreateOrderMutation();
+export function CreateOrderModal({ open, onClose, order }: Props) {
+  const [createOrder, { isLoading: creating }] = useCreateOrderMutation();
+  const [updateOrder, { isLoading: updating }] = useUpdateOrderMutation();
+  const isLoading = creating || updating;
+  const isEdit = !!order;
+  const sa = order?.shippingAddress;
 
-  // ── Customer fields ──
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [addressLine1, setAddressLine1] = useState("");
-  const [addressLine2, setAddressLine2] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [postalCode, setPostalCode] = useState("");
-  const [country, setCountry] = useState("India");
+  // ── Customer fields (prefilled when editing) ──
+  const [firstName, setFirstName] = useState(sa?.firstName ?? "");
+  const [lastName, setLastName] = useState(sa?.lastName ?? "");
+  const [email, setEmail] = useState(sa?.email ?? "");
+  const [phone, setPhone] = useState(sa?.phone ?? "");
+  const [addressLine1, setAddressLine1] = useState(sa?.addressLine1 ?? "");
+  const [addressLine2, setAddressLine2] = useState(sa?.addressLine2 ?? "");
+  const [city, setCity] = useState(sa?.city ?? "");
+  const [state, setState] = useState(sa?.state ?? "");
+  const [postalCode, setPostalCode] = useState(sa?.postalCode ?? "");
+  const [country, setCountry] = useState(sa?.country ?? "India");
 
   // City dropdown suggestions + PIN-code auto-fill state.
   const [cityOptions, setCityOptions] = useState<string[]>(MAJOR_CITIES);
@@ -106,17 +142,19 @@ export function CreateOrderModal({ open, onClose }: Props) {
   };
 
   // ── Line items ──
-  const [items, setItems] = useState<CreateOrderItemInput[]>([emptyItem()]);
+  const [items, setItems] = useState<CreateOrderItemInput[]>(
+    order?.items?.length ? order.items.map(toItemInput) : [emptyItem()]
+  );
 
   // ── Payment & status ──
-  const [paymentMethod, setPaymentMethod] = useState("cash");
-  const [transactionId, setTransactionId] = useState("");
-  const [orderStatus, setOrderStatus] = useState("confirmed");
-  const [paymentStatus, setPaymentStatus] = useState("completed");
-  const [adminNote, setAdminNote] = useState("");
-  const [customerNote, setCustomerNote] = useState("");
-  const [shippingCost, setShippingCost] = useState(0);
-  const [gstEnabled, setGstEnabled] = useState(false); // simple bill by default
+  const [paymentMethod, setPaymentMethod] = useState<string>(order?.payment?.method ?? "cash");
+  const [transactionId, setTransactionId] = useState(order?.payment?.transactionId ?? "");
+  const [orderStatus, setOrderStatus] = useState<string>(order?.status ?? "confirmed");
+  const [paymentStatus, setPaymentStatus] = useState<string>(order?.payment?.status ?? "completed");
+  const [adminNote, setAdminNote] = useState(order?.adminNote ?? "");
+  const [customerNote, setCustomerNote] = useState(order?.customerNote ?? "");
+  const [shippingCost, setShippingCost] = useState(order?.shippingCost ?? 0);
+  const [gstEnabled, setGstEnabled] = useState((order?.taxAmount ?? 0) > 0);
 
   // ── Calculations ──
   const subtotal = useMemo(
@@ -197,12 +235,17 @@ export function CreateOrderModal({ open, onClose }: Props) {
     };
 
     try {
-      const result = await createOrder(body).unwrap();
-      toast.success(`Order ${result.order.orderNumber} created!`);
-      resetForm();
+      if (isEdit && order) {
+        const result = await updateOrder({ id: order._id, ...body }).unwrap();
+        toast.success(`Order ${result.order.orderNumber} updated!`);
+      } else {
+        const result = await createOrder(body).unwrap();
+        toast.success(`Order ${result.order.orderNumber} created!`);
+        resetForm();
+      }
       onClose();
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to create order");
+      toast.error(err?.data?.message || `Failed to ${isEdit ? "update" : "create"} order`);
     }
   };
 
@@ -218,7 +261,7 @@ export function CreateOrderModal({ open, onClose }: Props) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Create Walk-in Order" size="max-w-3xl">
+    <Modal open={open} onClose={onClose} title={isEdit ? `Edit Order ${order?.orderNumber ?? ""}` : "Create Walk-in Order"} size="max-w-3xl">
       <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar">
         {/* ── Customer Info ── */}
         <section>
@@ -503,7 +546,7 @@ export function CreateOrderModal({ open, onClose }: Props) {
       <div className="flex justify-end gap-3 pt-4 border-t border-border mt-4">
         <button
           type="button"
-          onClick={() => { resetForm(); onClose(); }}
+          onClick={onClose}
           className="px-4 py-2 text-sm font-medium text-muted-foreground border border-border rounded-lg hover:bg-muted transition-colors"
         >
           Cancel
@@ -515,7 +558,7 @@ export function CreateOrderModal({ open, onClose }: Props) {
           className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-gold text-onyx rounded-lg hover:bg-gold/90 disabled:opacity-50 transition-colors shadow-sm"
         >
           {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-          Create Order
+          {isEdit ? "Save Changes" : "Create Order"}
         </button>
       </div>
     </Modal>

@@ -96,6 +96,27 @@ export const orderApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Order', id: 'LIST' }],
     }),
+    updateOrder: builder.mutation<OrderResponse, { id: string } & CreateOrderBody>({
+      query: ({ id, ...body }) => ({
+        url: `/orders/${id}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Order', id },
+        { type: 'Order', id: 'LIST' },
+      ],
+    }),
+    deleteOrder: builder.mutation<{ success: boolean }, string>({
+      query: (id) => ({
+        url: `/orders/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'Order', id },
+        { type: 'Order', id: 'LIST' },
+      ],
+    }),
     updateOrderStatus: builder.mutation<
       OrderResponse,
       { id: string; status: string; trackingNumber?: string }
@@ -119,5 +140,7 @@ export const {
   useGetAllOrdersQuery,
   useGetOrderByIdQuery,
   useCreateOrderMutation,
+  useUpdateOrderMutation,
+  useDeleteOrderMutation,
   useUpdateOrderStatusMutation,
 } = orderApi;

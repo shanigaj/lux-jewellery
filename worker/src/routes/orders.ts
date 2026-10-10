@@ -160,3 +160,80 @@ orders.put("/:id/status", authorize("admin"), async (c) => {
   const updated = await prisma.order.update({ where: { id }, data });
   return c.json({ success: true, order: sid(updated) });
 });
+
+// PUT /api/orders/:id (admin) — full edit of a walk-in / manual order.
+orders.put("/:id", authorize("admin"), async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json();
+  const prisma = getPrisma(c.env.DATABASE_URL);
+  const existing = await prisma.order.findUnique({ where: { id } }).catch(() => null);
+  if (!existing) return c.json({ success: false, message: "Order not found" }, 404);
+
+  const items = (body.items || []).map((it: any) => ({
+    product: it.product && /^[a-f0-9]{24}$/i.test(String(it.product)) ? String(it.product) : undefined,
+    name: it.name,
+    thumbnail: it.thumbnail,
+    sku: it.sku,
+    metalType: it.metalType,
+    metalPurity: it.metalPurity,
+    size: it.size,
+    quantity: it.quantity,
+    unitPrice: it.unitPrice,
+    totalPrice: it.totalPrice,
+  }));
+
+  const sa = body.shippingAddress;
+  const payStatus = body.paymentStatus ? String(body.paymentStatus) : existing.payment?.status ?? "completed";
+
+  const data: Record<string, unknown> = {
+    items,
+    shippingAddress: sa
+      ? {
+          firstName: sa.firstName,
+          lastName: sa.lastName,
+          email: sa.email,
+          phone: sa.phone,
+          addressLine1: sa.addressLine1,
+          addressLine2: sa.addressLine2,
+          city: sa.city,
+          state: sa.state,
+          postalCode: sa.postalCode,
+          country: sa.country,
+        }
+      : undefined,
+    payment: {
+      method: body.paymentMethod ?? existing.payment?.method,
+      transactionId: body.transactionId,
+      status: payStatus as never,
+      amount: body.totalAmount,
+      currency: existing.payment?.currency ?? "INR",
+      paidAt: payStatus === "completed" ? existing.payment?.paidAt ?? new Date() : null,
+    },
+    subtotal: body.subtotal,
+    shippingCost: body.shippingCost ?? 0,
+    taxAmount: body.taxAmount,
+    taxRate: body.taxRate ?? 0,
+    couponDiscount: body.couponDiscount ?? 0,
+    giftCardAmount: body.giftCardAmount ?? 0,
+    totalAmount: body.totalAmount,
+    couponCode: body.couponCode,
+    customerNote: body.customerNote,
+    adminNote: body.adminNote,
+  };
+  if (body.status) data.status = String(body.status) as never;
+
+  const updated = await prisma.order.update({ where: { id }, data });
+  return c.json({ success: true, order: sid(updated) });
+});
+
+// DELETE /api/orders/:id (admin)
+orders.delete("/:id", authorize("admin"), async (c) => {
+  const id = c.req.param("id");
+  const prisma = getPrisma(c.env.DATABASE_URL);
+  try {
+    await prisma.order.delete({ where: { id } });
+    return c.json({ success: true });
+  } catch {
+    return c.json({ success: false, message: "Order not found" }, 404);
+  }
+});
