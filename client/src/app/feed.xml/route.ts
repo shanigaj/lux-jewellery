@@ -31,6 +31,8 @@ const GOOGLE_CATEGORY: Record<string, string> = {
   earrings: "Apparel & Accessories > Jewelry > Earrings",
   bracelets: "Apparel & Accessories > Jewelry > Bracelets",
   watches: "Apparel & Accessories > Jewelry > Watches",
+  accessories: "Apparel & Accessories > Jewelry",
+  coins: "Arts & Entertainment > Hobbies & Creative Arts > Collectibles > Collectible Coins",
 };
 
 // Escape the five XML special characters for text nodes.
@@ -64,7 +66,8 @@ function item(p: RawProduct): string {
   const description = (p.description || siteConfig.description).replace(/\s+/g, " ").trim();
   const images = p.images ?? [];
   const googleCat = (p.category && GOOGLE_CATEGORY[p.category]) || "Apparel & Accessories > Jewelry";
-  const availability = (p.stock ?? 0) > 0 ? "in_stock" : "out_of_stock";
+  // Enquiry / made-to-order catalogue — every piece is available to order.
+  const availability = "in_stock";
   // Metal tone doubles as the product colour (a near-required attribute for
   // the Jewelry taxonomy). Title-cased, e.g. "Rose Gold".
   const color = p.metalType

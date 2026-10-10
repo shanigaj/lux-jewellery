@@ -141,13 +141,6 @@ export const categoryMeta: Record<string, CategoryMeta> = {
     dbCategory: "necklaces",
     parent: "necklaces",
   },
-  "statement-necklaces": {
-    slug: "statement-necklaces",
-    title: "Statement Necklaces",
-    description: "Masterpieces that captivate from across the room.",
-    dbCategory: "necklaces",
-    parent: "necklaces",
-  },
 
   // ── Earrings ──
   earrings: {
@@ -191,13 +184,6 @@ export const categoryMeta: Record<string, CategoryMeta> = {
     slug: "drop-earrings",
     title: "Drop Earrings",
     description: "Graceful movement and light with every turn.",
-    dbCategory: "earrings",
-    parent: "earrings",
-  },
-  "chandelier-earrings": {
-    slug: "chandelier-earrings",
-    title: "Chandelier Earrings",
-    description: "Red-carpet-worthy drama in cascading diamonds.",
     dbCategory: "earrings",
     parent: "earrings",
   },
@@ -296,6 +282,7 @@ export const categoryMeta: Record<string, CategoryMeta> = {
 
   // ── Additional bracelet sub-categories ──
   "charm-bracelets": { slug: "charm-bracelets", title: "Charm Bracelets", description: "Personalisable charm bracelets in gold and diamond.", dbCategory: "bracelets", parent: "bracelets" },
+  "chain-bracelets": { slug: "chain-bracelets", title: "Chain Bracelets", description: "Cuban, paperclip and link-chain bracelets in gold and platinum.", dbCategory: "bracelets", parent: "bracelets" },
   anklets: { slug: "anklets", title: "Anklets", description: "Fine gold and diamond anklets.", dbCategory: "bracelets", parent: "bracelets" },
 
   // ── Coins & bars ──

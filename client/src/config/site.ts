@@ -9,7 +9,7 @@ export const siteConfig = {
     "Exceptional diamond jewellery crafted for those who appreciate the extraordinary. Each piece is a masterwork of precision and artistry.",
   tagline: "Crafted with Trust. Worn for Life.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://sparenza.com",
-  ogImage: "/images/og-image.jpg",
+  ogImage: "/og-image.jpg",
   creator: "Sparenza & Co.",
   keywords: [
     "luxury diamond jewellery",

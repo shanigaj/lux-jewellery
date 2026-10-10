@@ -119,7 +119,6 @@ export default async function ProductPage({ params }: Params) {
     // Offers — required for Product rich results and Google free listings.
     // Only emit when we actually have a numeric price.
     if (typeof price === "number" && price > 0) {
-      const inStock = (product.stock ?? 0) > 0;
       const offer: Record<string, unknown> = {
         "@type": "Offer",
         url: productUrl,
@@ -127,9 +126,9 @@ export default async function ProductPage({ params }: Params) {
         price: String(price),
         // Prices are valid to the end of next year — refreshed on each revalidate.
         priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
-        availability: inStock
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+        // Enquiry / made-to-order catalogue — every piece is available to order,
+        // so this must match the visible page (which no longer shows out-of-stock).
+        availability: "https://schema.org/InStock",
         itemCondition: "https://schema.org/NewCondition",
         seller: { "@type": "Organization", name: siteConfig.name },
         // Every piece is made to order, so change-of-mind returns are not
