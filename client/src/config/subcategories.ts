@@ -37,8 +37,8 @@ export const subCategories: SubCategory[] = [
 
   // ── Earrings ──
   { slug: "ear-cuffs", label: "Ear Cuffs", category: "earrings", description: "Modern cuffs, climbers and threaders", keywords: ["ear cuff", "climber", "threader"] },
-  { slug: "hoop-earrings", label: "Hoops", category: "earrings", description: "From petite huggies to bold statement hoops", keywords: ["hoop", "huggie"] },
-  { slug: "stud-earrings", label: "Studs", category: "earrings", description: "Everyday diamond studs, perfectly matched", keywords: ["stud"] },
+  { slug: "hoops", label: "Hoops", category: "earrings", description: "From petite huggies to bold statement hoops", keywords: ["hoop", "huggie"] },
+  { slug: "studs", label: "Studs", category: "earrings", description: "Everyday diamond studs, perfectly matched", keywords: ["stud"] },
   { slug: "drop-earrings", label: "Drops", category: "earrings", description: "Graceful drops and dramatic chandeliers", keywords: ["drop", "dangle", "chandelier"] },
 
   // ── Bracelets ──

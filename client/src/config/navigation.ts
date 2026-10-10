@@ -56,6 +56,8 @@ export const mainNavigation: NavItem[] = [
   { label: "Earrings", href: "/categories/earrings", children: categoryMenu("earrings", "Earrings") },
   { label: "Bracelets", href: "/categories/bracelets", children: categoryMenu("bracelets", "Bracelets") },
   { label: "Diamonds", href: "/categories/diamonds", children: categoryMenu("diamonds", "Diamonds") },
+  { label: "Coins", href: "/categories/coins", children: categoryMenu("coins", "Coins & Bars") },
+  { label: "Accessories", href: "/categories/accessories", children: categoryMenu("accessories", "Accessories") },
   {
     label: "Discover",
     href: "/about",

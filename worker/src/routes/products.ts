@@ -13,7 +13,7 @@ async function bumpProductCache(kv: KVNamespace) {
 }
 
 const WRITABLE = [
-  "name", "sku", "description", "price", "discountPrice", "category", "subcategory",
+  "name", "sku", "description", "price", "discountPrice", "category", "subcategory", "style",
   "metalType", "metalPurity", "gemstone", "weight", "diamondCarat", "dimensions",
   "images", "videos", "stock", "isFeatured",
 ] as const;
@@ -33,6 +33,7 @@ products.get("/", async (c) => {
   const search = c.req.query("search");
   const category = c.req.query("category");
   const subcategory = c.req.query("subcategory");
+  const style = c.req.query("style");
   const metalTypes = c.req.queries("metalType");
   const minPrice = c.req.query("minPrice");
   const maxPrice = c.req.query("maxPrice");
@@ -51,6 +52,7 @@ products.get("/", async (c) => {
     }
   }
   if (subcategory) where.subcategory = subcategory;
+  if (style) where.style = style;
   if (metalTypes && metalTypes.length) where.metalType = { in: metalTypes };
   if (minPrice || maxPrice) {
     where.price = {};
@@ -112,6 +114,7 @@ products.post("/", protect, authorize("admin"), async (c) => {
         discountPrice: body.discountPrice,
         category: body.category,
         subcategory: body.subcategory,
+        style: body.style,
         metalType: body.metalType,
         metalPurity: body.metalPurity,
         gemstone: body.gemstone,

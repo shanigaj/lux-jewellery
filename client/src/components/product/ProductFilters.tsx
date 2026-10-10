@@ -21,6 +21,9 @@ const filterOptions = {
     { label: "Necklaces", value: "necklaces" },
     { label: "Earrings", value: "earrings" },
     { label: "Bracelets", value: "bracelets" },
+    { label: "Watches", value: "watches" },
+    { label: "Coins & Bars", value: "coins" },
+    { label: "Accessories", value: "accessories" },
     { label: "Diamonds", value: "diamonds" },
   ],
   metals: [
