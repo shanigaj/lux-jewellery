@@ -18,9 +18,13 @@ const PRODUCTS_PER_CATEGORY = 5;
 export function CategoryView({ slug }: { slug: string }) {
   const meta = getCategoryMeta(slug);
 
+  // A slug with a parent is a sub-category: filter by subcategory within its
+  // top-level bucket (e.g. /categories/studs → earrings + subcategory "studs").
+  const subcategory = meta?.parent ? slug : undefined;
+
   // Hooks must run unconditionally — skip the query when the slug is unknown.
   const { data, isLoading, isFetching } = useGetProductsQuery(
-    { category: meta?.dbCategory ?? "all", limit: PRODUCTS_PER_CATEGORY },
+    { category: meta?.dbCategory ?? "all", subcategory, limit: PRODUCTS_PER_CATEGORY },
     { skip: !meta }
   );
 
@@ -96,7 +100,7 @@ export function CategoryView({ slug }: { slug: string }) {
             </p>
           </div>
           <Link
-            href={`/products?category=${meta.dbCategory}`}
+            href={`/products?category=${meta.dbCategory}${subcategory ? `&subcategory=${subcategory}` : ""}`}
             className="inline-flex items-center gap-2 text-sm font-medium text-gold hover:gap-3 transition-all"
           >
             View all {totalCount > 0 ? `${totalCount} ` : ""}

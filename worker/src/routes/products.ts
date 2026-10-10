@@ -13,7 +13,7 @@ async function bumpProductCache(kv: KVNamespace) {
 }
 
 const WRITABLE = [
-  "name", "sku", "description", "price", "discountPrice", "category", "subcategory",
+  "name", "sku", "description", "price", "discountPrice", "category", "subcategory", "style",
   "metalType", "metalPurity", "gemstone", "weight", "diamondCarat", "dimensions",
   "images", "videos", "stock", "isFeatured",
 ] as const;
@@ -23,16 +23,26 @@ products.get("/", async (c) => {
   const prisma = getPrisma(c.env.DATABASE_URL);
   const kv = c.env.CACHE;
 
-  const ver = (await kv.get("products:v")) || "0";
-  const cacheKey = `products:${ver}:${new URL(c.req.url).search}`.slice(0, 500);
-  const cached = await kv.get(cacheKey, "json");
-  if (cached) return c.json(cached);
+  // KV is a best-effort cache. If it fails (e.g. the daily read limit is
+  // exceeded on the free tier), fall back to querying the DB directly rather
+  // than 500-ing the whole catalogue.
+  let ver = "0";
+  let cacheKey = "";
+  try {
+    ver = (await kv.get("products:v")) || "0";
+    cacheKey = `products:${ver}:${new URL(c.req.url).search}`.slice(0, 500);
+    const cached = await kv.get(cacheKey, "json");
+    if (cached) return c.json(cached);
+  } catch {
+    cacheKey = "";
+  }
 
   const page = Number(c.req.query("page") || 1);
   const limit = Number(c.req.query("limit") || 12);
   const search = c.req.query("search");
   const category = c.req.query("category");
   const subcategory = c.req.query("subcategory");
+  const style = c.req.query("style");
   const metalTypes = c.req.queries("metalType");
   const minPrice = c.req.query("minPrice");
   const maxPrice = c.req.query("maxPrice");
@@ -51,6 +61,7 @@ products.get("/", async (c) => {
     }
   }
   if (subcategory) where.subcategory = subcategory;
+  if (style) where.style = style;
   if (metalTypes && metalTypes.length) where.metalType = { in: metalTypes };
   if (minPrice || maxPrice) {
     where.price = {};
@@ -94,7 +105,11 @@ products.get("/", async (c) => {
     pages: Math.ceil(total / limit),
     data: sid(list),
   };
-  c.executionCtx.waitUntil(kv.put(cacheKey, JSON.stringify(responseData), { expirationTtl: 600 }));
+  if (cacheKey) {
+    c.executionCtx.waitUntil(
+      kv.put(cacheKey, JSON.stringify(responseData), { expirationTtl: 600 }).catch(() => {})
+    );
+  }
   return c.json(responseData);
 });
 
@@ -112,6 +127,7 @@ products.post("/", protect, authorize("admin"), async (c) => {
         discountPrice: body.discountPrice,
         category: body.category,
         subcategory: body.subcategory,
+        style: body.style,
         metalType: body.metalType,
         metalPurity: body.metalPurity,
         gemstone: body.gemstone,

@@ -170,6 +170,7 @@ model Product {
   discountPrice   Float?
   category        String
   subcategory     String?
+  style           String?
   metalType       String
   metalPurity     String?
   gemstone        String?

@@ -16,8 +16,9 @@ export type TDbCategory =
   | "earrings"
   | "bracelets"
   | "watches"
+  | "coins"
+  | "accessories"
   // Virtual bucket — the API resolves `diamonds` to every diamond-set piece
-  // across the catalogue rather than a stored category.
   | "diamonds";
 
 export interface CategoryMeta {
@@ -280,6 +281,35 @@ export const categoryMeta: Record<string, CategoryMeta> = {
       "Swiss craftsmanship set with diamonds — timepieces that are heirlooms in the making.",
     dbCategory: "watches",
   },
+
+  // ── Additional necklace sub-categories ──
+  mangalsutra: { slug: "mangalsutra", title: "Mangalsutra", description: "Sacred diamond mangalsutras, reimagined for the modern bride.", dbCategory: "necklaces", parent: "necklaces" },
+  "tennis-necklaces": { slug: "tennis-necklaces", title: "Tennis Necklaces", description: "A continuous line of diamonds — timeless brilliance for the neckline.", dbCategory: "necklaces", parent: "necklaces" },
+  "pearl-necklaces": { slug: "pearl-necklaces", title: "Pearl Necklaces", description: "Lustrous pearls paired with diamond accents.", dbCategory: "necklaces", parent: "necklaces" },
+
+  // ── Additional ring sub-categories ──
+  "halo-rings": { slug: "halo-rings", title: "Halo Rings", description: "A centre stone framed by a halo of diamonds for maximum sparkle.", dbCategory: "rings", parent: "rings" },
+
+  // ── Additional earring sub-categories ──
+  "ear-cuffs": { slug: "ear-cuffs", title: "Ear Cuffs", description: "Modern, no-piercing diamond ear cuffs.", dbCategory: "earrings", parent: "earrings" },
+  "nose-pins": { slug: "nose-pins", title: "Nose Pins", description: "Delicate diamond nose pins and nose rings.", dbCategory: "earrings", parent: "earrings" },
+
+  // ── Additional bracelet sub-categories ──
+  "charm-bracelets": { slug: "charm-bracelets", title: "Charm Bracelets", description: "Personalisable charm bracelets in gold and diamond.", dbCategory: "bracelets", parent: "bracelets" },
+  anklets: { slug: "anklets", title: "Anklets", description: "Fine gold and diamond anklets.", dbCategory: "bracelets", parent: "bracelets" },
+
+  // ── Coins & bars ──
+  coins: { slug: "coins", title: "Gold & Silver Coins", description: "Certified 24KT gold and 999 silver coins and bars for gifting and investment.", dbCategory: "coins", intro: "Invest in certified 24KT gold coins, deity coins and 999 silver bars from Sparenza & Co. — hallmarked, assured for purity and beautifully presented." },
+  "gold-coins": { slug: "gold-coins", title: "Gold Coins", description: "Certified 24KT gold coins and bars.", dbCategory: "coins", parent: "coins" },
+  "silver-coins": { slug: "silver-coins", title: "Silver Coins & Bars", description: "999 fine silver coins and bars.", dbCategory: "coins", parent: "coins" },
+
+  // ── Accessories ──
+  accessories: { slug: "accessories", title: "Accessories", description: "Cufflinks, brooches, tie pins and more — fine diamond accessories.", dbCategory: "accessories", intro: "Complete the look with Sparenza & Co. fine accessories — diamond cufflinks, brooches, tie pins, maang tikkas and hair pins, all crafted in gold and platinum." },
+  cufflinks: { slug: "cufflinks", title: "Cufflinks", description: "Diamond and gold cufflinks for him.", dbCategory: "accessories", parent: "accessories" },
+  brooch: { slug: "brooch", title: "Brooches", description: "Statement diamond brooches.", dbCategory: "accessories", parent: "accessories" },
+  "tie-pin": { slug: "tie-pin", title: "Tie Pins", description: "Refined diamond tie pins.", dbCategory: "accessories", parent: "accessories" },
+  "maang-tikka": { slug: "maang-tikka", title: "Maang Tikka", description: "Bridal diamond maang tikkas.", dbCategory: "accessories", parent: "accessories" },
+  "hair-pins": { slug: "hair-pins", title: "Hair Pins", description: "Ornamental diamond hair pins.", dbCategory: "accessories", parent: "accessories" },
 };
 
 export function getCategoryMeta(slug: string): CategoryMeta | undefined {
