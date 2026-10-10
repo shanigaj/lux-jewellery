@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Package, Heart, Gift, ArrowRight, CalendarDays, Crown } from "lucide-react";
+import { Package, Heart, ArrowRight, User, MapPin, CalendarDays } from "lucide-react";
 import { useGetUserOrdersQuery } from "@/store/api/orderApi";
+import { useAppSelector } from "@/store/hooks";
 
 export default function AccountOverviewPage() {
   const { data } = useGetUserOrdersQuery();
   const recentOrder = data?.orders?.[0];
+  const ordersCount = data?.orders?.length ?? 0;
+  const wishlistCount = useAppSelector((state) => state.product.wishlist?.length ?? 0);
 
   return (
     <div className="space-y-8">
@@ -20,10 +23,10 @@ export default function AccountOverviewPage() {
       {/* Stats/Quick Links Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Orders", value: "3", icon: Package, href: "/account/orders" },
-          { label: "Wishlist", value: "12", icon: Heart, href: "/account/wishlist" },
-          { label: "Appointments", value: "1", icon: CalendarDays, href: "/account/appointments" },
-          { label: "Reward Points", value: "2,500", icon: Gift, href: "/account/rewards" },
+          { label: "Orders", value: String(ordersCount), icon: Package, href: "/account/orders" },
+          { label: "Wishlist", value: String(wishlistCount), icon: Heart, href: "/wishlist" },
+          { label: "Profile", value: "Edit", icon: User, href: "/account/profile" },
+          { label: "Addresses", value: "Manage", icon: MapPin, href: "/account/addresses" },
         ].map((stat) => (
           <Link
             key={stat.label}
@@ -40,36 +43,24 @@ export default function AccountOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Tier Status */}
+        {/* Personal appointment / concierge */}
         <div className="border border-border rounded-xl p-6 bg-gradient-to-br from-background to-gold/5 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Crown size={120} />
+            <CalendarDays size={120} />
           </div>
           <div className="relative z-10">
             <h2 className="text-sm uppercase tracking-wider font-medium text-gold mb-2">
-              Lux Tier Status
+              Personal Appointment
             </h2>
-            <p className="font-heading text-3xl mb-1">Platinum Member</p>
-            <p className="text-sm text-muted-foreground mb-6">
-              You are 1,500 points away from the Diamond Tier.
+            <p className="font-heading text-2xl mb-1">Shop with a specialist</p>
+            <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+              Book a complimentary one-to-one appointment — in-boutique or virtual — to view pieces, discuss a custom design or get expert guidance.
             </p>
-            
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-medium">
-                <span>Platinum</span>
-                <span>Diamond</span>
-              </div>
-              <div className="h-1.5 w-full bg-border rounded-full overflow-hidden">
-                <div className="h-full bg-gold w-[60%]" />
-              </div>
-            </div>
-
             <Link
-              href="/account/rewards"
-              className="inline-flex items-center gap-2 text-sm text-gold hover:underline mt-6 font-medium"
+              href="/book-appointment"
+              className="inline-flex items-center gap-2 text-sm text-gold hover:underline font-medium"
             >
-              View Benefits <ArrowRight size={14} />
+              Book an Appointment <ArrowRight size={14} />
             </Link>
           </div>
         </div>

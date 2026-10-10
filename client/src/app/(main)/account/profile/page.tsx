@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -13,8 +14,6 @@ const profileSchema = z.object({
   lastName: z.string().min(2, "Last name is required"),
   email: z.string().email("Valid email is required"),
   phone: z.string().min(10, "Valid phone number is required"),
-  birthday: z.string().optional(),
-  anniversary: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -71,7 +70,7 @@ export default function ProfilePage() {
       <div>
         <h1 className="font-heading text-2xl mb-2">Profile Details</h1>
         <p className="text-muted-foreground text-sm">
-          Update your personal information and important dates to receive special benefits.
+          Update your personal information.
         </p>
       </div>
 
@@ -109,17 +108,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
-            <div className="space-y-1.5">
-              <label className={labelClass}>Birthday</label>
-              <input {...register("birthday")} type="date" className={inputClass} />
-            </div>
-            <div className="space-y-1.5">
-              <label className={labelClass}>Anniversary</label>
-              <input {...register("anniversary")} type="date" className={inputClass} />
-            </div>
-          </div>
-
           <div className="pt-6 flex justify-end">
             <button
               type="submit"
@@ -142,9 +130,12 @@ export default function ProfilePage() {
         <p className="text-sm text-muted-foreground mb-6">
           Keep your account secure by updating your password regularly.
         </p>
-        <button className="px-6 py-2 border border-border text-xs uppercase tracking-wider font-medium hover:border-gold transition-colors rounded-lg">
+        <Link
+          href="/forgot-password"
+          className="inline-block px-6 py-2 border border-border text-xs uppercase tracking-wider font-medium hover:border-gold transition-colors rounded-lg"
+        >
           Change Password
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -108,9 +108,6 @@ export function GiftCardInput() {
         </button>
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
-      <p className="text-xs text-muted-foreground">
-        Try: GIFT-LUX-1000 or GIFT-DIAMOND-5000
-      </p>
     </div>
   );
 }

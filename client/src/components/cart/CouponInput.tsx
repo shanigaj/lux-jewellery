@@ -133,9 +133,6 @@ export function CouponInput() {
         </button>
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
-      <p className="text-xs text-muted-foreground">
-        Try: LUXE20, DIAMOND10, or FLAT5000
-      </p>
     </div>
   );
 }

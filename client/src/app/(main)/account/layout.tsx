@@ -10,10 +10,8 @@ import {
   Package,
   Heart,
   MapPin,
-  CreditCard,
   Bell,
   CalendarDays,
-  Gift,
   LogOut,
   ChevronRight,
   Menu,
@@ -27,10 +25,8 @@ const sidebarLinks = [
   { name: "Orders & Returns", href: "/account/orders", icon: Package },
   { name: "Wishlist", href: "/account/wishlist", icon: Heart },
   { name: "Saved Addresses", href: "/account/addresses", icon: MapPin },
-  { name: "Payment Methods", href: "/account/payment-methods", icon: CreditCard },
   { name: "Notifications", href: "/account/notifications", icon: Bell },
   { name: "Appointments", href: "/account/appointments", icon: CalendarDays },
-  { name: "Rewards & Referrals", href: "/account/rewards", icon: Gift },
 ];
 
 export default function AccountLayout({
