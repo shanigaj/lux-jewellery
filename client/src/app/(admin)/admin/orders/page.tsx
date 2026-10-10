@@ -1,12 +1,17 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Download, Eye, Loader2, Plus, Printer } from "lucide-react";
+import { Search, Download, Eye, Loader2, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/store/api/orderApi";
+import {
+  useGetAllOrdersQuery,
+  useUpdateOrderStatusMutation,
+  useDeleteOrderMutation,
+} from "@/store/api/orderApi";
 import { exportCsv } from "@/lib/export-csv";
 import { CreateOrderModal } from "@/components/admin/CreateOrderModal";
 import { OrderDetailModal } from "@/components/admin/OrderDetailModal";
+import { Modal } from "@/components/admin/Modal";
 import type { IOrder } from "@/types/order.types";
 
 const STATUSES = ["pending", "confirmed", "processing", "shipped", "out_for_delivery", "delivered", "cancelled"];
@@ -33,11 +38,31 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [viewing, setViewing] = useState<IOrder | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
+
+  // Create / edit modal (keyed by a nonce so it remounts fresh each open).
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOrder, setModalOrder] = useState<IOrder | null>(null);
+  const [modalNonce, setModalNonce] = useState(0);
+  const [deleting, setDeleting] = useState<IOrder | null>(null);
+
+  const openCreate = () => { setModalOrder(null); setModalOpen(true); setModalNonce((n) => n + 1); };
+  const openEdit = (o: IOrder) => { setModalOrder(o); setModalOpen(true); setModalNonce((n) => n + 1); };
 
   const { data, isLoading } = useGetAllOrdersQuery();
   const [updateStatus] = useUpdateOrderStatusMutation();
+  const [deleteOrder, { isLoading: deletingOrder }] = useDeleteOrderMutation();
   const fetchedOrders = data?.orders || [];
+
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    try {
+      await deleteOrder(deleting._id).unwrap();
+      toast.success(`Order ${deleting.orderNumber} deleted`);
+      setDeleting(null);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to delete order");
+    }
+  };
 
   const filteredOrders = useMemo(
     () =>
@@ -116,7 +141,7 @@ export default function AdminOrdersPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowCreate(true)}
+            onClick={openCreate}
             className="flex items-center gap-2 bg-gold text-onyx px-4 py-2 rounded-lg text-sm font-bold hover:bg-gold/90 transition-colors shadow-sm"
           >
             <Plus size={16} /> New Order
@@ -208,10 +233,18 @@ export default function AdminOrdersPage() {
                       {STATUSES.map((s) => <option key={s} value={s} className="bg-card text-foreground capitalize">{s.replace(/_/g, " ")}</option>)}
                     </select>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <button onClick={() => setViewing(order)} aria-label="View order" className="p-1.5 text-muted-foreground hover:text-gold bg-background rounded border border-border transition-colors">
-                      <Eye size={16} />
-                    </button>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button onClick={() => setViewing(order)} aria-label="View order" title="View / Print" className="p-1.5 text-muted-foreground hover:text-gold bg-background rounded border border-border transition-colors">
+                        <Eye size={16} />
+                      </button>
+                      <button onClick={() => openEdit(order)} aria-label="Edit order" title="Edit" className="p-1.5 text-muted-foreground hover:text-blue-600 bg-background rounded border border-border transition-colors">
+                        <Pencil size={16} />
+                      </button>
+                      <button onClick={() => setDeleting(order)} aria-label="Delete order" title="Delete" className="p-1.5 text-muted-foreground hover:text-destructive bg-background rounded border border-border transition-colors">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -230,8 +263,45 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Modals */}
-      <CreateOrderModal open={showCreate} onClose={() => setShowCreate(false)} />
+      <CreateOrderModal
+        key={modalNonce}
+        open={modalOpen}
+        order={modalOrder}
+        onClose={() => setModalOpen(false)}
+      />
       <OrderDetailModal order={viewing} onClose={() => setViewing(null)} />
+
+      {/* Delete confirmation */}
+      <Modal open={!!deleting} onClose={() => setDeleting(null)} title="Delete order?" size="max-w-md">
+        {deleting && (
+          <div className="space-y-5">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to permanently delete order{" "}
+              <span className="font-medium text-foreground">{deleting.orderNumber}</span>
+              {deleting.shippingAddress?.firstName
+                ? ` for ${deleting.shippingAddress.firstName} ${deleting.shippingAddress.lastName || ""}`
+                : ""}
+              ? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleting(null)}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deletingOrder}
+                className="flex items-center gap-2 px-5 py-2 text-sm font-bold bg-destructive text-white rounded-lg hover:bg-destructive/90 disabled:opacity-50 transition-colors"
+              >
+                {deletingOrder ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                Delete
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
