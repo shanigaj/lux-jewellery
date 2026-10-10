@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   ArrowRight,
   MapPin,
@@ -47,6 +49,17 @@ function YoutubeIcon({ size = 14, className }: BrandIconProps) {
 
 // ── Newsletter Section ──
 function Newsletter() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setSubscribed(true);
+    setEmail("");
+    toast.success("You're on the list — welcome to The Sparenza Circle.");
+  };
+
   return (
     <div className="relative overflow-hidden bg-onyx text-white py-16 md:py-20">
       {/* Decorative elements */}
@@ -68,27 +81,35 @@ function Newsletter() {
             receive curated insights into the world of fine diamonds.
           </p>
 
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-          >
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 px-5 py-3.5 bg-white/10 border border-white/15 rounded-full text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-gold/50 transition-colors"
-              required
-            />
-            <button
-              type="submit"
-              className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gold text-onyx text-sm font-medium rounded-full hover:bg-gold-light transition-all duration-300 hover:shadow-gold"
+          {subscribed ? (
+            <p className="max-w-md mx-auto py-3.5 text-sm text-gold">
+              Thank you — you&apos;ve joined The Sparenza Circle.
+            </p>
+          ) : (
+            <form
+              onSubmit={handleSubscribe}
+              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
             >
-              Subscribe
-              <ArrowRight
-                size={14}
-                className="transition-transform duration-300 group-hover:translate-x-1"
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Your email address"
+                className="flex-1 px-5 py-3.5 bg-white/10 border border-white/15 rounded-full text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-gold/50 transition-colors"
+                required
               />
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gold text-onyx text-sm font-medium rounded-full hover:bg-gold-light transition-all duration-300 hover:shadow-gold"
+              >
+                Subscribe
+                <ArrowRight
+                  size={14}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </button>
+            </form>
+          )}
 
           <p className="text-[10px] text-white/30 mt-4">
             By subscribing, you agree to our Privacy Policy. Unsubscribe anytime.
