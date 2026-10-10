@@ -32,7 +32,7 @@ export default function AdminReviewsPage() {
       (data?.data ?? []).map((r) => ({
         id: r._id,
         productName: r.product?.name ?? "—",
-        customerName: r.user?.firstName ?? r.user?.email ?? "Anonymous",
+        customerName: r.user?.firstName || r.user?.email || "Anonymous",
         rating: r.rating,
         comment: r.comment,
         date: r.createdAt,

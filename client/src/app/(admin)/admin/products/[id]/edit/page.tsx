@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -13,6 +13,20 @@ import { ProductImageUploader } from "@/components/admin/ProductImageUploader";
 
 const isRemote = (url: unknown): url is string =>
   typeof url === "string" && /^https?:\/\//i.test(url);
+
+// Remove a Cloudinary transformation segment (e.g. f_auto,q_auto,c_limit,w_1600)
+// inserted right after /upload/, so edits save the clean original URL back to
+// the DB instead of a pre-transformed one (which would break the square
+// thumbnail crop on product cards).
+const stripCloudinaryTransform = (url: string): string => {
+  if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
+  const [pre, post] = url.split("/upload/");
+  const segs = post.split("/");
+  if (segs.length > 1 && /(^|,)(f|q|c|w|h|ar|g|e|dpr|fl|b|co|r|x|y|z|o)_/.test(segs[0])) {
+    segs.shift();
+  }
+  return `${pre}/upload/${segs.join("/")}`;
+};
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -41,10 +55,13 @@ export default function EditProductPage() {
   // Final Cloudinary image URLs (existing + newly uploaded/AI-polished).
   const [images, setImages] = useState<string[]>([]);
 
-  // Hydrate the form once the product loads.
+  // Hydrate the form once the product loads (guard against a mid-edit refetch
+  // resetting the admin's typed changes).
+  const hydratedRef = useRef(false);
   useEffect(() => {
     const p = data?.data;
-    if (!p) return;
+    if (!p || hydratedRef.current) return;
+    hydratedRef.current = true;
     setFormData({
       name: p.name ?? "",
       sku: p.sku ?? "",
@@ -99,7 +116,7 @@ export default function EditProductPage() {
         weight: formData.weight ? Number(formData.weight) : undefined,
         diamondCarat: formData.diamondCarat ? Number(formData.diamondCarat) : undefined,
         dimensions: formData.dimensions || undefined,
-        images,
+        images: images.map(stripCloudinaryTransform),
       };
 
       await updateProduct({ id, body: payload }).unwrap();

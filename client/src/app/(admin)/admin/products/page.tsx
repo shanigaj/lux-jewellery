@@ -45,7 +45,8 @@ export default function AdminProductsPage() {
     page,
     limit: LIMIT,
   });
-  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const products = data?.data || [];
   const totalCount = data?.total || 0;
   const totalPages = data?.pages || 1;
@@ -58,11 +59,14 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    setDeletingId(id);
     try {
       await deleteProduct(id).unwrap();
       toast.success("Product deleted");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to delete product");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -247,7 +251,7 @@ export default function AdminProductsPage() {
                       </Link>
                       <button
                         onClick={() => handleDelete(product._id, product.name)}
-                        disabled={isDeleting}
+                        disabled={deletingId === product._id}
                         className="p-1.5 text-muted-foreground hover:text-destructive bg-background rounded border border-border disabled:opacity-50"
                         aria-label="Delete product"
                       >

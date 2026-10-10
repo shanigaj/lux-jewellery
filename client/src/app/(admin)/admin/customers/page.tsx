@@ -48,7 +48,7 @@ export default function AdminCustomersPage() {
 
     // 1) Seed from real registered users.
     for (const u of usersData?.data ?? []) {
-      if (u.role === "admin") continue; // staff, not customers
+      if (u.role !== "user") continue; // staff (admin/manager/support), not customers
       const email = (u.email || "").toLowerCase();
       if (!email) continue;
       byEmail.set(email, {
@@ -68,18 +68,22 @@ export default function AdminCustomersPage() {
     // 2) Overlay order aggregates (also captures guest buyers with no account).
     for (const o of ordersData?.orders ?? []) {
       const addr = o.shippingAddress;
-      const email = (addr?.email || o.user || "guest").toLowerCase();
+      // The admin orders endpoint returns `user` as a populated { email, … }
+      // object (not the string the type claims), so never call string methods
+      // on it. Key by the customer's email, else phone, else the account email.
+      const userEmail = typeof o.user === "string" ? o.user : (o.user as { email?: string } | null)?.email;
+      const key = String(addr?.email || addr?.phone || userEmail || "guest").toLowerCase();
       const name = [addr?.firstName, addr?.lastName].filter(Boolean).join(" ") || "Guest";
       const amount = o.totalAmount || 0;
-      const existing = byEmail.get(email);
+      const existing = byEmail.get(key);
       if (existing) {
         existing.totalOrders += 1;
         existing.totalSpent += amount;
         if (addr?.phone) existing.phone = addr.phone;
         if (!existing.lastOrder || new Date(o.createdAt) > new Date(existing.lastOrder)) existing.lastOrder = o.createdAt;
       } else {
-        byEmail.set(email, {
-          id: email,
+        byEmail.set(key, {
+          id: key,
           name,
           email: addr?.email || "—",
           phone: addr?.phone || "—",

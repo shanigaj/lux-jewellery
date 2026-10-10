@@ -273,10 +273,11 @@ export default function AdminDashboardPage() {
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold
                           ${order.status === 'delivered' ? 'bg-green-500/10 text-green-600' : ''}
-                          ${order.status === 'shipped' ? 'bg-gold/10 text-gold' : ''}
+                          ${order.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-600' : ''}
+                          ${['shipped', 'out_for_delivery'].includes(order.status) ? 'bg-gold/10 text-gold' : ''}
                           ${order.status === 'processing' ? 'bg-blue-500/10 text-blue-600' : ''}
                           ${order.status === 'pending' ? 'bg-orange-500/10 text-orange-600' : ''}
-                          ${order.status === 'cancelled' ? 'bg-red-500/10 text-red-600' : ''}
+                          ${['cancelled', 'returned', 'refunded'].includes(order.status) ? 'bg-red-500/10 text-red-600' : ''}
                         `}>
                           {order.status}
                         </span>
