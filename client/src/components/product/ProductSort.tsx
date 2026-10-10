@@ -30,10 +30,10 @@ export function ProductSort({ value, onChange }: ProductSortProps) {
           <SelectItem value="newest" className="hover:bg-muted focus:bg-muted text-sm cursor-pointer">
             New Arrivals
           </SelectItem>
-          <SelectItem value="price-asc" className="hover:bg-muted focus:bg-muted text-sm cursor-pointer">
+          <SelectItem value="price_asc" className="hover:bg-muted focus:bg-muted text-sm cursor-pointer">
             Price: Low to High
           </SelectItem>
-          <SelectItem value="price-desc" className="hover:bg-muted focus:bg-muted text-sm cursor-pointer">
+          <SelectItem value="price_desc" className="hover:bg-muted focus:bg-muted text-sm cursor-pointer">
             Price: High to Low
           </SelectItem>
         </SelectContent>
