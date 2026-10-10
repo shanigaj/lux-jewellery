@@ -59,6 +59,16 @@ const PLACEHOLDER = '/images/placeholder.png';
 const isRemote = (url: unknown): url is string =>
   typeof url === 'string' && /^https?:\/\//i.test(url);
 
+// Some imported products repeat the gemstone per stone ("Blue Topaz, Blue
+// Topaz, Blue Topaz"). Collapse to the distinct gemstone name(s).
+const dedupeGemstone = (value: unknown): string | undefined => {
+  if (typeof value !== 'string' || !value.trim()) return value as undefined;
+  const unique = Array.from(
+    new Set(value.split(',').map((s) => s.trim()).filter(Boolean))
+  );
+  return unique.join(', ');
+};
+
 const adaptProduct = (product: any): IProduct => {
   const remoteImages: string[] = Array.isArray(product.images)
     ? product.images.filter(isRemote)
@@ -67,6 +77,7 @@ const adaptProduct = (product: any): IProduct => {
   return {
   ...product,
   slug: product._id, // Temporary fallback if no slug exists
+  gemstone: dedupeGemstone(product.gemstone),
   basePrice: product.price || 0,
   salePrice: product.discountPrice || undefined,
   currency: 'INR',

@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   }
   const url = `/categories/${slug}`;
   const title = meta.title;
+  const ogImage = `${siteConfig.url}/og-image.jpg`;
   return {
     title,
     description: meta.description,
@@ -22,10 +23,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description: meta.description,
       url,
       type: "website",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     twitter: {
+      card: "summary_large_image",
       title: `${title} | ${siteConfig.name}`,
       description: meta.description,
+      images: [ogImage],
     },
   };
 }
