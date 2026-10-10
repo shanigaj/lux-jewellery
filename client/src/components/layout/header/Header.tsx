@@ -387,7 +387,7 @@ function MobileMenu() {
         <div
           role="button"
           tabIndex={0}
-          className="lg:hidden p-2 -ml-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
+          className="xl:hidden p-2 -ml-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
           aria-label="Open menu"
         >
           <Menu size={22} />
@@ -529,14 +529,14 @@ export function Header() {
         <div className="container-luxury">
           <div className="flex items-center justify-between h-20 lg:h-28">
             {/* Left: Mobile Menu + Logo (highlighted) */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <MobileMenu />
-              {/* Logo stays a constant size — it no longer shrinks on scroll. */}
+              {/* Logo stays a constant size on every screen — never shrinks. */}
               <Logo size="lg" />
             </div>
 
-            {/* Middle-right: Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-1 ml-auto mr-2">
+            {/* Middle-right: Desktop Nav (full menu from xl; hamburger below) */}
+            <nav className="hidden xl:flex items-center gap-1 ml-auto mr-2">
                 {mainNavigation.map((item) => (
                   <div
                     key={item.href}
