@@ -5,20 +5,18 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 
 import { baseApi } from './api/baseApi';
 import authReducer from './slices/authSlice';
-import cartReducer from './slices/cartSlice';
 import productReducer from './slices/productSlice';
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
   auth: authReducer,
-  cart: cartReducer,
   product: productReducer,
 });
 
 const persistConfig = {
   key: 'sparenza-jewels',
   storage,
-  whitelist: ['auth', 'cart', 'product'], // Reducers to persist
+  whitelist: ['auth', 'product'], // Reducers to persist
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

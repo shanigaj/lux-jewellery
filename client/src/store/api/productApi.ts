@@ -86,7 +86,9 @@ const adaptProduct = (product: any): IProduct => {
   // Real values from the catalogue; fall back to sensible defaults for
   // legacy products created before these fields existed.
   metalPurity: (product.metalPurity || '18K') as IProduct['metalPurity'],
-  weight: typeof product.weight === 'number' ? product.weight : 5,
+  // Real catalogue weight only — no default (a fake 5g on every piece is worse
+  // than hiding it). 0/undefined hides the Weight row on the product page.
+  weight: typeof product.weight === 'number' && product.weight > 0 ? product.weight : 0,
   images: remoteImages.length > 0
     ? remoteImages.map((url: string, i: number) => ({
         _id: `img_${i}`,
