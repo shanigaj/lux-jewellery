@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Download, FileText, TrendingUp, ShoppingBag, Package, Wallet } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { useGetAllOrdersQuery } from "@/store/api/orderApi";
 import { useGetProductsQuery } from "@/store/api/productApi";
 import { exportCsv } from "@/lib/export-csv";
@@ -164,10 +164,12 @@ export default function AdminReportsPage() {
             <BarChart data={monthly} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="opacity-10" />
               <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "currentColor", opacity: 0.5 }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "currentColor", opacity: 0.5 }} />
+              <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "currentColor", opacity: 0.5 }} />
+              <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "currentColor", opacity: 0.5 }} allowDecimals={false} />
               <Tooltip cursor={{ fill: "currentColor", opacity: 0.05 }} contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", borderRadius: "8px" }} />
-              <Bar dataKey="revenue" name="Revenue (₹)" fill="#C4A265" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="orders" name="Orders" fill="#888888" radius={[4, 4, 0, 0]} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Bar yAxisId="left" dataKey="revenue" name="Revenue (₹)" fill="#C4A265" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="right" dataKey="orders" name="Orders" fill="#888888" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

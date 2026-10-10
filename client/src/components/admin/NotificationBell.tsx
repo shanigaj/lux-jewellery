@@ -39,19 +39,22 @@ export function NotificationBell() {
     const list: Notif[] = [];
 
     for (const o of orders?.orders ?? []) {
-      if (o.status === "pending") {
+      // New orders land as "confirmed" (admin create) or "pending".
+      if (o.status === "pending" || o.status === "confirmed") {
         const name = [o.shippingAddress?.firstName, o.shippingAddress?.lastName].filter(Boolean).join(" ") || "Guest";
         list.push({ id: `o-${o._id}`, icon: ShoppingBag, text: `New order ${o.orderNumber} from ${name}`, href: "/admin/orders", time: o.createdAt });
       }
     }
     for (const a of (appts?.data ?? []) as unknown as Array<Record<string, unknown>>) {
-      if (a.status === "pending") {
+      // Appointment bookings default to "requested".
+      if (a.status === "requested" || a.status === "pending") {
         const name = (a.name as string) || (a.fullName as string) || (a.email as string) || "A client";
         list.push({ id: `a-${a._id}`, icon: CalendarDays, text: `Appointment request from ${name}`, href: "/admin/appointments", time: a.createdAt as string });
       }
     }
     for (const r of (reviews?.data ?? []) as unknown as Array<Record<string, unknown>>) {
-      if (r.isApproved === undefined || r.isApproved === null) {
+      // isApproved is a non-nullable boolean; a pending review is `false`.
+      if (r.isApproved === false) {
         list.push({ id: `r-${r._id}`, icon: Star, text: `Review awaiting moderation`, href: "/admin/reviews", time: r.createdAt as string });
       }
     }

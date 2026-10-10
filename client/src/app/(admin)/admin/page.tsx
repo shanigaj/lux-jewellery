@@ -28,7 +28,6 @@ const AdminBarChart = dynamic(
 );
 
 const LOW_STOCK_THRESHOLD = 5;
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 type Range = "all" | "7d" | "30d" | "year";
 const RANGE_LABEL: Record<Range, string> = { all: "All time", "7d": "Last 7 Days", "30d": "Last 30 Days", year: "This Year" };
@@ -58,8 +57,9 @@ function relativeTime(iso: string) {
 }
 
 export default function AdminDashboardPage() {
-  // Products are public — always available. Pull a wide page for aggregation.
-  const { data: productData } = useGetProductsQuery({ limit: 100 });
+  // Products are public — always available. Pull the whole catalogue (light
+  // projection) so low-stock and category stats are store-wide, not a sample.
+  const { data: productData } = useGetProductsQuery({ limit: 100000, fields: "category,stock,name" });
   // Orders require admin auth; guard against undefined / 401.
   const { data: orderData } = useGetAllOrdersQuery();
 
@@ -85,21 +85,50 @@ export default function AdminDashboardPage() {
     [products]
   );
 
-  // ── Revenue by weekday (last 7 days) ──
+  // ── Revenue chart, adapted to the selected range ──
+  // 7d/30d → daily buckets; year/all → last 12 monthly buckets.
   const revenueData = useMemo(() => {
-    const buckets = new Array(7).fill(0);
-    const now = Date.now();
-    orders.forEach((o) => {
-      const t = new Date(o.createdAt).getTime();
-      if (Number.isNaN(t)) return;
-      if (now - t <= 7 * 24 * 60 * 60 * 1000) {
-        buckets[new Date(o.createdAt).getDay()] += o.totalAmount || 0;
+    const now = new Date();
+    const buckets: { name: string; total: number }[] = [];
+    const idx = new Map<string, number>();
+
+    if (range === "7d" || range === "30d") {
+      const days = range === "7d" ? 7 : 30;
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() - i);
+        idx.set(d.toDateString(), buckets.length);
+        buckets.push({ name: `${d.getDate()} ${d.toLocaleString("en-IN", { month: "short" })}`, total: 0 });
       }
+      orders.forEach((o) => {
+        const d = new Date(o.createdAt);
+        if (Number.isNaN(d.getTime())) return;
+        d.setHours(0, 0, 0, 0);
+        const i = idx.get(d.toDateString());
+        if (i != null) buckets[i].total += o.totalAmount || 0;
+      });
+      return buckets;
+    }
+
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      idx.set(`${d.getFullYear()}-${d.getMonth()}`, buckets.length);
+      buckets.push({ name: d.toLocaleString("en-IN", { month: "short" }), total: 0 });
+    }
+    orders.forEach((o) => {
+      const d = new Date(o.createdAt);
+      if (Number.isNaN(d.getTime())) return;
+      const i = idx.get(`${d.getFullYear()}-${d.getMonth()}`);
+      if (i != null) buckets[i].total += o.totalAmount || 0;
     });
-    // Present Mon→Sun for readability
-    const order = [1, 2, 3, 4, 5, 6, 0];
-    return order.map((d) => ({ name: WEEKDAYS[d], total: buckets[d] }));
-  }, [orders]);
+    return buckets;
+  }, [orders, range]);
+
+  const revenueChartTitle =
+    range === "7d" ? "Revenue (last 7 days)"
+    : range === "30d" ? "Revenue (last 30 days)"
+    : "Revenue (last 12 months)";
 
   // ── Products by category ──
   const salesData = useMemo(() => {
@@ -208,7 +237,7 @@ export default function AdminDashboardPage() {
         {/* Revenue Chart */}
         <div className="lg:col-span-4 bg-card border border-border rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-heading text-lg">Revenue (last 7 days)</h3>
+            <h3 className="font-heading text-lg">{revenueChartTitle}</h3>
           </div>
           <div className="h-[300px] w-full">
             <AdminAreaChart data={revenueData} />
@@ -273,10 +302,11 @@ export default function AdminDashboardPage() {
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold
                           ${order.status === 'delivered' ? 'bg-green-500/10 text-green-600' : ''}
-                          ${order.status === 'shipped' ? 'bg-gold/10 text-gold' : ''}
+                          ${order.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-600' : ''}
+                          ${['shipped', 'out_for_delivery'].includes(order.status) ? 'bg-gold/10 text-gold' : ''}
                           ${order.status === 'processing' ? 'bg-blue-500/10 text-blue-600' : ''}
                           ${order.status === 'pending' ? 'bg-orange-500/10 text-orange-600' : ''}
-                          ${order.status === 'cancelled' ? 'bg-red-500/10 text-red-600' : ''}
+                          ${['cancelled', 'returned', 'refunded'].includes(order.status) ? 'bg-red-500/10 text-red-600' : ''}
                         `}>
                           {order.status}
                         </span>

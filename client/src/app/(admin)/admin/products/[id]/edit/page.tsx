@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -10,9 +10,24 @@ import {
   useUpdateProductMutation,
 } from "@/store/api/productApi";
 import { ProductImageUploader } from "@/components/admin/ProductImageUploader";
+import { Toggle } from "@/components/admin/Toggle";
 
 const isRemote = (url: unknown): url is string =>
   typeof url === "string" && /^https?:\/\//i.test(url);
+
+// Remove a Cloudinary transformation segment (e.g. f_auto,q_auto,c_limit,w_1600)
+// inserted right after /upload/, so edits save the clean original URL back to
+// the DB instead of a pre-transformed one (which would break the square
+// thumbnail crop on product cards).
+const stripCloudinaryTransform = (url: string): string => {
+  if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
+  const [pre, post] = url.split("/upload/");
+  const segs = post.split("/");
+  if (segs.length > 1 && /(^|,)(f|q|c|w|h|ar|g|e|dpr|fl|b|co|r|x|y|z|o)_/.test(segs[0])) {
+    segs.shift();
+  }
+  return `${pre}/upload/${segs.join("/")}`;
+};
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -40,11 +55,15 @@ export default function EditProductPage() {
 
   // Final Cloudinary image URLs (existing + newly uploaded/AI-polished).
   const [images, setImages] = useState<string[]>([]);
+  const [isFeatured, setIsFeatured] = useState(false);
 
-  // Hydrate the form once the product loads.
+  // Hydrate the form once the product loads (guard against a mid-edit refetch
+  // resetting the admin's typed changes).
+  const hydratedRef = useRef(false);
   useEffect(() => {
     const p = data?.data;
-    if (!p) return;
+    if (!p || hydratedRef.current) return;
+    hydratedRef.current = true;
     setFormData({
       name: p.name ?? "",
       sku: p.sku ?? "",
@@ -67,6 +86,8 @@ export default function EditProductPage() {
     setImages(
       (Array.isArray(p.images) ? p.images.map((img) => img.url) : []).filter(isRemote)
     );
+    // adaptProduct maps the backend `isFeatured` onto `isBestseller`.
+    setIsFeatured(!!(p as { isBestseller?: boolean }).isBestseller);
   }, [data]);
 
   const handleInputChange = (
@@ -99,7 +120,8 @@ export default function EditProductPage() {
         weight: formData.weight ? Number(formData.weight) : undefined,
         diamondCarat: formData.diamondCarat ? Number(formData.diamondCarat) : undefined,
         dimensions: formData.dimensions || undefined,
-        images,
+        isFeatured,
+        images: images.map(stripCloudinaryTransform),
       };
 
       await updateProduct({ id, body: payload }).unwrap();
@@ -226,6 +248,14 @@ export default function EditProductPage() {
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Gemstone</label>
                 <input type="text" name="gemstone" value={formData.gemstone} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. Diamond, Emerald" />
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Featured product</p>
+                  <p className="text-xs text-muted-foreground">Highlight in featured / homepage showcases.</p>
+                </div>
+                <Toggle checked={isFeatured} onChange={setIsFeatured} aria-label="Toggle featured product" />
               </div>
             </div>
 

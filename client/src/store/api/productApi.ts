@@ -102,7 +102,7 @@ const adaptProduct = (product: any): IProduct => {
   video: Array.isArray(product.videos) && product.videos.length > 0 ? optimizeCloudinaryVideo(product.videos[0]) : product.video,
   variants: [],
   stockQuantity: product.stock || 0,
-  lowStockThreshold: 5,
+  lowStockThreshold: product.lowStockThreshold ?? 5,
   trackInventory: true,
   isActive: true,
   isBestseller: product.isFeatured || false,

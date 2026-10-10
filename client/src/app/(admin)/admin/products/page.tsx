@@ -7,6 +7,7 @@ import { Plus, Search, Filter, Edit, Trash2, Loader2, Download, X } from "lucide
 import { toast } from "sonner";
 import { useGetProductsQuery, useDeleteProductMutation } from "@/store/api/productApi";
 import { exportCsv } from "@/lib/export-csv";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const CATEGORIES = ["rings", "necklaces", "earrings", "bracelets", "watches"];
 const METALS = [
@@ -37,15 +38,17 @@ export default function AdminProductsPage() {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const { data, isLoading, isFetching } = useGetProductsQuery({
-    search: searchTerm || undefined,
+    search: debouncedSearch || undefined,
     category: category || undefined,
     metalType: metalType || undefined,
     sort: sort || undefined,
     page,
     limit: LIMIT,
   });
-  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const products = data?.data || [];
   const totalCount = data?.total || 0;
   const totalPages = data?.pages || 1;
@@ -58,11 +61,14 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    setDeletingId(id);
     try {
       await deleteProduct(id).unwrap();
       toast.success("Product deleted");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to delete product");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -247,7 +253,7 @@ export default function AdminProductsPage() {
                       </Link>
                       <button
                         onClick={() => handleDelete(product._id, product.name)}
-                        disabled={isDeleting}
+                        disabled={deletingId === product._id}
                         className="p-1.5 text-muted-foreground hover:text-destructive bg-background rounded border border-border disabled:opacity-50"
                         aria-label="Delete product"
                       >

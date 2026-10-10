@@ -5,7 +5,8 @@ import { Calculator, RefreshCw, Globe, IndianRupee, Gem } from "lucide-react";
 import { useGetMetalRatesQuery } from "@/store/api/metalsApi";
 
 function inr(n: number) {
-  return `₹${Math.round(n).toLocaleString("en-IN")}`;
+  const v = Number(n);
+  return `₹${(Number.isFinite(v) ? Math.round(v) : 0).toLocaleString("en-IN")}`;
 }
 
 type MetalKey = "gold24k" | "gold22k" | "gold18k" | "silver";
@@ -33,7 +34,7 @@ function Field({ label, value, set, step = 1, hint }: { label: string; value: nu
   return (
     <div>
       <label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</label>
-      <input type="number" value={value} step={step} min={0} onChange={(e) => set(Number(e.target.value))} className="w-full mt-1 px-3 py-2 bg-background border border-border rounded-lg text-sm outline-none focus:border-gold" />
+      <input type="number" value={value} step={step} min={0} onChange={(e) => set(Number(e.target.value) || 0)} className="w-full mt-1 px-3 py-2 bg-background border border-border rounded-lg text-sm outline-none focus:border-gold" />
       {hint && <p className="text-[11px] text-muted-foreground mt-1">{hint}</p>}
     </div>
   );

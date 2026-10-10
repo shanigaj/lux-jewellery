@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Download, Eye, Loader2, Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, Download, Eye, Loader2, Plus, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import {
   useGetAllOrdersQuery,
@@ -48,7 +48,15 @@ export default function AdminOrdersPage() {
   const openCreate = () => { setModalOrder(null); setModalOpen(true); setModalNonce((n) => n + 1); };
   const openEdit = (o: IOrder) => { setModalOrder(o); setModalOpen(true); setModalNonce((n) => n + 1); };
 
-  const { data, isLoading } = useGetAllOrdersQuery();
+  // Keep the list in sync across browsers/devices: poll every 20s, and
+  // refetch whenever the admin refocuses the tab or reconnects. A new order
+  // created in another session shows up here without a manual full reload.
+  const { data, isLoading, isFetching, refetch } = useGetAllOrdersQuery(undefined, {
+    pollingInterval: 20000,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMountOrArgChange: true,
+  });
   const [updateStatus] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: deletingOrder }] = useDeleteOrderMutation();
   const fetchedOrders = data?.orders || [];
@@ -140,6 +148,15 @@ export default function AdminOrdersPage() {
           <p className="text-sm text-muted-foreground">View, track, and manage all customer orders.</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            title="Refresh orders"
+            className="flex items-center gap-2 border border-border px-3 py-2 rounded-lg text-sm font-medium hover:bg-muted transition-colors disabled:opacity-60"
+          >
+            <RefreshCw size={16} className={isFetching ? "animate-spin" : ""} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
           <button
             onClick={openCreate}
             className="flex items-center gap-2 bg-gold text-onyx px-4 py-2 rounded-lg text-sm font-bold hover:bg-gold/90 transition-colors shadow-sm"

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useCreateProductMutation } from "@/store/api/productApi";
 import { ProductImageUploader } from "@/components/admin/ProductImageUploader";
+import { Toggle } from "@/components/admin/Toggle";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function NewProductPage() {
     diamondCarat: "",
     dimensions: "",
   });
+  const [isFeatured, setIsFeatured] = useState(false);
 
   // Final Cloudinary URLs (uploaded + AI-polished by the uploader component).
   const [images, setImages] = useState<string[]>([]);
@@ -59,6 +61,7 @@ export default function NewProductPage() {
         weight: formData.weight ? Number(formData.weight) : undefined,
         diamondCarat: formData.diamondCarat ? Number(formData.diamondCarat) : undefined,
         dimensions: formData.dimensions || undefined,
+        isFeatured,
         images, // already-uploaded Cloudinary URLs
       };
 
@@ -190,6 +193,14 @@ export default function NewProductPage() {
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Dimensions</label>
                 <input type="text" name="dimensions" value={formData.dimensions} onChange={handleInputChange} className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold transition-colors" placeholder="e.g. Ring size 14 · 2.3 mm band" />
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Featured product</p>
+                  <p className="text-xs text-muted-foreground">Highlight in featured / homepage showcases.</p>
+                </div>
+                <Toggle checked={isFeatured} onChange={setIsFeatured} aria-label="Toggle featured product" />
               </div>
             </div>
           </div>
