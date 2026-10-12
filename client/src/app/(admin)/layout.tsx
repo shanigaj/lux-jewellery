@@ -25,7 +25,8 @@ import {
   X,
   LogOut,
   ChevronRight,
-  ClipboardList
+  ClipboardList,
+  ReceiptText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/Logo";
@@ -39,6 +40,7 @@ const adminSidebarLinks = [
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Inventory", href: "/admin/inventory", icon: ClipboardList },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Invoice Builder", href: "/admin/invoices", icon: ReceiptText },
   { name: "Appointments", href: "/admin/appointments", icon: CalendarDays },
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Coupons", href: "/admin/coupons", icon: Tags },
