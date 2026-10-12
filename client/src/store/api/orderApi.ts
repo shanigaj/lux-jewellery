@@ -29,6 +29,28 @@ export interface CreateOrderItemInput {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+
+  // Optional jewellery detail (persisted when provided).
+  description?: string;
+  imageUrl?: string;
+  category?: string;
+  grossWeight?: number;
+  netWeight?: number;
+  metalRate?: number;
+  metalValue?: number;
+  stoneType?: string;
+  stoneWeight?: number;
+  stoneColor?: string;
+  stoneClarity?: string;
+  stoneCut?: string;
+  stoneQuality?: string;
+  stoneValue?: number;
+  ringSize?: string;
+  length?: string;
+  makingCharges?: number;
+  wastageCharges?: number;
+  otherCharges?: number;
+  discount?: number;
 }
 
 export interface CreateOrderBody {
@@ -60,6 +82,12 @@ export interface CreateOrderBody {
   status?: string;
   paymentStatus?: string;
   adminNote?: string;
+
+  // Invoice snapshot (optional; set when an invoice is generated for the order).
+  invoiceNumber?: string;
+  invoiceType?: string;
+  currency?: string;
+  invoiceData?: unknown;
 }
 
 export const orderApi = baseApi.injectEndpoints({

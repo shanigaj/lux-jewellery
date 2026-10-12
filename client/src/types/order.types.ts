@@ -101,6 +101,29 @@ export interface IOrderItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+
+  // Optional jewellery detail (populated by the configurable invoice builder;
+  // absent on simpler items).
+  description?: string;
+  imageUrl?: string;
+  category?: string;
+  grossWeight?: number;
+  netWeight?: number;
+  metalRate?: number;
+  metalValue?: number;
+  stoneType?: string;
+  stoneWeight?: number;
+  stoneColor?: string;
+  stoneClarity?: string;
+  stoneCut?: string;
+  stoneQuality?: string;
+  stoneValue?: number;
+  ringSize?: string;
+  length?: string;
+  makingCharges?: number;
+  wastageCharges?: number;
+  otherCharges?: number;
+  discount?: number;
 }
 
 // ── Order ──
@@ -141,6 +164,12 @@ export interface IOrder {
   // Notes
   customerNote?: string;
   adminNote?: string;
+
+  // Invoice snapshot (set when an invoice was generated for a manual order).
+  invoiceNumber?: string;
+  invoiceType?: string;
+  currency?: string;
+  invoiceData?: unknown;
 
   createdAt: string;
   updatedAt: string;

@@ -98,6 +98,30 @@ type OrderItem {
   quantity    Int
   unitPrice   Float
   totalPrice  Float
+
+  // Optional jewellery detail (all nullable — a simple silver ring fills none
+  // of these). Used by the configurable invoice builder; kept as plain
+  // strings/floats, never enums, so an unexpected value can't 500 the order.
+  description        String?
+  imageUrl           String?
+  category           String?
+  grossWeight        Float?
+  netWeight          Float?
+  metalRate          Float?
+  metalValue         Float?
+  stoneType          String?
+  stoneWeight        Float?
+  stoneColor         String?
+  stoneClarity       String?
+  stoneCut           String?
+  stoneQuality       String?
+  stoneValue         Float?
+  ringSize           String?
+  length             String?
+  makingCharges      Float?
+  wastageCharges     Float?
+  otherCharges       Float?
+  discount           Float?
 }
 
 type ShippingAddress {
@@ -216,6 +240,16 @@ model Order {
   smsSent           Boolean         @default(false)
   customerNote      String?
   adminNote         String?
+
+  // Invoice snapshot — set when an admin generates an invoice for a manual
+  // order. invoiceData is an immutable copy of the rendered invoice's inputs
+  // (draft + field config) so a tax invoice re-prints identically even if the
+  // template settings change later. All optional / backward-compatible.
+  invoiceNumber     String?
+  invoiceType       String?
+  currency          String?
+  invoiceData       Json?
+
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 

@@ -4,6 +4,8 @@ import { Printer, X, Truck, Clock, CreditCard, MapPin, User, StickyNote, Package
 import { toast } from "sonner";
 import { printInvoice } from "@/lib/print-invoice";
 import { generateInvoice } from "@/lib/data/mock-orders";
+import { printInvoiceDoc } from "@/lib/invoice-builder/render";
+import type { InvoiceDraft, InvoiceConfig } from "@/lib/invoice-builder/types";
 import type { IOrder } from "@/types/order.types";
 
 // ── Helpers ──
@@ -46,8 +48,14 @@ export function OrderDetailModal({ order, onClose }: Props) {
 
   const handlePrintInvoice = () => {
     try {
-      const invoice = generateInvoice(order);
-      const opened = printInvoice(invoice);
+      // Prefer the immutable snapshot captured when the invoice was generated,
+      // so it re-prints exactly (with all jewellery detail). Fall back to the
+      // legacy order-derived invoice for older orders without a snapshot.
+      const snap = order.invoiceData as { draft?: InvoiceDraft; config?: InvoiceConfig } | undefined;
+      const opened =
+        snap?.draft && snap?.config
+          ? printInvoiceDoc(snap.draft, snap.config)
+          : printInvoice(generateInvoice(order));
       if (!opened) {
         toast.error("Pop-up blocked — please allow pop-ups for this site");
       }

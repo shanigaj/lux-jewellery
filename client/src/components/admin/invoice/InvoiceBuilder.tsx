@@ -131,8 +131,10 @@ export function InvoiceBuilder() {
         <div>
           <h1 className="font-heading text-2xl md:text-3xl">Invoice Builder</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Flexible billing for silver, gold & diamond jewellery — every field optional,
-            empty ones never printed.
+            Manage which fields show per category, the logo, and the overall invoice format.
+            These settings also drive{" "}
+            <span className="text-foreground font-medium">Orders → Create Walk-in Order</span>,
+            where you generate actual invoices.
           </p>
         </div>
         <div className="flex items-center gap-2">
