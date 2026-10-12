@@ -8,6 +8,54 @@ import { Prisma } from "../generated/prisma";
 export const orders = new Hono<AppEnv>();
 orders.use("*", protect);
 
+// Finite number or undefined — keeps `null`/""/NaN out of Float fields.
+const num = (v: unknown): number | undefined => {
+  if (v === null || v === undefined || v === "") return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+};
+const str = (v: unknown): string | undefined => {
+  const s = v == null ? "" : String(v).trim();
+  return s.length ? s : undefined;
+};
+
+// Map an incoming item to the stored OrderItem shape, including the optional
+// jewellery detail. Unknown/empty fields collapse to undefined so nothing fake
+// is persisted.
+const mapItem = (it: any) => ({
+  product: it.product && /^[a-f0-9]{24}$/i.test(String(it.product)) ? String(it.product) : undefined,
+  name: it.name,
+  thumbnail: it.thumbnail,
+  sku: it.sku,
+  metalType: it.metalType,
+  metalPurity: it.metalPurity,
+  size: it.size,
+  quantity: it.quantity,
+  unitPrice: it.unitPrice,
+  totalPrice: it.totalPrice,
+  // Optional jewellery detail
+  description: str(it.description),
+  imageUrl: str(it.imageUrl),
+  category: str(it.category),
+  grossWeight: num(it.grossWeight),
+  netWeight: num(it.netWeight),
+  metalRate: num(it.metalRate),
+  metalValue: num(it.metalValue),
+  stoneType: str(it.stoneType),
+  stoneWeight: num(it.stoneWeight),
+  stoneColor: str(it.stoneColor),
+  stoneClarity: str(it.stoneClarity),
+  stoneCut: str(it.stoneCut),
+  stoneQuality: str(it.stoneQuality),
+  stoneValue: num(it.stoneValue),
+  ringSize: str(it.ringSize),
+  length: str(it.length),
+  makingCharges: num(it.makingCharges),
+  wastageCharges: num(it.wastageCharges),
+  otherCharges: num(it.otherCharges),
+  discount: num(it.discount),
+});
+
 // POST /api/orders
 orders.post("/", async (c) => {
   const body = await c.req.json();
@@ -22,18 +70,7 @@ orders.post("/", async (c) => {
   const payStatus = isAdmin && body.paymentStatus ? String(body.paymentStatus) : "completed";
   const orderStatus = isAdmin && body.status ? String(body.status) : "confirmed";
 
-  const items = (body.items || []).map((it: any) => ({
-    product: it.product && /^[a-f0-9]{24}$/i.test(String(it.product)) ? String(it.product) : undefined,
-    name: it.name,
-    thumbnail: it.thumbnail,
-    sku: it.sku,
-    metalType: it.metalType,
-    metalPurity: it.metalPurity,
-    size: it.size,
-    quantity: it.quantity,
-    unitPrice: it.unitPrice,
-    totalPrice: it.totalPrice,
-  }));
+  const items = (body.items || []).map(mapItem);
 
   const sa = body.shippingAddress;
   const prisma = getPrisma(c.env.DATABASE_URL);
@@ -87,6 +124,10 @@ orders.post("/", async (c) => {
       ],
       customerNote: body.customerNote,
       adminNote: isAdmin ? body.adminNote : undefined,
+      invoiceNumber: str(body.invoiceNumber),
+      invoiceType: str(body.invoiceType),
+      currency: str(body.currency),
+      invoiceData: body.invoiceData ?? undefined,
       emailSent: !isAdmin,
       smsSent: !isAdmin,
     },
@@ -169,18 +210,7 @@ orders.put("/:id", authorize("admin"), async (c) => {
   const existing = await prisma.order.findUnique({ where: { id } }).catch(() => null);
   if (!existing) return c.json({ success: false, message: "Order not found" }, 404);
 
-  const items = (body.items || []).map((it: any) => ({
-    product: it.product && /^[a-f0-9]{24}$/i.test(String(it.product)) ? String(it.product) : undefined,
-    name: it.name,
-    thumbnail: it.thumbnail,
-    sku: it.sku,
-    metalType: it.metalType,
-    metalPurity: it.metalPurity,
-    size: it.size,
-    quantity: it.quantity,
-    unitPrice: it.unitPrice,
-    totalPrice: it.totalPrice,
-  }));
+  const items = (body.items || []).map(mapItem);
 
   const sa = body.shippingAddress;
   const payStatus = body.paymentStatus ? String(body.paymentStatus) : existing.payment?.status ?? "completed";
@@ -220,6 +250,10 @@ orders.put("/:id", authorize("admin"), async (c) => {
     customerNote: body.customerNote,
     adminNote: body.adminNote,
   };
+  if (str(body.invoiceNumber)) data.invoiceNumber = str(body.invoiceNumber);
+  if (str(body.invoiceType)) data.invoiceType = str(body.invoiceType);
+  if (str(body.currency)) data.currency = str(body.currency);
+  if (body.invoiceData !== undefined) data.invoiceData = body.invoiceData;
   if (body.status) data.status = String(body.status) as never;
 
   const updated = await prisma.order.update({ where: { id }, data });
