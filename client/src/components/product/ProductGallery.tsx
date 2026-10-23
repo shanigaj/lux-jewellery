@@ -20,20 +20,16 @@ type TabType = "image" | "video";
 const AUTOPLAY_MS = 4000;
 
 // Normalise every gallery image to the SAME aspect without cropping the piece:
-// c_pad fits the whole image into the target ratio and fills the remainder with
-// a matching background (b_auto), so wide pieces (tennis bracelets, chains) are
-// shown in full at a consistent size. Replaces the stored transform segment;
-// the cloudinary loader re-adds f_auto/q_auto/width and keeps these params.
-// No-op for non-Cloudinary URLs (e.g. the placeholder).
-const PARAM_TOKEN = /(^|,)(c_|w_|h_|f_|q_|ar_|g_|e_|dpr_|b_|r_|fl_|x_|y_|z_|o_|a_)/;
+// cm-pad_resize fits the whole image into the target ratio and pads the rest
+// with a blurred backdrop, so wide pieces (tennis bracelets, chains) are shown
+// in full at a consistent size. The ImageKit loader re-adds f-auto/q-auto/width
+// and keeps these params. No-op for non-ImageKit URLs (e.g. the placeholder).
+// `ar` is given colon-style ("4:5") and converted to ImageKit's "4-5".
 function galleryCrop(url: string, ar: string): string {
-  if (!url || !url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
-  const [head, tail] = url.split("/upload/");
-  const segs = tail.split("/");
-  const crop = `c_pad,b_auto,ar_${ar}`;
-  if (segs.length > 1 && PARAM_TOKEN.test(segs[0])) segs[0] = crop;
-  else segs.unshift(crop);
-  return `${head}/upload/${segs.join("/")}`;
+  if (!url || !url.includes("ik.imagekit.io")) return url;
+  const base = url.split("?")[0];
+  const arTok = `ar-${ar.replace(":", "-")}`;
+  return `${base}?tr=${arTok},cm-pad_resize,bg-blurred,w-1200,f-auto,q-auto`;
 }
 
 export function ProductGallery({ images, videos, video }: ProductGalleryProps) {

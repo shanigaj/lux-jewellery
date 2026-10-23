@@ -1,38 +1,49 @@
-// Insert on-the-fly Cloudinary transforms so we deliver small, modern-format
-// images instead of the original 8–9 MB PNG uploads.
+// On-the-fly ImageKit transforms so we deliver small, modern-format images
+// instead of the original multi-MB uploads. (The function names are kept from
+// the old Cloudinary setup so every call site keeps working unchanged; only the
+// URL scheme behind them moved from Cloudinary to ImageKit.)
 //
-//   f_auto  → best format per browser (AVIF / WebP)
-//   q_auto  → automatic quality (visually lossless, much smaller)
-//   c_limit → never upscale; only shrink to fit the width cap
-//   w_1600  → cap the largest dimension (plenty for product detail views)
+// ImageKit transforms live in a `?tr=` query:
+//   f-auto   → best format per browser (AVIF / WebP)
+//   q-auto   → automatic quality (visually lossless, much smaller)
+//   c-at_max → never upscale; only shrink to fit the width cap (≈ Cloudinary c_limit)
+//   w-1600   → cap the largest dimension (plenty for product detail views)
+// The next/image loader (cloudinary-loader.ts) later swaps in the exact
+// responsive width, keeping any crop/aspect intent set here.
 
-const IMAGE_TRANSFORM = "f_auto,q_auto,c_limit,w_1600";
-const VIDEO_TRANSFORM = "q_auto";
+const IK_HOST = "ik.imagekit.io";
 
-function withTransform(url: string, transform: string): string {
-  if (!url || typeof url !== "string") return url;
-  if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
-  // Don't double-apply if a transform is already present right after /upload/.
-  if (/\/upload\/(?:[^/]*(?:f_auto|q_auto)[^/]*)\//.test(url)) return url;
-  return url.replace("/upload/", `/upload/${transform}/`);
+function isIk(url: string): boolean {
+  return typeof url === "string" && url.includes(IK_HOST);
 }
 
-/** Optimise a Cloudinary image URL (no-op for non-Cloudinary URLs). */
+/** Set the ?tr= transform on an ImageKit URL (no-op for non-ImageKit URLs). */
+function withTr(url: string, tr: string): string {
+  if (!isIk(url)) return url;
+  const base = url.split("?")[0];
+  return `${base}?tr=${tr}`;
+}
+
+const IMAGE_TRANSFORM = "c-at_max,w-1600,f-auto,q-auto";
+
+/** Optimise an image URL (no-op for non-ImageKit URLs). */
 export function optimizeCloudinaryImage(url: string): string {
-  return withTransform(url, IMAGE_TRANSFORM);
+  return withTr(url, IMAGE_TRANSFORM);
 }
 
 // Square, subject-aware auto-crop for product thumbnails / cards, so mixed
 // source aspect ratios all present as a tidy consistent tile.
-//   c_fill,g_auto → crop to fill, keeping the piece (auto gravity) in frame
-const THUMB_TRANSFORM = "c_fill,g_auto,ar_1:1,f_auto,q_auto,w_800";
+//   ar-1-1 + fo-auto → crop to a 1:1 fill, keeping the piece (auto focus) in frame
+const THUMB_TRANSFORM = "ar-1-1,fo-auto,w-800,f-auto,q-auto";
 
-/** Auto-cropped, optimised square thumbnail (no-op for non-Cloudinary URLs). */
+/** Auto-cropped, optimised square thumbnail (no-op for non-ImageKit URLs). */
 export function productThumb(url: string): string {
-  return withTransform(url, THUMB_TRANSFORM);
+  return withTr(url, THUMB_TRANSFORM);
 }
 
-/** Optimise a Cloudinary video URL (no-op for non-Cloudinary URLs). */
+const VIDEO_TRANSFORM = "q-auto";
+
+/** Optimise a video URL (no-op for non-ImageKit URLs). */
 export function optimizeCloudinaryVideo(url: string): string {
-  return withTransform(url, VIDEO_TRANSFORM);
+  return withTr(url, VIDEO_TRANSFORM);
 }
