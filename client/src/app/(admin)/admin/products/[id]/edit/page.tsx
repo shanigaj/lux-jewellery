@@ -15,11 +15,12 @@ import { Toggle } from "@/components/admin/Toggle";
 const isRemote = (url: unknown): url is string =>
   typeof url === "string" && /^https?:\/\//i.test(url);
 
-// Remove a Cloudinary transformation segment (e.g. f_auto,q_auto,c_limit,w_1600)
-// inserted right after /upload/, so edits save the clean original URL back to
-// the DB instead of a pre-transformed one (which would break the square
-// thumbnail crop on product cards).
+// Save the clean original URL back to the DB (no delivery transform), so edits
+// don't persist a pre-sized URL that would break the square thumbnail crop on
+// product cards. ImageKit transforms live in a `?tr=` query; legacy Cloudinary
+// ones in a path segment right after /upload/ — strip whichever applies.
 const stripCloudinaryTransform = (url: string): string => {
+  if (url.includes("ik.imagekit.io")) return url.split("?")[0];
   if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
   const [pre, post] = url.split("/upload/");
   const segs = post.split("/");

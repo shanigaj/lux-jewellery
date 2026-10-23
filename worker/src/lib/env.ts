@@ -18,6 +18,11 @@ export type Bindings = {
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET: string;
 
+  // ImageKit (image storage + delivery). Uploads use the private key.
+  IMAGEKIT_URL_ENDPOINT: string;
+  IMAGEKIT_PUBLIC_KEY: string;
+  IMAGEKIT_PRIVATE_KEY: string;
+
   OPENAI_API_KEY: string;
 
   RESEND_API_KEY: string;

@@ -1,62 +1,40 @@
 import type { ImageLoaderProps } from "next/image";
 
-// Custom next/image loader for Cloudinary-hosted product imagery.
+// Custom next/image loader for ImageKit-hosted product imagery.
 //
-// Without it, next/image routes these URLs through Vercel's image optimizer,
-// which re-fetches and re-encodes an image Cloudinary has *already* optimised
-// (f_auto/q_auto). That adds a slow "first hit" transform per unique image and
-// burns the monthly optimization quota — the main reason product photos crawl
-// in on the live site.
+// Without it, next/image routes these URLs through the Next image optimizer,
+// which re-fetches and re-encodes an image ImageKit has *already* optimised
+// (f-auto/q-auto). That adds a slow "first hit" transform per unique image and
+// burns the optimization quota — the main reason product photos crawl in.
 //
-// With it, the browser pulls each image straight from Cloudinary's global CDN
-// at the exact width next/image asks for. The existing crop/aspect params
-// (c_fill, g_auto, ar_1:1 on thumbnails; c_limit on detail views) are preserved
-// and quality stays q_auto, so nothing about how images LOOK changes — they just
-// arrive far quicker and correctly sized.
+// With it, the browser pulls each image straight from ImageKit's global CDN at
+// the exact width next/image asks for. Any crop/focus/aspect intent a helper
+// already set (c-at_max; ar-1-1 + fo-auto on thumbnails; cm-pad_resize on the
+// gallery) is preserved — we only drop the old width/format/quality tokens and
+// re-add f-auto, q-auto and the requested width, so nothing about how images
+// LOOK changes; they just arrive correctly sized.
 //
-// NOTE: quality is deliberately q_auto, NOT q_auto:best. Cloudinary's :best
-// analysis intermittently returns HTTP 500 on some source images (large PNG/JPG),
-// which surfaced as randomly "crashed"/broken product photos on the live site.
-// Plain q_auto (== q_auto:good) is reliable across the whole catalogue.
-//
-// Non-Cloudinary sources (the local placeholder, data URIs, other hosts) are
+// ImageKit transforms live in a `?tr=` query (comma-separated tokens).
+// Non-ImageKit sources (the local placeholder, data URIs, other hosts) are
 // returned untouched so they keep working via the normal path.
 
-const PARAM_TOKEN = /^(c_|w_|h_|f_|q_|ar_|g_|e_|dpr_|b_|r_|fl_|x_|y_|z_|o_|a_)/;
-
-/**
- * A Cloudinary transform segment is a comma-joined list of param tokens such as
- * "c_fill,g_auto,w_800". A version ("v1787247650") or a plain path segment is not.
- */
-function isTransformSegment(seg: string): boolean {
-  return seg.split(",").some((t) => PARAM_TOKEN.test(t));
-}
+// Tokens the loader owns and re-derives per request (width/format/quality/dpr).
+const OWNED_TOKEN = /^(w|h|f|q|dpr)-/;
 
 export default function cloudinaryLoader({ src, width }: ImageLoaderProps): string {
-  if (
-    typeof src !== "string" ||
-    !src.includes("res.cloudinary.com") ||
-    !src.includes("/upload/")
-  ) {
+  if (typeof src !== "string" || !src.includes("ik.imagekit.io")) {
     return src;
   }
 
-  const marker = "/upload/";
-  const idx = src.indexOf(marker);
-  const head = src.slice(0, idx);
-  const tail = src.slice(idx + marker.length);
-  const segments = tail.split("/");
+  const [base, query = ""] = src.split("?");
 
-  // Always force f_auto/q_auto + the requested width; keep any crop/gravity/aspect.
-  if (segments.length > 0 && isTransformSegment(segments[0])) {
-    const kept = segments[0]
-      .split(",")
-      .filter(Boolean)
-      .filter((p) => !/^w_/.test(p) && !/^f_/.test(p) && !/^q_/.test(p));
-    segments[0] = [...kept, "f_auto", "q_auto", `w_${width}`].join(",");
-    return `${head}${marker}${segments.join("/")}`;
-  }
+  // Preserve any crop/focus/aspect/background tokens already on the URL.
+  const params = new URLSearchParams(query);
+  const kept = (params.get("tr") || "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter((t) => t && !OWNED_TOKEN.test(t));
 
-  // No transform present (e.g. ".../upload/v123/path"): insert a safe default.
-  return `${head}${marker}f_auto,q_auto,c_limit,w_${width}/${tail}`;
+  const tr = [...kept, `w-${width}`, "f-auto", "q-auto"].join(",");
+  return `${base}?tr=${tr}`;
 }
