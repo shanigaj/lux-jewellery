@@ -17,7 +17,7 @@ const instagramPosts = [
     comments: "142",
     delay: 0.1,
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247668/sparenza/sparenza-antique-coin-medallion-necklace/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000525-1045887/000525-1045887-01.jpg",
   },
   {
     id: 2,
@@ -26,7 +26,7 @@ const instagramPosts = [
     comments: "95",
     delay: 0.2,
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247675/sparenza/sparenza-art-deco-gemstone-halo-ring/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000442-0000024/000442-0000024-01.jpg",
   },
   {
     id: 3,
@@ -35,7 +35,7 @@ const instagramPosts = [
     comments: "218",
     delay: 0.3,
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247683/sparenza/sparenza-baguette-diamond-link-bracelet/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000955-1046979/000955-1046979-01.jpg",
   },
   {
     id: 4,
@@ -44,7 +44,7 @@ const instagramPosts = [
     comments: "87",
     delay: 0.4,
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247671/sparenza/sparenza-aquamarine-and-diamond-tennis-bracelet-short-description/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000625-1046109/000625-1046109-01.jpg",
   },
 ];
 

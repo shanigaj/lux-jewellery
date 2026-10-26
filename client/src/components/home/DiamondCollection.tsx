@@ -12,7 +12,7 @@ import cloudinaryLoader from "@/lib/cloudinary-loader";
 // Curated editorial piece for the parallax banner (dark-toned, sits well under
 // the black overlay) — renders instantly instead of waiting on the catalogue fetch.
 const heroImage =
-  "https://res.cloudinary.com/dtjxooom/image/upload/v1787247652/sparenza/sparenza-abstract-diamond-frame-pendant-necklace/main.webp";
+  "https://ik.imagekit.io/ofb0k0mvg/bluestone/000455-0000033/000455-0000033-01.jpg";
 
 const diamondShapes = [
   { name: "Round Brilliant", pieces: 342, slug: "round" },
