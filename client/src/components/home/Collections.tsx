@@ -23,7 +23,7 @@ const collections = [
     description: "Where love stories begin",
     offset: "lg:mt-0",
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247749/sparenza/sparenza-blossom-diamond-engagement-ring/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000439-1045747/000439-1045747-01.jpg",
   },
   {
     name: "Necklaces & Pendants",
@@ -32,7 +32,7 @@ const collections = [
     description: "Grace that adorns",
     offset: "lg:mt-14",
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247650/sparenza/sparenza-abstract-loop-pendant-necklace-in-gold/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000522-1045880/000522-1045880-01.jpg",
   },
   {
     name: "Earrings",
@@ -41,7 +41,7 @@ const collections = [
     description: "Frames of brilliance",
     offset: "lg:mt-6",
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247664/sparenza/sparenza-amethyst-halo-teardrop-drop-earrings/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000621-0000176/000621-0000176-01.jpg",
   },
   {
     name: "Bracelets",
@@ -50,7 +50,7 @@ const collections = [
     description: "Circles of elegance",
     offset: "lg:mt-20",
     image:
-      "https://res.cloudinary.com/dtjxooom/image/upload/v1787247673/sparenza/sparenza-art-deco-diamond-bracelet/main.webp",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000932-1046891/000932-1046891-01.jpg",
   },
 ];
 
