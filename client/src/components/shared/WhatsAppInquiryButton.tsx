@@ -31,7 +31,7 @@ export function WhatsAppInquiryButton({
       onClick={handleClick}
       aria-label={label}
       className={cn(
-        "inline-flex items-center justify-center gap-2 py-4 px-8 text-sm font-medium uppercase tracking-wider transition-colors",
+        "inline-flex items-center justify-center gap-2 py-4 px-4 sm:px-8 text-sm font-medium uppercase tracking-wider whitespace-nowrap transition-colors",
         "bg-[#25D366] text-white hover:bg-[#1ebe5b]",
         className
       )}
