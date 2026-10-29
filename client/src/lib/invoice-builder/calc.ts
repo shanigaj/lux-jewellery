@@ -152,6 +152,40 @@ function round(v: number): number {
   return Math.round((v + Number.EPSILON) * 100) / 100;
 }
 
+// ── Profit (internal) ──
+// Factory/purchase cost per line = costPrice × qty. Compared against the goods
+// revenue the customer actually pays after any invoice-level discount, so the
+// margin reflects what we really earn. Tax, shipping & insurance are excluded
+// (they're pass-through / separate charges, not part of the goods margin).
+
+/** Factory cost for a line = cost-per-unit × quantity. */
+export function itemCost(item: LineItem): number {
+  const qty = Math.max(1, Math.floor(n(item.quantity) || 1));
+  return n(item.costPrice) * qty;
+}
+
+export interface ProfitInfo {
+  totalCost: number; // Σ factory cost across items
+  revenue: number; // goods revenue after invoice discount (taxable amount)
+  profit: number; // revenue − cost
+  margin: number; // profit ÷ revenue × 100
+  hasCost: boolean; // any line carries a factory cost
+}
+
+export function computeProfit(draft: InvoiceDraft, totals: InvoiceTotals): ProfitInfo {
+  const totalCost = draft.items.reduce((s, it) => s + itemCost(it), 0);
+  const revenue = totals.taxableAmount;
+  const profit = revenue - totalCost;
+  const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+  return {
+    totalCost: round(totalCost),
+    revenue: round(revenue),
+    profit: round(profit),
+    margin: round(margin),
+    hasCost: draft.items.some((it) => n(it.costPrice) > 0),
+  };
+}
+
 // ── Currency formatting ──
 export function formatMoney(value: number, currency: Currency): string {
   const v = Number.isFinite(value) ? value : 0;

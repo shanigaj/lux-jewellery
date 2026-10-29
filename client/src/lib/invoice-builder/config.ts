@@ -45,6 +45,7 @@ export function emptyItem(): LineItem {
     wastageCharges: null,
     otherCharges: null,
     discount: null,
+    costPrice: null,
   };
 }
 

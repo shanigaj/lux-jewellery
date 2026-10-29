@@ -51,6 +51,7 @@ export interface CreateOrderItemInput {
   wastageCharges?: number;
   otherCharges?: number;
   discount?: number;
+  costPrice?: number;
 }
 
 export interface CreateOrderBody {

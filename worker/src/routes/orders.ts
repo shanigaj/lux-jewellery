@@ -54,6 +54,7 @@ const mapItem = (it: any) => ({
   wastageCharges: num(it.wastageCharges),
   otherCharges: num(it.otherCharges),
   discount: num(it.discount),
+  costPrice: num(it.costPrice),
 });
 
 // POST /api/orders

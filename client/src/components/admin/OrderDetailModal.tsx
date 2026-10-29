@@ -46,6 +46,18 @@ export function OrderDetailModal({ order, onClose }: Props) {
   const addrParts = [sa.addressLine1, sa.addressLine2, sa.city, sa.state, sa.postalCode, sa.country].filter(Boolean);
   const timeline = order.timeline || [];
 
+  // Internal margin — factory cost (per-unit × qty) vs. goods revenue after
+  // discount. Admin-only; never shown to the customer. Only rendered when at
+  // least one item carries a cost.
+  const totalCost = order.items.reduce((s, it) => {
+    const item = it as { costPrice?: number; quantity?: number };
+    return s + (Number(item.costPrice) || 0) * Math.max(1, Math.floor(item.quantity ?? 1));
+  }, 0);
+  const goodsRevenue = Math.max(0, (order.subtotal || 0) - (order.couponDiscount || 0));
+  const profit = goodsRevenue - totalCost;
+  const margin = goodsRevenue > 0 ? (profit / goodsRevenue) * 100 : 0;
+  const hasCost = totalCost > 0;
+
   const handlePrintInvoice = () => {
     try {
       // Prefer the immutable snapshot captured when the invoice was generated,
@@ -243,6 +255,32 @@ export function OrderDetailModal({ order, onClose }: Props) {
               </div>
             </div>
           </div>
+
+          {/* Internal profit (admin only — factory cost vs. revenue, never printed) */}
+          {hasCost && (
+            <div className="flex justify-end">
+              <div className="w-64 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+                <div className="flex items-center gap-1.5 mb-2 text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                  <CreditCard size={13} /> Profit (internal)
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Factory Cost</span>
+                  <span className="font-medium">{inr(totalCost)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Goods Revenue</span>
+                  <span className="font-medium">{inr(goodsRevenue)}</span>
+                </div>
+                <div className="flex justify-between border-t border-amber-500/30 pt-1.5 mt-1.5 font-bold">
+                  <span>Profit</span>
+                  <span className={profit >= 0 ? "text-green-600" : "text-red-500"}>
+                    {inr(profit)}
+                    <span className="ml-1.5 text-xs font-medium text-muted-foreground">({margin.toFixed(1)}%)</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Notes */}
           {(order.customerNote || order.adminNote) && (

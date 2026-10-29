@@ -38,6 +38,7 @@ import {
 } from "@/lib/invoice-builder/config";
 import {
   computeTotals,
+  computeProfit,
   itemTotal,
   metalValue,
   formatMoney,
@@ -112,6 +113,7 @@ const toLineItem = (it: Partial<IOrderItem> & Record<string, any>): LineItem => 
   wastageCharges: it.wastageCharges ?? null,
   otherCharges: it.otherCharges ?? null,
   discount: it.discount ?? null,
+  costPrice: it.costPrice ?? null,
 });
 
 // Map a rich line item to the order API payload (includes all jewellery detail).
@@ -152,6 +154,7 @@ const toApiItem = (it: LineItem, mode: PricingInfo["mode"]): CreateOrderItemInpu
     wastageCharges: n(it.wastageCharges),
     otherCharges: n(it.otherCharges),
     discount: n(it.discount),
+    costPrice: n(it.costPrice),
   };
 };
 
@@ -173,8 +176,21 @@ export function CreateOrderModal({ open, onClose, order }: Props) {
   const isEdit = !!order;
   const sa = order?.shippingAddress;
 
+  // Immutable snapshot captured when this order's invoice was generated. On
+  // re-edit it is the source of truth for the exact pricing/tax/items the admin
+  // entered — otherwise those fields would reset to defaults (the reported bug).
+  const snap =
+    order?.invoiceData && typeof order.invoiceData === "object"
+      ? (order.invoiceData as { draft?: InvoiceDraft; config?: InvoiceConfig })
+      : undefined;
+  const snapDraft = snap?.draft;
+
   // ── Shared invoice field config (managed in the Invoice Builder) ──
-  const [config, setConfig] = useState<InvoiceConfig>(() => loadConfig() ?? defaultConfig());
+  // When editing an order that already has a saved invoice, reuse its field
+  // config so the same fields/format show; otherwise fall back to the builder's.
+  const [config, setConfig] = useState<InvoiceConfig>(
+    () => snap?.config ?? loadConfig() ?? defaultConfig()
+  );
   const f = useCallback((key: string) => config.fields[key] !== false, [config]);
 
   // ── Customer fields ──
@@ -213,9 +229,13 @@ export function CreateOrderModal({ open, onClose, order }: Props) {
   };
 
   // ── Line items (rich) ──
-  const [items, setItems] = useState<LineItem[]>(
-    order?.items?.length ? order.items.map(toLineItem) : [emptyItem()]
-  );
+  // Prefer the saved invoice snapshot's items (exact editable shape, incl. the
+  // internal factory cost); fall back to the order's stored items, then a blank
+  // row. Spreading emptyItem() backfills any field missing from older snapshots.
+  const [items, setItems] = useState<LineItem[]>(() => {
+    if (snapDraft?.items?.length) return snapDraft.items.map((it) => ({ ...emptyItem(), ...it }));
+    return order?.items?.length ? order.items.map(toLineItem) : [emptyItem()];
+  });
 
   // ── Invoice meta ──
   const [invoiceType, setInvoiceType] = useState<InvoiceType>(
@@ -237,8 +257,14 @@ export function CreateOrderModal({ open, onClose, order }: Props) {
   const [customerNote, setCustomerNote] = useState(order?.customerNote ?? "");
 
   // ── Pricing ──
+  // On re-edit, restore the exact pricing (discount, tax treatment & rates,
+  // shipping, insurance, advance) the admin saved in the invoice snapshot.
+  // Without this the pricing reset to defaults every time the order reopened —
+  // the admin-entered price/tax appeared cleared. Older orders with no snapshot
+  // fall back to the earlier best-effort reconstruction from stored totals.
   const [pricing, setPricing] = useState<PricingInfo>(() => {
     const base = defaultDraft("").pricing;
+    if (snapDraft?.pricing) return { ...base, ...snapDraft.pricing };
     return {
       ...base,
       mode: getPreset(config.preset)?.pricingMode ?? base.mode,
@@ -293,6 +319,8 @@ export function CreateOrderModal({ open, onClose, order }: Props) {
   ]);
 
   const totals = useMemo(() => computeTotals(draft), [draft]);
+  // Internal margin view (factory cost vs. revenue) — admin only, never printed.
+  const profit = useMemo(() => computeProfit(draft, totals), [draft, totals]);
   const money = (v: number) => formatMoney(v, currency);
 
   // ── Category / preset ──
@@ -530,6 +558,7 @@ export function CreateOrderModal({ open, onClose, order }: Props) {
                 canRemove={items.length > 1}
                 onChange={(patch) => updateItem(item.id, patch)}
                 onRemove={() => removeItem(item.id)}
+                showCost
               />
             ))}
           </div>
@@ -704,6 +733,37 @@ export function CreateOrderModal({ open, onClose, order }: Props) {
             </div>
             {totals.advancePaid > 0 && <SummaryRow label="Balance Due" value={inrOr(money, totals.balanceDue)} />}
           </div>
+
+          {/* Internal profit (admin only — factory cost vs. revenue, never printed) */}
+          {profit.hasCost && (
+            <div className="mt-4 flex justify-end">
+              <div className="w-72 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm">
+                <div className="flex items-center gap-1.5 mb-2 text-[11px] font-bold uppercase tracking-wider text-amber-600">
+                  <Calculator size={13} /> Profit (internal)
+                </div>
+                <div className="flex justify-between w-full">
+                  <span className="text-muted-foreground">Factory Cost</span>
+                  <span className="font-medium">{inrOr(money, profit.totalCost)}</span>
+                </div>
+                <div className="flex justify-between w-full">
+                  <span className="text-muted-foreground">Goods Revenue</span>
+                  <span className="font-medium">{inrOr(money, profit.revenue)}</span>
+                </div>
+                <div className="flex justify-between w-full border-t border-amber-500/30 pt-1.5 mt-1.5">
+                  <span className="font-bold">Profit</span>
+                  <span className={`font-bold ${profit.profit >= 0 ? "text-green-600" : "text-red-500"}`}>
+                    {inrOr(money, profit.profit)}
+                    <span className="ml-1.5 text-xs font-medium text-muted-foreground">
+                      ({profit.margin.toFixed(1)}%)
+                    </span>
+                  </span>
+                </div>
+                <p className="mt-1.5 text-[10px] text-muted-foreground/80">
+                  Revenue after discount, before tax &amp; shipping. Not shown to the customer.
+                </p>
+              </div>
+            </div>
+          )}
         </section>
       </div>
 
