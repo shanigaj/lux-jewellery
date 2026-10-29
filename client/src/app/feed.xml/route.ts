@@ -1,4 +1,5 @@
 import { siteConfig } from "@/config/site";
+import { productSlug } from "@/lib/product-url";
 
 // Google Merchant product feed (RSS 2.0 + g: namespace).
 // Submit this URL in Merchant Center → Products → Feeds (scheduled fetch).
@@ -60,7 +61,7 @@ async function getProducts(): Promise<RawProduct[]> {
 
 function item(p: RawProduct): string {
   const base = siteConfig.url;
-  const link = `${base}/products/${p._id}`;
+  const link = `${base}/products/${productSlug(p.name, p._id)}`;
   const listPrice = p.price ?? 0;
   const hasSale = typeof p.discountPrice === "number" && p.discountPrice > 0 && p.discountPrice < listPrice;
   const description = (p.description || siteConfig.description).replace(/\s+/g, " ").trim();

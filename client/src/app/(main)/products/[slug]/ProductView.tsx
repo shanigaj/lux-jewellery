@@ -22,8 +22,8 @@ import { toggleWishlist } from "@/store/slices/productSlice";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
-export function ProductView({ slug }: { slug: string }) {
-  const { data: productData, isLoading, isError } = useGetProductByIdQuery(slug);
+export function ProductView({ productId }: { productId: string }) {
+  const { data: productData, isLoading, isError } = useGetProductByIdQuery(productId);
   const product = productData?.data;
 
   const categorySlug = product?.category?.slug;

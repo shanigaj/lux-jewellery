@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { cache } from "react";
+import { permanentRedirect } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { getCategoryMeta } from "@/config/categories";
+import { productSlug, extractProductId } from "@/lib/product-url";
 import { ProductView } from "./ProductView";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -36,8 +38,10 @@ interface RawProduct {
 
 const getProduct = cache(async (idOrSlug: string): Promise<RawProduct | null> => {
   try {
+    // The URL param is a pretty slug ("<name>-<id>") or a bare id; look up by id.
+    const id = extractProductId(idOrSlug);
     const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-    const res = await fetch(`${api}/products/${encodeURIComponent(idOrSlug)}`, {
+    const res = await fetch(`${api}/products/${encodeURIComponent(id)}`, {
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
@@ -89,7 +93,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!product) {
     return { title: "Product Not Found", robots: { index: false, follow: false } };
   }
-  const url = `/products/${product._id}`;
+  const url = `/products/${productSlug(product.name, product._id)}`;
   const image = product.images?.[0];
 
   // Unique, keyword-rich title: "<Name> – <Diamond Ring in 18Kt Yellow Gold> | Sparenza & Co."
@@ -143,10 +147,17 @@ export default async function ProductPage({ params }: Params) {
   const { slug } = await params;
   const product = await getProduct(slug);
 
+  // Consolidate on the canonical pretty URL: a bare-id or stale-name slug is
+  // 301'd to "<name>-<id>" so old indexed links pass their equity forward.
+  if (product) {
+    const canonical = productSlug(product.name, product._id);
+    if (slug !== canonical) permanentRedirect(`/products/${canonical}`);
+  }
+
   const graph: object[] = [];
 
   if (product) {
-    const productUrl = `${siteConfig.url}/products/${product._id}`;
+    const productUrl = `${siteConfig.url}/products/${productSlug(product.name, product._id)}`;
     // Prefer the live sale price; fall back to the list price.
     const price = product.discountPrice ?? product.price;
 
@@ -265,7 +276,7 @@ export default async function ProductPage({ params }: Params) {
           }}
         />
       ))}
-      <ProductView slug={slug} />
+      <ProductView productId={extractProductId(slug)} />
     </>
   );
 }

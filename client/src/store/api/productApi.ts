@@ -1,6 +1,7 @@
 import { baseApi } from './baseApi';
 import { IProduct } from '@/types/product.types';
 import { optimizeCloudinaryImage, optimizeCloudinaryVideo, productThumb } from '@/lib/cloudinary';
+import { productSlug } from '@/lib/product-url';
 
 interface GetProductsParams {
   category?: string;
@@ -76,7 +77,8 @@ const adaptProduct = (product: any): IProduct => {
 
   return {
   ...product,
-  slug: product._id, // Temporary fallback if no slug exists
+  // Keyword-rich URL slug (<name>-<id>); the id tail keeps it a stable lookup.
+  slug: productSlug(product.name, product._id),
   gemstone: dedupeGemstone(product.gemstone),
   basePrice: product.price || 0,
   salePrice: product.discountPrice || undefined,
