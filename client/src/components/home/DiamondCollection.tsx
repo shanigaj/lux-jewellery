@@ -40,7 +40,10 @@ export function DiamondCollection() {
           alt="Diamond Collection"
           fill
           loader={cloudinaryLoader}
-          sizes="100vw"
+          // Decorative full-bleed backdrop sitting under a 75–90% black overlay,
+          // so it never needs 4K sharpness. Cap the fetched width (invisible
+          // under the overlay) to cut this >500KB image down substantially.
+          sizes="(max-width: 768px) 100vw, 1280px"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/75" />
