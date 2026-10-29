@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Heart, Eye } from "lucide-react";
@@ -28,6 +29,11 @@ export function ProductCard({
   index = 0,
 }: ProductCardProps) {
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice;
+  // Fall back to the neutral placeholder if the image fails to load — e.g. a
+  // thumbnail cached before the ImageKit migration that still points at the
+  // retired Cloudinary host. Avoids the broken-image icon on any card.
+  const PLACEHOLDER = "/images/placeholder.png";
+  const [imgSrc, setImgSrc] = useState(product.thumbnail);
   const dispatch = useAppDispatch();
   const wishlist = useAppSelector((state) => state.product.wishlist);
   const isWishlisted = wishlist.some((p) => p._id === product._id);
@@ -64,14 +70,15 @@ export function ProductCard({
             variant === "featured" ? "aspect-[3/4]" : "aspect-square"
           )}
         >
-          {product.thumbnail && (
+          {imgSrc && (
             <Image
-              src={product.thumbnail}
+              src={imgSrc}
               alt={product.name}
               fill
               loader={cloudinaryLoader}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover transition-transform duration-700 group-hover:scale-105"
+              onError={() => { if (imgSrc !== PLACEHOLDER) setImgSrc(PLACEHOLDER); }}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
