@@ -124,6 +124,9 @@ export interface IOrderItem {
   wastageCharges?: number;
   otherCharges?: number;
   discount?: number;
+  // Internal only — factory/purchase cost per unit, used for the admin profit
+  // view. Never shown to the customer or printed on the invoice.
+  costPrice?: number;
 }
 
 // ── Order ──

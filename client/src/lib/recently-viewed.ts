@@ -1,11 +1,18 @@
 import { IProduct } from "@/types/product.types";
 
-const STORAGE_KEY = "lux_recently_viewed";
+// Bumped to _v2 after the ImageKit migration: the old key cached whole product
+// snapshots whose image URLs pointed at the retired Cloudinary host, so replayed
+// history showed broken images. Dropping the legacy key lets the strip rebuild
+// from fresh (ImageKit) snapshots.
+const STORAGE_KEY = "lux_recently_viewed_v2";
+const LEGACY_KEYS = ["lux_recently_viewed"];
 const MAX_ITEMS = 10;
 
 export function getRecentlyViewed(): IProduct[] {
   if (typeof window === "undefined") return [];
   try {
+    // Clear any superseded caches so stale (dead-image) snapshots can't resurface.
+    LEGACY_KEYS.forEach((k) => window.localStorage.removeItem(k));
     const raw = window.localStorage.getItem(STORAGE_KEY);
     return raw ? (JSON.parse(raw) as IProduct[]) : [];
   } catch {

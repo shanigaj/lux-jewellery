@@ -27,7 +27,7 @@ export function NotifyMeButton({ inquiry, className }: NotifyMeButtonProps) {
       onClick={handleClick}
       aria-label="Notify me when back in stock"
       className={cn(
-        "inline-flex items-center justify-center gap-2 py-4 px-8 text-sm font-medium uppercase tracking-wider transition-colors border",
+        "inline-flex items-center justify-center gap-2 py-4 px-4 sm:px-8 text-sm font-medium uppercase tracking-wider transition-colors border",
         sent
           ? "border-primary text-primary"
           : "border-foreground text-foreground hover:bg-foreground hover:text-background",

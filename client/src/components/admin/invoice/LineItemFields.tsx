@@ -17,6 +17,7 @@ export function LineItemFields({
   canRemove,
   onChange,
   onRemove,
+  showCost = false,
 }: {
   item: LineItem;
   index: number;
@@ -26,7 +27,13 @@ export function LineItemFields({
   canRemove: boolean;
   onChange: (patch: Partial<LineItem>) => void;
   onRemove: () => void;
+  /** Show the internal factory cost / profit field (admin order entry only). */
+  showCost?: boolean;
 }) {
+  const qty = Math.max(1, Math.floor(Number(item.quantity) || 1));
+  const lineTotal = itemTotal(item, mode);
+  const lineCost = (Number(item.costPrice) || 0) * qty;
+  const lineProfit = lineTotal - lineCost;
   return (
     <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
       <div className="flex items-center justify-between mb-2">
@@ -145,11 +152,34 @@ export function LineItemFields({
         {f("item.discount") && (
           <NumberInput label="Item Discount" value={item.discount} onChange={(v) => onChange({ discount: v })} />
         )}
+        {showCost && (
+          <div className="sm:col-span-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-end">
+              <NumberInput
+                label="Factory Cost / unit (internal)"
+                value={item.costPrice}
+                onChange={(v) => onChange({ costPrice: v })}
+                placeholder="What we paid per piece"
+              />
+              {lineCost > 0 && (
+                <div className="text-xs text-muted-foreground sm:text-right">
+                  Cost <span className="font-medium text-foreground">{money(lineCost)}</span>
+                  <span className="mx-1.5">·</span>
+                  Profit{" "}
+                  <span className={`font-semibold ${lineProfit >= 0 ? "text-green-600" : "text-red-500"}`}>
+                    {money(lineProfit)}
+                  </span>
+                </div>
+              )}
+            </div>
+            <p className="mt-1.5 text-[10px] text-muted-foreground/80">Internal only — never shown on the customer invoice.</p>
+          </div>
+        )}
       </div>
 
       <div className="mt-2 text-right text-sm">
         <span className="text-muted-foreground mr-2">Line Total</span>
-        <span className="font-semibold text-foreground">{money(itemTotal(item, mode))}</span>
+        <span className="font-semibold text-foreground">{money(lineTotal)}</span>
       </div>
     </div>
   );

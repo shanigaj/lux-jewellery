@@ -122,6 +122,9 @@ type OrderItem {
   wastageCharges     Float?
   otherCharges       Float?
   discount           Float?
+  // Internal only — what this piece cost us from the factory (per unit). Drives
+  // the admin profit view; never printed on the customer invoice.
+  costPrice          Float?
 }
 
 type ShippingAddress {

@@ -116,6 +116,10 @@ export interface LineItem {
 
   // Per-item discount (absolute amount, applied to the whole line)
   discount: number | null;
+
+  // Internal only — factory / purchase cost per unit. Used for the admin profit
+  // view; never rendered on the customer-facing invoice.
+  costPrice: number | null;
 }
 
 export interface PricingInfo {

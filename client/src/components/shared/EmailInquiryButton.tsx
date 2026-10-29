@@ -95,7 +95,7 @@ export function EmailInquiryButton({
       <DialogTrigger
         aria-label={label}
         className={cn(
-          "inline-flex items-center justify-center gap-2 py-4 px-8 text-sm font-medium uppercase tracking-wider transition-colors",
+          "inline-flex items-center justify-center gap-2 py-4 px-4 sm:px-8 text-sm font-medium uppercase tracking-wider whitespace-nowrap transition-colors",
           "border border-border text-foreground hover:border-gold hover:text-gold",
           className
         )}
