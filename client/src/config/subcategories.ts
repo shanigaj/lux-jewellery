@@ -30,19 +30,22 @@ export const subCategories: SubCategory[] = [
 
   // ── Necklaces ──
   { slug: "chokers", label: "Chokers", category: "necklaces", description: "Close-fitting necklaces that frame the neckline", keywords: ["choker", "collar"] },
+  { slug: "mangalsutra", label: "Mangalsutra", category: "necklaces", description: "Sacred diamond mangalsutras, reimagined", keywords: ["mangalsutra", "mangal sutra", "mangalsutram"] },
   { slug: "tennis-necklaces", label: "Tennis & Station", category: "necklaces", description: "A continuous line of diamonds, endlessly elegant", keywords: ["tennis", "station", "riviere", "rivière", "lariat"] },
   { slug: "pendants", label: "Pendants", category: "necklaces", description: "Delicate drops for effortless everyday shine", keywords: ["pendant", "locket", "charm", "drop"] },
   { slug: "pearl-necklaces", label: "Pearl", category: "necklaces", description: "Timeless pearls, classic and modern", keywords: ["pearl"] },
   { slug: "chains", label: "Chains", category: "necklaces", description: "Fine gold and platinum chains to layer", keywords: ["chain"] },
 
   // ── Earrings ──
-  { slug: "ear-cuffs", label: "Ear Cuffs", category: "earrings", description: "Modern cuffs, climbers and threaders", keywords: ["ear cuff", "climber", "threader"] },
+  { slug: "nose-pins", label: "Nose Pins", category: "earrings", description: "Delicate diamond nose pins and nose rings", keywords: ["nose pin", "nose-pin", "nosepin", "nose ring", "nath"] },
+  { slug: "ear-cuffs", label: "Ear Cuffs", category: "earrings", description: "Modern cuffs, climbers and threaders", keywords: ["ear cuff", "climber", "threader", "sui dhaga"] },
   { slug: "hoops", label: "Hoops", category: "earrings", description: "From petite huggies to bold statement hoops", keywords: ["hoop", "huggie"] },
   { slug: "studs", label: "Studs", category: "earrings", description: "Everyday diamond studs, perfectly matched", keywords: ["stud"] },
-  { slug: "drop-earrings", label: "Drops", category: "earrings", description: "Graceful drops and dramatic chandeliers", keywords: ["drop", "dangle", "chandelier"] },
+  { slug: "drop-earrings", label: "Drops", category: "earrings", description: "Graceful drops and dramatic chandeliers", keywords: ["drop", "dangle", "dangler", "chandelier", "jhumk", "jhumar"] },
 
   // ── Bracelets ──
   { slug: "tennis-bracelets", label: "Tennis", category: "bracelets", description: "A flexible line of diamonds around the wrist", keywords: ["tennis"] },
+  { slug: "anklets", label: "Anklets", category: "bracelets", description: "Fine gold and diamond anklets", keywords: ["anklet", "payal"] },
   { slug: "cuffs", label: "Cuffs", category: "bracelets", description: "Sculptural open cuffs that make a statement", keywords: ["cuff"] },
   { slug: "bangles", label: "Bangles", category: "bracelets", description: "Solid bangles and kadas in gold & diamond", keywords: ["bangle", "kada"] },
   { slug: "charm-bracelets", label: "Charm & Beaded", category: "bracelets", description: "Playful charm and beaded bracelets", keywords: ["charm", "beaded"] },
