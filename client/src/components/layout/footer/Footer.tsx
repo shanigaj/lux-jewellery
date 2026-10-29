@@ -92,6 +92,8 @@ function Newsletter() {
             >
               <input
                 type="email"
+                name="email"
+                aria-label="Email address for newsletter"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email address"

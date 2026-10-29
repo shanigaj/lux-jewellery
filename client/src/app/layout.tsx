@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | Sparenza & Co.",
   },
   description:
-    "Exceptional diamond jewellery crafted for those who appreciate the extraordinary. Explore GIA-certified diamonds, handcrafted rings, necklaces, earrings, and bracelets.",
+    "Exceptional diamond jewellery for those who appreciate the extraordinary. Explore certified diamonds and handcrafted rings, necklaces, earrings & bracelets.",
   keywords: [
     "luxury diamond jewellery",
     "diamond rings",
@@ -134,6 +134,9 @@ export default function RootLayout({
     "@id": `${base}#website`,
     name: siteConfig.name,
     url: base,
+    inLanguage: "en-IN",
+    // Publisher ties the site to the business entity (the JewelryStore node).
+    publisher: { "@id": `${base}#store` },
     potentialAction: {
       "@type": "SearchAction",
       target: `${base}/search?q={search_term_string}`,

@@ -107,7 +107,7 @@ export function HeroBanner() {
           server-rendered). Matches the video's opening frame for a seamless swap. ── */}
       <Image
         src="/images/hero.webp"
-        alt=""
+        alt="Handcrafted diamond jewellery by Sparenza & Co."
         fill
         priority
         sizes="100vw"
