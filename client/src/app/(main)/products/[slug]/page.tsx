@@ -12,7 +12,16 @@ type Params = { params: Promise<{ slug: string }> };
 // revalidate every 5 minutes — so crawlers/visitors get a fast, cacheable page
 // instead of an uncacheable `no-store` SSR response. Live price/stock is still
 // refreshed client-side in ProductView, so cached HTML never shows stale data.
+//
+// An empty generateStaticParams (+ dynamicParams) is what actually enables ISR
+// here: with 10,500 products we don't prerender any at build, but each slug is
+// cached on its first request and revalidated — without this the route stays
+// fully dynamic (no-store) and `revalidate` is ignored.
 export const revalidate = 300;
+export const dynamicParams = true;
+export function generateStaticParams() {
+  return [];
+}
 
 interface RawProduct {
   _id: string;
