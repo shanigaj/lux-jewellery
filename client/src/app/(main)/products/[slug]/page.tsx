@@ -6,6 +6,12 @@ import { ProductView } from "./ProductView";
 
 type Params = { params: Promise<{ slug: string }> };
 
+// Render on-demand once, then serve from the (KV-backed) incremental cache and
+// revalidate every 5 minutes — so crawlers/visitors get a fast, cacheable page
+// instead of an uncacheable `no-store` SSR response. Live price/stock is still
+// refreshed client-side in ProductView, so cached HTML never shows stale data.
+export const revalidate = 300;
+
 interface RawProduct {
   _id: string;
   name: string;
