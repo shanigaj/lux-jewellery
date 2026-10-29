@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 import { categoryMeta } from "@/config/categories";
 import { journalArticles } from "@/config/journal-articles";
+import { productSlug } from "@/lib/product-url";
 
 // Refresh the product list hourly so newly-added pieces appear.
 export const revalidate = 3600;
@@ -10,12 +11,12 @@ export const revalidate = 3600;
 // not just the first 1,000. Only id + updatedAt are requested (fields
 // projection) to keep each page light. A single sitemap holds up to 50k URLs,
 // which comfortably covers the current catalogue.
-async function getProducts(): Promise<Array<{ _id: string; updatedAt?: string }>> {
+async function getProducts(): Promise<Array<{ _id: string; name: string; updatedAt?: string }>> {
   const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const PER = 2000;
   const SAFETY_MAX_PAGES = 30; // 30 × 2,000 = 60k URLs hard ceiling
   const fetchPage = (page: number) =>
-    fetch(`${api}/products?fields=updatedAt&limit=${PER}&page=${page}`, {
+    fetch(`${api}/products?fields=updatedAt,name&limit=${PER}&page=${page}`, {
       next: { revalidate: 3600 },
     })
       .then((r) => (r.ok ? r.json() : null))
@@ -24,7 +25,7 @@ async function getProducts(): Promise<Array<{ _id: string; updatedAt?: string }>
   try {
     const first = await fetchPage(1);
     if (!first) return [];
-    let all: Array<{ _id: string; updatedAt?: string }> = first.data ?? [];
+    let all: Array<{ _id: string; name: string; updatedAt?: string }> = first.data ?? [];
     const pages = Math.min(Number(first.pages) || 1, SAFETY_MAX_PAGES);
     if (pages > 1) {
       const rest = await Promise.all(
@@ -89,7 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const products = await getProducts();
   const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
-    url: `${base}/products/${p._id}`,
+    url: `${base}/products/${productSlug(p.name, p._id)}`,
     lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
     changeFrequency: "weekly",
     priority: 0.8,

@@ -1,10 +1,27 @@
 import type { Metadata } from "next";
 import { cache } from "react";
+import { permanentRedirect } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { getCategoryMeta } from "@/config/categories";
+import { productSlug, extractProductId } from "@/lib/product-url";
 import { ProductView } from "./ProductView";
 
 type Params = { params: Promise<{ slug: string }> };
+
+// Render on-demand once, then serve from the (KV-backed) incremental cache and
+// revalidate every 5 minutes — so crawlers/visitors get a fast, cacheable page
+// instead of an uncacheable `no-store` SSR response. Live price/stock is still
+// refreshed client-side in ProductView, so cached HTML never shows stale data.
+//
+// An empty generateStaticParams (+ dynamicParams) is what actually enables ISR
+// here: with 10,500 products we don't prerender any at build, but each slug is
+// cached on its first request and revalidated — without this the route stays
+// fully dynamic (no-store) and `revalidate` is ignored.
+export const revalidate = 300;
+export const dynamicParams = true;
+export function generateStaticParams() {
+  return [];
+}
 
 interface RawProduct {
   _id: string;
@@ -30,8 +47,10 @@ interface RawProduct {
 
 const getProduct = cache(async (idOrSlug: string): Promise<RawProduct | null> => {
   try {
+    // The URL param is a pretty slug ("<name>-<id>") or a bare id; look up by id.
+    const id = extractProductId(idOrSlug);
     const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-    const res = await fetch(`${api}/products/${encodeURIComponent(idOrSlug)}`, {
+    const res = await fetch(`${api}/products/${encodeURIComponent(id)}`, {
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
@@ -46,24 +65,79 @@ const getProduct = cache(async (idOrSlug: string): Promise<RawProduct | null> =>
 const prettyMetal = (m?: string) =>
   m ? m.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
 
+// Singular, human type label per top-level category (for titles/descriptions).
+const CATEGORY_SINGULAR: Record<string, string> = {
+  rings: "Ring",
+  necklaces: "Necklace",
+  earrings: "Earrings",
+  bracelets: "Bracelet",
+  coins: "Coin",
+  accessories: "Accessory",
+  watches: "Watch",
+};
+
+// Trim to a max length on a word boundary (no mid-word cut), dropping a dangling
+// separator so the result still reads cleanly.
+const clampWord = (s: string, max: number): string => {
+  const clean = s.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max);
+  return cut.slice(0, cut.lastIndexOf(" ")).replace(/[\s,–—-]+$/, "");
+};
+
+// A unique, keyword-rich descriptor for a piece — reuses the catalogue's own
+// "Diamond Ring In 18Kt Yellow Gold"-style line when present, else builds one
+// from the structured fields (gemstone + type + metal).
+function productDescriptor(p: RawProduct): string {
+  const fromCatalogue = (p.description || p.shortDescription || "").replace(/\s+/g, " ").trim();
+  if (fromCatalogue) return fromCatalogue;
+  const type = (p.category && CATEGORY_SINGULAR[p.category]) || "Jewellery";
+  const metal = [p.metalPurity, prettyMetal(p.metalType)].filter(Boolean).join(" ");
+  return [p.gemstone, type, metal && `in ${metal}`].filter(Boolean).join(" ");
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProduct(slug);
   if (!product) {
     return { title: "Product Not Found", robots: { index: false, follow: false } };
   }
-  const url = `/products/${product._id}`;
-  const description = (product.shortDescription || product.description || siteConfig.description)
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 160);
+  const url = `/products/${productSlug(product.name, product._id)}`;
   const image = product.images?.[0];
+
+  // Unique, keyword-rich title: "<Name> – <Diamond Ring in 18Kt Yellow Gold> | Sparenza & Co."
+  // Clamp only the core (name + descriptor) so the brand suffix is always kept
+  // whole — never a dangling separator.
+  const descriptor = productDescriptor(product);
+  const titleCore = descriptor ? `${product.name} – ${descriptor}` : product.name;
+  // Budget keeps full descriptors (metal/gemstone) intact for indexing; only a
+  // pathologically long name is trimmed. SERPs truncate by pixel width anyway.
+  const title = `${clampWord(titleCore, 85)} | ${siteConfig.name}`;
+
+  // Unique meta description built per product (name + descriptor + price + value
+  // props) so no two product pages share the same snippet — the main lever
+  // against "thin / duplicate content, currently not indexed".
+  const price = product.discountPrice ?? product.price;
+  const priceStr = typeof price === "number" && price > 0 ? `₹${price.toLocaleString("en-IN")}.` : "";
+  const carat = product.diamondCarat ? `${product.diamondCarat} ct ` : "";
+  const description = clampWord(
+    [
+      `${product.name} — ${carat}${descriptor || siteConfig.description}.`,
+      priceStr,
+      "Handcrafted by Sparenza & Co. · certified · insured delivery · lifetime exchange. Enquire today.",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    160
+  );
+
+  const ogTitle = clampWord(descriptor ? `${product.name} – ${descriptor}` : product.name, 90);
   return {
-    title: product.name,
+    title,
     description,
     alternates: { canonical: url },
     openGraph: {
-      title: `${product.name} | ${siteConfig.name}`,
+      title: `${ogTitle} | ${siteConfig.name}`,
       description,
       url,
       type: "website",
@@ -71,7 +145,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${product.name} | ${siteConfig.name}`,
+      title: `${ogTitle} | ${siteConfig.name}`,
       description,
       images: image ? [image] : undefined,
     },
@@ -82,10 +156,17 @@ export default async function ProductPage({ params }: Params) {
   const { slug } = await params;
   const product = await getProduct(slug);
 
+  // Consolidate on the canonical pretty URL: a bare-id or stale-name slug is
+  // 301'd to "<name>-<id>" so old indexed links pass their equity forward.
+  if (product) {
+    const canonical = productSlug(product.name, product._id);
+    if (slug !== canonical) permanentRedirect(`/products/${canonical}`);
+  }
+
   const graph: object[] = [];
 
   if (product) {
-    const productUrl = `${siteConfig.url}/products/${product._id}`;
+    const productUrl = `${siteConfig.url}/products/${productSlug(product.name, product._id)}`;
     // Prefer the live sale price; fall back to the list price.
     const price = product.discountPrice ?? product.price;
 
@@ -204,7 +285,7 @@ export default async function ProductPage({ params }: Params) {
           }}
         />
       ))}
-      <ProductView slug={slug} />
+      <ProductView productId={extractProductId(slug)} />
     </>
   );
 }

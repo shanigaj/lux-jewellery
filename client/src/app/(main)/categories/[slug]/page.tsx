@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
-import { getCategoryMeta } from "@/config/categories";
+import { getCategoryMeta, categoryMeta } from "@/config/categories";
 import { siteConfig } from "@/config/site";
 import { CategoryView } from "./CategoryView";
 
 type Params = { params: Promise<{ slug: string }> };
+
+// The category/sub-category set is finite and known at build time — pre-render
+// every landing page as static HTML (fast, fully cacheable, great for SEO) and
+// refresh hourly. Product cards hydrate client-side in CategoryView.
+export function generateStaticParams() {
+  return Object.keys(categoryMeta).map((slug) => ({ slug }));
+}
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
