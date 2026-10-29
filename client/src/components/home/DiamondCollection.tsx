@@ -40,7 +40,10 @@ export function DiamondCollection() {
           alt="Diamond Collection"
           fill
           loader={cloudinaryLoader}
-          sizes="100vw"
+          // Decorative full-bleed backdrop sitting under a 75–90% black overlay,
+          // so it never needs 4K sharpness. Cap the fetched width (invisible
+          // under the overlay) to cut this >500KB image down substantially.
+          sizes="(max-width: 768px) 100vw, 1280px"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/75" />
@@ -163,9 +166,9 @@ export function DiamondCollection() {
                         <path d="M6 16H34" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
                       </svg>
                     </div>
-                    <h4 className="text-sm font-medium text-white group-hover:text-gold transition-colors mb-1">
+                    <h3 className="text-sm font-medium text-white group-hover:text-gold transition-colors mb-1">
                       {shape.name}
-                    </h4>
+                    </h3>
                     <p className="text-[10px] text-white/40 tracking-wider">
                       {shape.pieces} pieces
                     </p>
