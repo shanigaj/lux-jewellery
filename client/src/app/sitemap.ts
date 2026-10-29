@@ -6,13 +6,33 @@ import { journalArticles } from "@/config/journal-articles";
 // Refresh the product list hourly so newly-added pieces appear.
 export const revalidate = 3600;
 
+// Pull the WHOLE catalogue (paginated) so every product is in the sitemap —
+// not just the first 1,000. Only id + updatedAt are requested (fields
+// projection) to keep each page light. A single sitemap holds up to 50k URLs,
+// which comfortably covers the current catalogue.
 async function getProducts(): Promise<Array<{ _id: string; updatedAt?: string }>> {
+  const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const PER = 2000;
+  const SAFETY_MAX_PAGES = 30; // 30 × 2,000 = 60k URLs hard ceiling
+  const fetchPage = (page: number) =>
+    fetch(`${api}/products?fields=updatedAt&limit=${PER}&page=${page}`, {
+      next: { revalidate: 3600 },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+
   try {
-    const api = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-    const res = await fetch(`${api}/products?limit=1000`, { next: { revalidate: 3600 } });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.data ?? [];
+    const first = await fetchPage(1);
+    if (!first) return [];
+    let all: Array<{ _id: string; updatedAt?: string }> = first.data ?? [];
+    const pages = Math.min(Number(first.pages) || 1, SAFETY_MAX_PAGES);
+    if (pages > 1) {
+      const rest = await Promise.all(
+        Array.from({ length: pages - 1 }, (_, i) => fetchPage(i + 2))
+      );
+      for (const r of rest) if (r?.data) all = all.concat(r.data);
+    }
+    return all;
   } catch {
     return [];
   }
