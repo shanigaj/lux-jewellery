@@ -6,12 +6,15 @@ import { CategoryView } from "./CategoryView";
 type Params = { params: Promise<{ slug: string }> };
 
 // The category/sub-category set is finite and known at build time — pre-render
-// every landing page as static HTML (fast, fully cacheable, great for SEO) and
-// refresh hourly. Product cards hydrate client-side in CategoryView.
+// every landing page as static HTML (fast, fully cacheable, great for SEO).
+// Product cards hydrate client-side in CategoryView.
+//
+// No `revalidate`: OpenNext's cache interceptor enqueues ISR revalidation on a
+// queue that isn't configured on this (free-tier/KV) setup — "Dummy queue is
+// not implemented" — which 500s. Pure static (rebuilt on each deploy) avoids it.
 export function generateStaticParams() {
   return Object.keys(categoryMeta).map((slug) => ({ slug }));
 }
-export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;

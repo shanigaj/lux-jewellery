@@ -8,20 +8,13 @@ import { ProductView } from "./ProductView";
 
 type Params = { params: Promise<{ slug: string }> };
 
-// Render on-demand once, then serve from the (KV-backed) incremental cache and
-// revalidate every 5 minutes — so crawlers/visitors get a fast, cacheable page
-// instead of an uncacheable `no-store` SSR response. Live price/stock is still
-// refreshed client-side in ProductView, so cached HTML never shows stale data.
-//
-// An empty generateStaticParams (+ dynamicParams) is what actually enables ISR
-// here: with 10,500 products we don't prerender any at build, but each slug is
-// cached on its first request and revalidated — without this the route stays
-// fully dynamic (no-store) and `revalidate` is ignored.
-export const revalidate = 300;
-export const dynamicParams = true;
-export function generateStaticParams() {
-  return [];
-}
+// NOTE: product pages are rendered dynamically (per request). An earlier attempt
+// to make them ISR via an empty generateStaticParams + dynamicParams caused every
+// (on-demand) product render to 500 on OpenNext/Cloudflare — unlike the category
+// pages, whose slugs ARE prerendered at build and cache fine. Caching the product
+// route needs a different approach (e.g. a prebuilt param set or a Cloudflare
+// cache rule); until then, correctness beats the cache. Do not re-add ISR here
+// without verifying on an OpenNext preview/deploy first.
 
 interface RawProduct {
   _id: string;
