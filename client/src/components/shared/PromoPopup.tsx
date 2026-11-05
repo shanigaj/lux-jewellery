@@ -71,14 +71,14 @@ export default function PromoPopup() {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[600px] animate-in zoom-in-95 fade-in-0 duration-300"
+        className="relative w-full max-w-[820px] animate-in zoom-in-95 fade-in-0 duration-300"
       >
-        {/* Close button */}
+        {/* Close button — sits neatly inside the top-right corner */}
         <button
           type="button"
           onClick={close}
           aria-label="Close offer"
-          className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white text-onyx shadow-[0_6px_20px_rgba(0,0,0,0.45)] border border-black/10 flex items-center justify-center transition-transform duration-200 hover:scale-110 hover:rotate-90 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
+          className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/45 hover:bg-black/70 text-white/90 hover:text-white backdrop-blur-md flex items-center justify-center transition-all duration-200 hover:scale-110 hover:rotate-90 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         >
           <X size={20} strokeWidth={2.5} />
         </button>
@@ -88,14 +88,14 @@ export default function PromoPopup() {
           href="/products?category=silver"
           onClick={close}
           aria-label="Shop the Diwali collection — 10% off"
-          className="block relative w-full aspect-[1599/794] overflow-hidden rounded-xl sm:rounded-2xl border border-[#D4AF37]/50 shadow-[0_25px_70px_rgba(0,0,0,0.6)]"
+          className="block relative w-full aspect-[1599/794] overflow-hidden rounded-xl sm:rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.65)]"
         >
           <Image
             src="/images/banners/diwali-celebration-popup.jpg"
             alt="A Celebration of Light this Diwali — Flat 10% off. Discover the collection."
             fill
             priority
-            sizes="(max-width: 640px) 92vw, 600px"
+            sizes="(max-width: 640px) 94vw, 820px"
             className="object-cover"
           />
         </Link>
