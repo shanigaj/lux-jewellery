@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer/Footer";
 import { StyleAssistant } from "@/components/shared/StyleAssistant";
 import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
+import PromoPopup from "@/components/shared/PromoPopup";
 
 // Metal rates now load on the client (LivePriceTicker fetches them and shows an
 // indicative fallback first), so the layout no longer makes a blocking server
@@ -29,6 +30,7 @@ export default function MainLayout({
       <Footer />
       <StyleAssistant />
       <FloatingWhatsApp />
+      <PromoPopup />
     </>
   );
 }
