@@ -16,7 +16,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { useGetProductsQuery } from "@/store/api/productApi";
-import { hasRealImage, diversifyByCategory } from "@/lib/product-image";
+import { hasRealImage, isShowcaseJewellery, diversifyByCategory } from "@/lib/product-image";
 import type { IProduct } from "@/types/product.types";
 
 // Rank by rating weighted by review count (0 for unrated pieces).
@@ -27,7 +27,7 @@ function popularity(p: IProduct): number {
 const AUTOPLAY_MS = 3500;
 
 export function BestSellers() {
-  const { data, isLoading } = useGetProductsQuery({ limit: 40 });
+  const { data, isLoading } = useGetProductsQuery({ limit: 60 });
   const [api, setApi] = useState<CarouselApi>();
   const [paused, setPaused] = useState(false);
 
@@ -41,17 +41,16 @@ export function BestSellers() {
     return () => clearInterval(timer);
   }, [api, paused]);
 
-  // Real bestsellers with distinct photography — flagged first, then popularity.
+  // Real fine jewellery bestsellers — strictly excluding coins, bullion & silver bars.
   const products = useMemo(() => {
     const everything = data?.data ?? [];
-    const withArt = everything.filter(hasRealImage);
-    const base = withArt.length >= 4 ? withArt : everything;
+    const withArt = everything.filter((p) => hasRealImage(p) && isShowcaseJewellery(p));
+    const base = withArt.length >= 4 ? withArt : everything.filter(isShowcaseJewellery);
     const ranked = [...base].sort((a, b) => {
       const flag = Number(b.isBestseller) - Number(a.isBestseller);
       return flag !== 0 ? flag : popularity(b) - popularity(a);
     });
-    // Spread the showcase across categories so it isn't dominated by rings/
-    // bracelets; ranking within each category is preserved.
+    // Spread across Rings, Necklaces, Earrings, Bracelets
     return diversifyByCategory(ranked, 12);
   }, [data]);
 
@@ -104,18 +103,22 @@ export function BestSellers() {
               <p className="text-xs text-muted-foreground">
                 Swipe to explore {products.length} bestsellers
               </p>
-              <div className="hidden sm:flex items-center gap-2">
-                <CarouselPrevious className="static translate-y-0 h-9 w-9" />
-                <CarouselNext className="static translate-y-0 h-9 w-9" />
+              <div className="flex items-center gap-2">
+                <CarouselPrevious className="static translate-y-0 h-9 w-9 border-border hover:border-gold hover:text-gold transition-colors" />
+                <CarouselNext className="static translate-y-0 h-9 w-9 border-border hover:border-gold hover:text-gold transition-colors" />
               </div>
             </div>
-            <CarouselContent className="-ml-6">
+            <CarouselContent className="-ml-4 sm:-ml-6">
               {products.map((product, index) => (
                 <CarouselItem
                   key={product._id}
-                  className="pl-6 basis-4/5 sm:basis-1/2 lg:basis-1/4"
+                  className="pl-4 sm:pl-6 basis-1/2 md:basis-1/3 lg:basis-1/4"
                 >
-                  <ProductCard product={product} index={index} />
+                  <ProductCard
+                    product={product}
+                    variant="default"
+                    index={index}
+                  />
                 </CarouselItem>
               ))}
             </CarouselContent>

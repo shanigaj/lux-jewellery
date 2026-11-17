@@ -7,18 +7,26 @@ import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/Skeletons";
 import { useGetProductsQuery } from "@/store/api/productApi";
-import { hasRealImage, diversifyByCategory } from "@/lib/product-image";
+import { hasRealImage, isShowcaseJewellery, diversifyByCategory } from "@/lib/product-image";
 
 export function FeaturedProducts() {
-  // Pull a wide set and surface pieces that have real, distinct photography
-  // (avoids the repeated stock-image seed products dominating the home page),
-  // then spread the four across categories so it isn't all rings/bracelets.
-  const { data, isLoading } = useGetProductsQuery({ limit: 40 });
+  // Pull a wide set and surface luxury pieces with genuine photography,
+  // strictly excluding coins, bullion, and silver bars.
+  const { data, isLoading } = useGetProductsQuery({ limit: 60 });
   const products = useMemo(() => {
     const all = data?.data ?? [];
-    const real = all.filter(hasRealImage);
-    const pool = real.length >= 4 ? real : all;
-    return diversifyByCategory(pool, 4);
+    const fineJewellery = all.filter((p) => hasRealImage(p) && isShowcaseJewellery(p));
+    const pool = fineJewellery.length >= 4 ? fineJewellery : all.filter(isShowcaseJewellery);
+
+    // Prioritize curated featured pieces, then sort by value/popularity
+    const sorted = [...pool].sort((a, b) => {
+      const feat = Number(b.isFeatured || false) - Number(a.isFeatured || false);
+      if (feat !== 0) return feat;
+      return (b.basePrice || b.salePrice || 0) - (a.basePrice || a.salePrice || 0);
+    });
+
+    // Interleave across Rings, Necklaces, Earrings, Bracelets
+    return diversifyByCategory(sorted, 4);
   }, [data]);
 
   return (

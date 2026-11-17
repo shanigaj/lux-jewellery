@@ -7,17 +7,17 @@ import { AnimatedSection } from "@/components/shared/AnimatedSection";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/Skeletons";
 import { useGetProductsQuery } from "@/store/api/productApi";
-import { hasRealImage } from "@/lib/product-image";
+import { hasRealImage, isShowcaseJewellery } from "@/lib/product-image";
 
 // A curated row of real diamond pieces (the API resolves `diamonds` to every
 // diamond-set piece across the catalogue).
 export function DiamondShowcase() {
-  const { data, isLoading } = useGetProductsQuery({ category: "diamonds", limit: 12 });
+  const { data, isLoading } = useGetProductsQuery({ category: "diamonds", limit: 20 });
 
   const products = useMemo(() => {
     const all = data?.data ?? [];
-    const real = all.filter(hasRealImage);
-    return (real.length >= 4 ? real : all).slice(0, 4);
+    const real = all.filter((p) => hasRealImage(p) && isShowcaseJewellery(p));
+    return (real.length >= 4 ? real : all.filter(isShowcaseJewellery)).slice(0, 4);
   }, [data]);
 
   return (

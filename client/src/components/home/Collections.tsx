@@ -41,7 +41,7 @@ const collections = [
     description: "Frames of brilliance",
     offset: "lg:mt-6",
     image:
-      "https://ik.imagekit.io/ofb0k0mvg/bluestone/000621-0000176/000621-0000176-01.jpg",
+      "https://ik.imagekit.io/ofb0k0mvg/bluestone/031540-5909279/031540-5909279-01.jpg",
   },
   {
     name: "Bracelets",
